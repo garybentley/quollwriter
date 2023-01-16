@@ -2249,16 +2249,24 @@ System.out.println ("HEREZ: " + cb);
         this.suspendUndos.suspendWhile (() ->
         {
 
-            this.getContent ().setStyleSpans (h.start,
-                                              this.getContent ().getStyleSpans (h.start,
-                                                                                h.end).mapStyles (ss ->
+            if ((h.start >= 0)
+                ||
+                (h.end <= this.getLength ())
+               )
             {
 
-                TextStyle _s = new TextStyle (ss);
-                _s.removeBackgroundColor (h);
-                return _s;
+                this.getContent ().setStyleSpans (h.start,
+                                                  this.getContent ().getStyleSpans (h.start,
+                                                                                    h.end).mapStyles (ss ->
+                {
 
-            }));
+                    TextStyle _s = new TextStyle (ss);
+                    _s.removeBackgroundColor (h);
+                    return _s;
+
+                }));
+
+            }
 
             this.requestLayout ();
 
