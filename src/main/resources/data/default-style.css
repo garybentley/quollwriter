@@ -57,6 +57,8 @@
 
     -qw-button-icon-color: -qw-icon-color;
 
+    -qw-button-border-color: -qw-border-color;
+
     -qw-title-selected-icon-color: -qw-icon-color;
 
     -qw-icon-hover-color: -qw-dark-color;
@@ -161,9 +163,9 @@
 
     -qw-component-border-color: #ffffff;
 
-    -qw-button-text-color: -qw-dark-color;
     -qw-button-text-color: -qw-bg-color;
     -qw-button-icon-color: -qw-bg-color;
+    -qw-button-border-color: -qw-hover-bg;
     /*fx-text-base-color;*/
 
 }
@@ -485,6 +487,27 @@ Text
     -fx-min-width: 1em;
 }
 
+.accordion.notes .tree .cell .label .iconbox
+{
+    -fx-pref-width: 1.333em;
+    -fx-max-width: 1.333em;
+    -fx-min-width: 1.333em;
+    -fx-pref-height: 1.333em;
+    -fx-max-height: 1.333em;
+    -fx-min-height: 1.333em;
+}
+
+.accordion.notes .tree .cell .label .iconbox .icon
+{
+    -fx-pref-width: 1.333em;
+    -fx-max-width: 1.333em;
+    -fx-min-width: 1.333em;
+    -fx-pref-height: 1.333em;
+    -fx-max-height: 1.333em;
+    -fx-min-height: 1.333em;
+
+}
+
 .menu-item .iconbox .warmup-icon.icon,
 .accordion .header .iconbox .warmup-icon.icon
 {
@@ -746,6 +769,8 @@ Text
  .spinner .decrement-arrow-button .decrement-arrow {
      -fx-shape: "M 0,32 V 0 l 24,16 z";
      -fx-background-color: -qw-button-icon-color;
+     -fx-background-color: -qw-bg-color;
+     -fx-background-color: -qw-icon-color;
      -fx-pref-width: 0.888em;
      -fx-max-width: 0.888em;
      -fx-min-width: 0.888em;
@@ -1270,7 +1295,7 @@ Text
 .tab-header-area .control-buttons-tab .tab-down-button:hover,
 .tab-header-area .control-buttons-tab .tab-down-button:focused
  {
-     -fx-border-color: -qw-border-color;
+     -fx-border-color: -qw-button-border-color;
      -fx-background-color: -qw-hover-bg;
      /* Experimental */
      -fx-border-radius: 0;

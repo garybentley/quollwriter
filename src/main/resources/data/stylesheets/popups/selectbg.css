@@ -41,18 +41,19 @@
     -fx-padding: 0;
     -fx-alignment: top-left;
     -fx-min-width: 1px;
+    -fx-padding: 0.2em 0 0 0;
 }
 .accordion .content .item {
     -fx-border-style: solid;
     -fx-border-width: 1px;
     -fx-border-color: -qw-component-border-color;
     -fx-cursor: hand;
-    -fx-pref-width: 6.4em;
-    -fx-pref-height: 6.4em;
-    -fx-min-width: 6.4em;
-    -fx-min-height: 6.4em;
-    -fx-max-width: 6.4em;
-    -fx-max-height: 6.4em;
+    -fx-pref-width: 6.3em;
+    -fx-pref-height: 6.3em;
+    -fx-min-width: 6.3em;
+    -fx-min-height: 6.3em;
+    -fx-max-width: 6.3em;
+    -fx-max-height: 6.3em;
     -fx-effect: -qw-no-effect-spacer;
 }
 .accordion .content :selected .item {
