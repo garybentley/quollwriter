@@ -2526,7 +2526,7 @@ TODO Remove, rolled into start section
 
                             textProp = getUILanguageStringProperty (Arrays.asList (uilanguage,set,LanguageStrings.item),
                                                                     item.nativeName,
-                                                                    item.languageName,
+                                                                    (item.languageName != null ? item.languageName : ""),
                                                                     Environment.formatNumber (item.percentComplete),
                                                                     item.user ? getUILanguageStringProperty (uilanguage,set,createdbyyou) : "");
                                                                     /*
