@@ -6364,6 +6364,17 @@
                         "text" : "<ul><li>Fix for a screen blinking problem introduced in b24 while in full screen.  Sorry, missed this one!</li></ul>"
                     }
                 }
+            },
+            "3.0.0" :
+            {
+                "items" :
+                {
+                    "new" :
+                    {
+                        "title" : "Version 3",
+                        "text" : "So, version 3 is finally here.  Thank you all for your patience, it's been a long road.  There are lots of new features, just a few are:<ul><li>Using a new technology JavaFX</li><li>Night mode</li><li>More configurable interface</li><li>Assets are now more flexible and easier to use</li><li>The Options panel has been revamped</li><li>Available for Windows, macOS and Linux</li></ul><br /><br />Note: I expect there to be some small updates in the coming weeks as I find and fix bugs that I didn't catch in testing, if you find any issues please let me know."
+                    }
+                }
             }
         }
     },
