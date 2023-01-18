@@ -32,14 +32,14 @@ public class WindowedContent extends AbstractViewer.Content<AbstractViewer>
         super (viewer);
 
         Set<Node> hc = new LinkedHashSet<> ();
-
+/*
         if (Environment.getQuollWriterVersion ().isBeta ())
         {
 
             hc.add (viewer.getTitleHeaderControl (AbstractViewer.HeaderControl.reportbug));
 
         }
-
+*/
         if (headerCons != null)
         {
 

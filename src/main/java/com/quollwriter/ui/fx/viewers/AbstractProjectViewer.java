@@ -4651,6 +4651,7 @@ TODO REmove
             controls.add (this.getTitleHeaderControl (HeaderControl.nightmode));
             controls.add (this.getTitleHeaderControl (HeaderControl.help));
             controls.add (this.getTitleHeaderControl (HeaderControl.close));
+            controls.add (this.getTitleHeaderControl (HeaderControl.reportbug));
 
             return controls;
 
