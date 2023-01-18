@@ -1078,7 +1078,8 @@ TODO Remove
             Map<String, String> env = new HashMap<> ();
             env.put ("create", "true");
 
-            FileSystem fs = FileSystems.newFileSystem (f.toPath (), null);
+            // JDK 12 - FileSystem fs = FileSystems.newFileSystem (f.toPath (), null);
+            FileSystem fs = FileSystems.newFileSystem (f.toPath ());
             //FileSystem fs = FileSystems.newFileSystem (Paths.get (f.getPath ()).toUri (), env);
 
             File[] files = dirToWrite.listFiles ();
@@ -2766,8 +2767,8 @@ TODO REmove
 
         }
 
-        FileSystem fs = FileSystems.newFileSystem (p, null);
-
+        // JDK 12 - FileSystem fs = FileSystems.newFileSystem (p, null);
+        FileSystem fs = FileSystems.newFileSystem (p);
         Path pp = fs.getPath ("/" + Constants.PROJECT_DB_FILE_NAME_PREFIX + Constants.H2_DB_FILE_SUFFIX);
 
         if (Files.notExists (pp))
