@@ -139,11 +139,16 @@ public class ImportPopup extends PopupContent<AbstractViewer>
                 if (tn.getForObjectType ().equals ("_string"))
                 {
 
+                    l = BasicHtmlTextFlow.builder ()
+                        .text (n.nameProperty ())
+                        .styleClassName (StyleClassNames.TEXT)
+                        .build ();
+/*
                     l = QuollTextView.builder ()
                         .text (n.nameProperty ())
                         .styleClassName (StyleClassNames.TEXT)
                         .build ();
-
+*/
                 } else {
 
                     l = QuollLabel.builder ()
