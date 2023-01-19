@@ -221,38 +221,23 @@ public class Startup extends Application
 
         t.start ();
 
-
-        //com.quollwriter.ui.fx.components.TextEditor r = new com.quollwriter.ui.fx.components.TextEditor (new StringWithMarkup ("This is a test\n", ""), null, null);
-        //r.setEditable (true);
-
-        org.fxmisc.richtext.InlineCssTextArea r = new org.fxmisc.richtext.InlineCssTextArea ();
-
-        r.selectedTextProperty ().addListener ((pr, oldv, newv) ->
-        {
-
-            //this.selectedTextProp.setValue (this.editor.getSelectedText ());
-
-        });
-
-        //org.fxmisc.flowless.VirtualizedScrollPane<org.fxmisc.richtext.InlineCssTextArea> sp = new org.fxmisc.flowless.VirtualizedScrollPane<> (r);
-/*
-        //r.setStyle ("-fx-padding: 5px;");//" -fx-line-spacing: 10pt;");
-        javafx.scene.Scene ss = new javafx.scene.Scene (r);//sp);
-try{
-        ss.getStylesheets ().add ("test.css");
-}catch(Exception e) {e.printStackTrace ();}
-        Stage st = new Stage ();
-        st.setScene (ss);
-
-        //st.sizeToScene ();
-        st.setWidth (500);
-        st.setHeight (500);
-        st.show ();
-*/
     }
 
     public static void main (String[] argv)
     {
+
+        if ((argv != null) &&
+                    (argv.length > 0))
+        {
+
+            if (argv[0].equals ("_debugMode"))
+            {
+
+                Environment.setDebugModeEnabled (true);
+
+            }
+
+        }
 
         Startup.launch (argv);
 
