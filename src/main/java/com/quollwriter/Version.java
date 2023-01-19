@@ -100,7 +100,7 @@ public class Version implements Comparable<Version>
         }
 
         return this._version;
-        
+
     }
 
     public String getVersion ()
@@ -218,7 +218,10 @@ public class Version implements Comparable<Version>
 
         }
 
-        if (other.betaVersion > 0)
+        if ((other.betaVersion > 0)
+            &&
+            (this.betaVersion > 0)
+           )
         {
 
             return other.betaVersion > this.betaVersion;
