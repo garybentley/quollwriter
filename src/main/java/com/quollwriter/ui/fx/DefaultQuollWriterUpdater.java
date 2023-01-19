@@ -31,7 +31,7 @@ public class DefaultQuollWriterUpdater implements QuollWriterUpdater
 {
 
     private AbstractViewer viewer = null;
-    private ControllableProgressBar   progressBar = null;
+    private ProgressBar   progressBar = null;
     private boolean        stop = false;
     private Version        version = null;
     private long           size = 0;
@@ -100,11 +100,13 @@ public class DefaultQuollWriterUpdater implements QuollWriterUpdater
         final List<String> prefix = Arrays.asList (upgrade,download);
 
         final DefaultQuollWriterUpdater _this = this;
-
+/*
         this.progressBar = ControllableProgressBar.builder ()
             //.allowStop (true)
             //.stopTooltip (getUILanguageStringProperty (buttons,cancel))
             .build ();
+*/
+        this.progressBar = new ProgressBar (0);
 
         int ind = 0;
 
@@ -115,7 +117,7 @@ public class DefaultQuollWriterUpdater implements QuollWriterUpdater
             .inViewer (this.viewer)
             .build ();
         b.getChildren ().addAll (this.help, this.progressBar);
-
+/*
         this.progressBar.stateProperty ().addListener ((pr, oldv, newv) ->
         {
 
@@ -123,7 +125,7 @@ public class DefaultQuollWriterUpdater implements QuollWriterUpdater
             this.downloadNotification.removeNotification ();
 
         });
-
+*/
         this.downloadNotification = this.viewer.addNotification (b,
                                                                  StyleClassNames.DOWNLOAD,
                                                                  -1);
