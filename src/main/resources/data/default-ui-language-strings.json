@@ -4,7 +4,7 @@
     ":version" : 1,
     ":id" : ":English",
     ":qwversion.old" : "2.6.14",
-    ":qwversion" : "3.0.0",
+    ":qwversion" : "3.0.1",
     ":created" : 0,
     ":user" : false,
     ":email" : "gary@quollwriter.com",
@@ -6365,7 +6365,7 @@
                     }
                 }
             },
-            "3.0.0" :
+            "3.0.1" :
             {
                 "items" :
                 {
