@@ -171,12 +171,7 @@ public class ProjectFullScreenContent extends AbstractViewer.Content<AbstractPro
 
         });
 
-        if (Environment.getQuollWriterVersion ().isBeta ())
-        {
-
-            controls.add (this.viewer.getTitleHeaderControl (AbstractViewer.HeaderControl.reportbug));
-
-        }
+        controls.add (this.viewer.getTitleHeaderControl (AbstractViewer.HeaderControl.reportbug));
 
         controls.add (but);
 
