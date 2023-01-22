@@ -1,0 +1,91 @@
+/*
+ * Styles for com.quollwriter.ui.fx.popups.ProblemFinderRuleConfigPopup
+ */
+/*.header .icon { -fx-image: url(/imgs/eye16.png); }*/
+.scroll-pane {
+    -fx-pref-height: 35em;
+    -fx-border-width: 0 1px 1px 1px;
+    -fx-border-color: -qw-component-border-color;
+}
+.rule {
+    -fx-padding: 0.25em;
+    -fx-border-width: 0 0 1px 0;
+    -fx-border-color: -qw-component-border-color;
+}
+.rule .details { -fx-alignment: top-left; }
+.tab-pane .view > .tool-bar.buttons { -fx-padding: 0.25em; }
+.tab-pane .tool-bar.buttons .button {
+    -fx-content-display: graphic-only;
+}
+.tab-pane .tool-bar.buttons .button .iconbox,
+.tab-pane .tool-bar.buttons .button .iconbox .icon,
+.tab-pane .tool-bar.buttons .menu-button .iconbox,
+.tab-pane .tool-bar.buttons .menu-button .iconbox .icon,
+.tab-pane .edit .form .items .control .button .iconbox,
+.tab-pane .edit .form .items .control .button .iconbox .icon
+{
+    -fx-pref-width: 1.333em;
+    -fx-pref-height: 1.333em;
+    -fx-padding: 0;
+    -fx-fill-height: false;
+    -fx-alignment: center;
+}
+.tab-pane .tool-bar.buttons .button .iconbox .information-icon.icon {
+    -fx-pref-width: 0.666em;
+}
+.tab-pane .view > .tool-bar.buttons
+{
+    -fx-border-width: 0 1px 1px 1px;
+    -fx-border-color: -qw-component-border-color;
+}
+.rule .summary {
+    -fx-max-width: 23em;
+    -fx-padding: 0.25em 0 0.25em 0;
+}
+.rule .description { -fx-padding: 0 0 0 0.5em; }
+.tab-pane .buttons {
+    -fx-padding: 0 0 0.5em 0;
+    -fx-alignment: center-left;
+}
+.view > .buttons {
+    -fx-border-width: 0 1px 0 1px;
+    -fx-border-color: -qw-component-border-color;
+}
+.edit {
+    -fx-background: -qw-bg-color;
+    -fx-padding: 0.5em;
+}
+.edit .header, .edit .header .label { -fx-padding: 0 0 0 0.25em; }
+.edit .buttons { -fx-padding: 0.5em 0.5em 0.5em 1em; }
+/*.menu-button.add { -fx-graphic: url(/imgs/add16.png); }*/
+.tab-pane:top .tab-content-area {
+    -fx-border-width: 0 1px 1px 1px;
+    -fx-border-color: -qw-component-border-color;
+}
+.list-view {
+    -fx-max-height: 8em;
+    -fx-pref-height: 8em;
+}
+.information { -fx-font-style: italic; }
+HBox { -fx-spacing: 0.5em; }
+
+.edit .qtextarea
+{
+    -fx-min-height: 5em;
+    -fx-pref-height: 10em;
+}
+
+.menu .menu-item
+{
+    -fx-padding: 0.5em;
+}
+
+.tab-pane .edit .form .items .control .button
+{
+    -fx-content-display: graphic-only;
+}
+
+.tab-pane .edit .form .items .control .label.information .iconbox
+{
+    visibility: hidden;
+}

@@ -1,0 +1,147 @@
+/*
+ * Base styles for com.quollwriter.ui.fx.components.QuollPopup
+ */
+.qpopup {
+    -fx-effect: dropshadow(gaussian, #666666, 20, 0.5, 0, 0);
+    -fx-border-style: solid;
+    -fx-border-width: 1px;
+    -fx-border-color: -qw-border-color;
+    -fx-background-color: -qw-bg-color;
+}
+.qpopup.overlay
+{
+    -fx-effect: null;
+}
+.header.title .controls
+{
+    -fx-padding: 0.5em;
+}
+
+.content {
+    -fx-padding: 0.5em 0.75em 0.5em 0.75em;
+    -fx-pref-width: -qw-popup-width;
+    -fx-background-color: -qw-bg-color;
+}
+.header {
+    -fx-padding: 0 0 0 0.5em;
+    -fx-background-color: -qw-bg-color;
+    -fx-border-width: 0;
+}
+.header .title {
+    -fx-max-width: Infinity;
+    -fx-text-fill: -fx-text-base-color;
+    -fx-font-size: 1.5em;
+    -fx-padding: 0 0 0 0.3em;
+}
+.header .controls .close {
+    -fx-content-display: graphic-only;
+    -fx-padding: 0.2em;
+}
+.header .controls .close .iconbox,
+.header .controls .close .iconbox .icon,
+.timer .start .iconbox,
+.timer .start .iconbox .icon
+{
+    -fx-pref-width: 1.333em;
+    -fx-pref-height: 1.333em;
+    -fx-alignment: center;
+    -fx-fill-height: false;
+}
+
+.timer .start .iconbox .icon
+{
+    -fx-background-color: -qw-icon-color;
+}
+
+.timer .start:hover .iconbox .icon
+{
+    -fx-background-color: -qw-icon-hover-color;
+}
+
+.header .iconbox .icon,
+.header .iconbox {
+     -fx-pref-width: 1.333em;
+     -fx-pref-height: 1.333em;
+     -fx-alignment: center;
+     -fx-fill-height: false;
+}
+
+.header .iconbox .information-icon.icon
+{
+    -fx-pref-width: 0.666em;
+    -fx-max-width: 0.666em;
+    -fx-min-width: 0.666em;
+}
+
+.header .iconbox .encrypted-icon.icon
+{
+    -fx-pref-width: 0.888em;
+    -fx-max-width: 0.888em;
+    -fx-min-width: 0.888em;
+}
+
+.header .controls .close .icon {
+    -fx-shape: "M 28,5.602 22.398,0 14,8.402 5.598,0 0,5.602 8.398,14 0,22.398 5.598,28 14,19.598 22.398,28 28,22.398 19.594,14 Z";
+}
+.header.title .iconbox .warning-icon.icon {
+    -fx-pref-width: 0.333em;
+}
+.description { -fx-padding: 0 0 0.5em 0; }
+.buttons {
+    -fx-alignment: center;
+    -fx-padding: 1em 0.5em 0.5em 0.5em;
+}
+.button { -fx-content-display: text-only; }
+.filefind .button,
+.toolbar.buttons .button,
+.form .filefind .button { -fx-content-display: graphic-only; }
+.form .buttons {
+    -fx-alignment: center-left;
+    -fx-padding: 0.5em 0.5em 0.5em 1em;
+}
+.form.textentry .buttons {
+    -fx-alignment: center-left;
+    -fx-padding: 0.5em 0.5em 0.5em 0em;
+}
+.delete .buttons {
+    -fx-aligment: center;
+    -fx-padding: 1em 0.5em 0.5em 0;
+}
+.error .header > .iconbox .icon {
+    -fx-pref-width: 0.333em;
+}
+.form.textentry .items { -fx-padding: 0; }
+.form.textentry .items .control { -fx-padding: 0 0 0.5em 0; }
+
+.popupviewer .qpopup
+{
+    -fx-border-width: 0;
+}
+
+.timer .button.start
+{
+    -fx-content-display: graphic-only;
+}
+
+.qpopup .header .iconbox .icon.important-icon
+{
+    -fx-pref-width: 0.333em;
+}
+
+.qpopup .form.content .errors
+{
+    -fx-padding: 0 0 0.5em 0;
+}
+.qpopup .header .iconbox .icon.chaptericonsexample-icon,
+.qpopup .header .iconbox .icon.editpositionexample-icon,
+.qpopup .header .iconbox .icon.compresschaptercontextexample-icon
+{
+    -fx-pref-height: 0.888em;
+    -fx-shape: "m 20,12.016 a 4,4 0 0 1 -4,4 4,4 0 0 1 -4,-4 A 4,4 0 0 1 16,8.0159998 4,4 0 0 1 20,12.016 M 16,0 C 7.164,0 0,11.844 0,11.844 0,11.844 7.164,24 16,24 24.836,24 32,11.844 32,11.844 32,11.844 24.836,0 16,0 Z m 0,20 c -4.418,0 -8,-3.582 -8,-8 0,-4.418 3.582,-8 8,-8 4.418,0 8,3.582 8,8 0,4.418 -3.582,8 -8,8 z";
+    -fx-background-color: -qw-icon-color;
+}
+
+.qpopup .content ul
+{
+    -fx-padding: 0.5em 0 0.5em 0.5em;
+}

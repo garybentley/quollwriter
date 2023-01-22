@@ -1,0 +1,76 @@
+/*
+ * Base styles applicable to all instances of com.quollwriter.ui.fx.components.Form
+ */
+ .form:stacked .label
+ {
+     -fx-padding: 0 0 0.3em 0;
+     -fx-font-style: italic;
+     /*-fx-text-overrun: clip;*/
+ }
+
+ .form:stacked .control
+ {
+     -fx-padding: 0 0 0.5em 1em;
+ }
+
+ .form:column .label
+ {
+     -fx-alignment: top-right;
+     -fx-padding: 0 0.25em 0.5em 0;
+ }
+
+ .form:column .control
+ {
+     -fx-padding: 0 0 0.5em 0;
+ }
+
+.form:column .control .label
+{
+    -fx-alignment: center-left;
+}
+
+ .form:column .buttons
+ {
+     -fx-padding: 1em 0 0.5em 0;
+ }
+
+ .form .error
+ {
+     -fx-alignment: top-left;
+     -fx-padding: 0.5em 0 0 0;
+ }
+/*
+ .form .error .image-view
+ {
+     -fx-image: url(/imgs/error-red16.png);
+ }
+*/
+ .form .error .message
+ {
+     -fx-padding: 0 0 0.5em 0.5em;
+ }
+
+ .form .error .message > *
+ {
+     -fx-fill: -qw-error-text-color;
+ }
+
+.form:stacked .label.max
+{
+    -fx-padding: 0.25em;
+    -fx-border-width: 1px 0 0 0;
+    -fx-border-color: -qw-focus-color;;
+    -fx-font-style: italic;
+}
+
+.form:stacked .choice-box .label
+{
+    -fx-font-style: normal;
+}
+
+.form:stacked .tree .cell .label
+{
+    -fx-font-style: normal;
+    -fx-padding: 0;
+    -fx-label-padding: 0.1em 0.2em 0.1em 0em;
+}

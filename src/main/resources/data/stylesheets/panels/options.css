@@ -1,0 +1,243 @@
+/*
+ * Styles related to the Options panel, com.quollwriter.ui.fx.panels.OptionsPanel
+ */
+.options .header.main { -fx-padding: 0.3em; }
+.header.main .iconbox,
+.header.main .iconbox .icon
+{
+    -fx-pref-width: 1.7em;
+    -fx-pref-height: 1.7em;
+    -fx-fill-height: false;
+    -fx-alignment: center;
+}
+.controls .close {
+    -fx-content-display: graphic-only;
+    -fx-padding: 0.2em;
+}
+.sectionsX { -fx-padding: 0.5em; }
+.sections .header {
+    -fx-padding: 0;
+    -fx-border-width: 0 0 1px 0;
+    -fx-border-color: -qw-component-inner-border-color;
+}
+.sections .header .title {
+    -fx-font-size: 1.5em;
+    -fx-cursor: hand;
+}
+
+.sections .header:selected .title,
+.sections .header:hover .title
+{
+    -fx-text-fill: -qw-title-selected-text-color;
+}
+
+.sections .header:selected .iconbox .icon,
+.sections .header:hover .iconbox .icon
+{
+    -fx-background-color: -qw-title-selected-icon-color;
+}
+
+.accordion { -fx-padding: 0 0 0.5em 0; }
+.accordion :closed { -fx-padding: 0.5em 0 0 0.5em; }
+.editing .hyperlink {
+    -fx-graphic-text-gap: 0.5em;
+}
+.items .main { -fx-padding: 0.25em 0.5em 0.75em 0.5em; }
+.items .sub { -fx-padding: 0 0 0.75em 1em; }
+.items .sub .item, .items .main .item {
+    -fx-padding: 0 0 0.5em 0;
+    -fx-spacing: 0.5em;
+    -fx-alignment: center-left;
+}
+.items .sub .check-box { -fx-padding: 0 0 0.5em 0; }
+.items .subtitle
+{
+    -fx-padding: 1.5em 0 0.25em 0;
+    -fx-font-size: 1.5em;
+    /*-fx-font-weight: bold;*/
+}
+.items .subtitle:first
+{
+    -fx-padding: 0 0 0.25em 0;
+}
+.ownsound
+{
+    -fx-cursor: hand;
+    -fx-max-width: 50em;
+}
+
+.timeselect
+{
+    -fx-alignment: center-left;
+    -fx-spacing: 0.5em;
+}
+
+.timeselect .label.colon
+{
+    -fx-font-weight: bold;
+    -fx-font-size: 1.3em;
+}
+
+.sub .errors
+{
+    -fx-padding: 0.25em 0 0.25em 0.5em;
+}
+
+.sections .header .iconbox,
+.sections .header .iconbox .icon
+{
+    -fx-pref-width: 1.5em;
+    -fx-pref-height: 1.5em;
+    -fx-fill-height: false;
+    -fx-min-width: 1.5em;
+    -fx-max-width: 1.5em;
+    -fx-pref-width: 1.5em;
+    -fx-alignment: center;
+}
+
+.sections .header
+{
+    -fx-padding: 0.5em;
+}
+
+.items
+{
+    -fx-padding: 0 0 0em 0.75em;
+}
+
+.sections
+{
+    -fx-min-width: 23em;
+    -fx-padding: 0 0 0 0em;
+}
+
+.sections .header
+{
+    -fx-border-width: 0;
+}
+
+.left
+{
+    -fx-min-width: 23em;
+    -fx-max-width: 23em;
+    -fx-pref-width: 23em;
+}
+
+.items .header > .iconbox,
+.items .header > .iconbox .icon
+{
+    /*visibility: hidden;*/
+    -fx-pref-width: 1.7em;
+    -fx-max-width: 1.7em;
+    -fx-min-width: 1.7em;
+    -fx-pref-height: 1.7em;
+    -fx-min-height: 1.7em;
+    -fx-max-height: 1.7em;
+    -fx-fill-height: false;
+    -fx-alignment: center;
+}
+
+.items .header
+{
+    -fx-border-width: 0 0 0px 0;
+    -fx-border-color: -qw-component-border-color;
+}
+
+.items .header .title
+{
+    -fx-font-size: 1.7em;
+}
+
+.items .content
+{
+    -fx-padding: 0.25em 0em 0 0;
+}
+
+.split-pane .split-pane-divider
+{
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.sections .header:selected
+{
+    -fx-background-color: #dddddd;
+}
+
+.sections .header .title
+{
+    -fx-text-fill: -qw-text-base-color;
+}
+
+.sections .header:selected .title
+{
+    /*-fx-text-fill: white;*/
+}
+
+.sections .header:hover
+{
+    -fx-background-color: #eeeeee;
+    -fx-border-color: -qw-border-color;
+}
+
+.scroll-pane .scroll-bar:vertical
+{
+    -fx-block-increment: 30;
+    -fx-unit-increment: 50;
+}
+
+.sections .header .iconbox .icon.looks-icon,
+.items .header .iconbox .icon.looks-icon
+{
+    -fx-pref-height: 1.13em;
+    -fx-max-height: 1.13em;
+    -fx-min-height: 1.13em;
+}
+
+.sections .header .iconbox .icon.editing-icon,
+.items .header .iconbox .icon.editing-icon
+{
+    -fx-pref-width: 1.13em;
+    -fx-max-width: 1.13em;
+    -fx-min-width: 1.13em;
+}
+
+.sections .header .iconbox .icon.achievements-icon,
+.items .header .iconbox .icon.achievements-icon
+{
+    -fx-pref-width: 1.13em;
+    -fx-max-width: 1.13em;
+    -fx-min-width: 1.13em;
+}
+
+.sections .header .iconbox .icon.start-icon,
+.items .header .iconbox .icon.start-icon
+{
+    -fx-pref-width: 1em;
+    -fx-max-width: 1em;
+    -fx-min-width: 1em;
+}
+
+.check-box .box
+{
+    -fx-pref-width: 1.75em;
+    -fx-pref-height: 1.75em;
+    -fx-padding: 0.3em;
+}
+
+.sections .header .iconbox .icon.project-icon
+{
+    -fx-min-width: 1.5em;
+    -fx-max-width: 1.5em;
+    -fx-pref-width: 1.5em;
+}
+
+.items .scroll-pane
+{
+    -fx-padding: 0 0.5em 0 0;
+}
+
+.start-icon
+{
+    -fx-background-color: -qw-icon-color;
+}

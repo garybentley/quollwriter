@@ -1,0 +1,14 @@
+/*
+ * Base level styles, i.e. applicable to all sub-classes of com.quollwriter.ui.fx.viewers.AbstractViewer
+ */
+
+ /*
+  * Notifications area.
+  */
+ .notifications > *
+ {
+     -fx-padding: 0.25em;
+     -fx-border-style: solid;
+     -fx-border-width: 0 0 1px 0;
+     -fx-border-color: -qw-component-border-color;
+ }

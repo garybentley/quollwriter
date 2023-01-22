@@ -1,0 +1,194 @@
+/*
+ * Styles related to the statistics panel, com.quollwriter.ui.fx.panels.StatisticsPanel
+ */
+/*
+ .panel.statistics .controls
+ {
+     -fx-padding: 0.5em;
+     -fx-alignment: center-left;
+ }
+*/
+
+.controls
+{
+    -fx-alignment: center-left;
+}
+
+.controls .label,
+.controls .check-box,
+.controls .hyperlink
+{
+     -fx-padding: 0 0.5em 0 1em;
+     -fx-alignment: center-left;
+}
+
+ .detail
+ {
+     -fx-padding: 0.5em 0.5em 1em 1em;
+ }
+
+ .markers
+ {
+     -fx-vertical-grid-lines-visible: false;
+     -fx-horizontal-grid-lines-visible: false;
+     -fx-horizontal-zero-line-visible: false;
+ }
+
+ .markers .axis
+ {
+     -fx-opacity: 0;
+ }
+
+ .detail > *,
+ .detail
+ {
+     -fx-alignment: center;
+ }
+
+ .detail .item
+ {
+     -fx-padding: 0 0.5em 0 0;
+ }
+
+ .chart
+ {
+     -fx-category-gap: 10em;
+     -fx-legend-visible: false;
+     -fx-vertical-grid-lines-visible: false;
+ }
+
+ .axis-label
+ {
+     -fx-font-size: 1.2em;
+ }
+
+ .axis > *
+ {
+     -fx-font-size: 1.1em;
+ }
+
+ .chart-plot-background
+ {
+     -fx-background-color: transparent;
+ }
+
+ .chart-bar.series0
+ {
+     -fx-background-color: #f5b800;
+     -fx-min-width: 2em;
+     -fx-pref-width: 2em;
+     -fx-min-height: 2em;
+     -fx-max-width: 2em;
+ }
+
+ .chart-bar.series1
+ {
+     -fx-background-color: lightblue;
+     -fx-min-width: 2em;
+     -fx-pref-width: 2em;
+     -fx-min-height: 2em;
+     -fx-max-width: 2em;
+ }
+
+  .scroll-pane
+  {
+      -fx-fit-to-height: true;
+      -fx-fit-to-width: true;
+      -fx-min-height: 20em;
+      -fx-min-width: 20em;
+  }
+
+.marker.average.line
+{
+    -fx-stroke: green;
+}
+
+.marker.target.line
+{
+    -fx-stroke: red;
+}
+
+.marker.targetfk.line
+{
+    -fx-stroke: green;
+}
+
+.marker.averagefk.line
+{
+    -fx-stroke: red;
+}
+
+.marker.targetgf.line
+{
+    -fx-stroke: blue;
+}
+
+.marker.averagegf.line
+{
+    -fx-stroke: purple;
+}
+
+.marker.averagefk.label
+{
+    -fx-padding: 0.25em 0.25em 0.25em 0.25em;
+    -fx-background-color: red;
+    -fx-text-fill: white;
+}
+
+.marker.averagegf.label
+{
+    -fx-padding: 0.25em 0.25em 0.25em 0.25em;
+    -fx-background-color: purple;
+    -fx-text-fill: white;
+}
+
+.marker.targetfk.label
+{
+    -fx-padding: 0.25em 0.25em 0.25em 0.25em;
+    -fx-background-color: green;
+    -fx-text-fill: white;
+}
+
+.marker.targetgf.label
+{
+    -fx-padding: 0.25em 0.25em 0.25em 0.25em;
+    -fx-background-color: blue;
+    -fx-text-fill: white;
+}
+
+.marker.average.label
+{
+    -fx-padding: 0.25em 0.25em 0.25em 0.25em;
+    -fx-background-color: green;
+    -fx-text-fill: white;
+}
+
+.marker.target.label
+{
+    -fx-padding: 0.25em 0.25em 0.25em 0.25em;
+    -fx-background-color: red;
+    -fx-text-fill: white;
+}
+
+.axis .label.axis-label
+{
+    -fx-padding: 0 0 0.5em 0;
+}
+
+VBox
+{
+    -fx-fill-width: true;
+}
+
+VBox.information
+{
+    -fx-alignment: center;
+    -fx-padding: 3em;
+    -fx-fill-width: true;
+}
+
+.label.information
+{
+    -fx-font-size: 1.8em;
+    -fx-alignment: top-center;
+}

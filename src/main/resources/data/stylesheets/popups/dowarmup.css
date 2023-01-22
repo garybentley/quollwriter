@@ -1,0 +1,77 @@
+/*
+ * Styles for com.quollwriter.ui.fx.popups.DoWarmupExercisePopup
+ */
+/*.dowarmup .header .icon { -fx-image: url(/imgs/warmups16.png); }*/
+.content .header .icon { visibility: false; }
+.chooseprompt .header, .chooseprompt .header .title,
+.ownprompt .header, .ownprompt .header .title,
+.config .header, .config .header .title {
+    -fx-padding: 0;
+}
+.dowarmup.header.title > .iconbox .icon {
+    -fx-pref-width: 1em;
+    -fx-max-width: 1em;
+    -fx-min-width: 1em;
+}
+.chooseprompt .header .iconbox,
+.ownprompt .header .iconbox,
+.config .header .iconbox {
+    visibility: hidden;
+}
+.content .button .iconbox,
+.content .button .iconbox .icon {
+    -fx-pref-width: 1.333em;
+    -fx-pref-height: 1.333em;
+    -fx-fill-height: false;
+    -fx-alignment: center;
+}
+.chooseprompt, .ownprompt, .config { -fx-padding: 0 0 1em 0; }
+.chooseprompt .scroll-pane {
+    -fx-min-height: 9em;
+    -fx-padding: 0 0 0 0.5em;
+}
+.chooseprompt .buttons {
+    -fx-alignment: center-left;
+    -fx-padding: 1em 0 0 0.5em;
+}
+.chooseprompt .next {
+    -fx-content-display: right;
+}
+.chooseprompt .previous {
+    /*-fx-graphic: url(/imgs/previous16.png);*/
+    -fx-min-width: 16px;
+    -fx-content-display: graphic-only;
+}
+.chooseprompt .previous.button .iconbox .icon {
+    -fx-rotate: 180;
+}
+.chooseprompt .next.button .iconbox .icon,
+.chooseprompt .previous.button .iconbox .icon {
+    -fx-pref-width: 0.888em;
+}
+.chooseprompt .weblinks {
+    /*-fx-graphic: url(/imgs/website-links16.png);*/
+    -fx-content-display: graphic-only;
+    -fx-min-width: 16px;
+}
+/*.ownprompt .text { -fx-padding: 0.5em 0 0 0.5em; }*/
+.ownprompt .text .text-area {
+    -fx-max-height: 5em;
+    -fx-pref-height: 5em;
+    -fx-min-height: 5em;
+}
+.config > * { -fx-padding: 0.5em 0 0 0.5em; }
+.config > HBox {
+    -fx-spacing: 0.5em;
+    -fx-alignment: center-left;
+}
+
+.chooseprompt .buttons .button
+{
+    -fx-content-display: left;
+}
+
+.chooseprompt .buttons .button.previous
+{
+    -fx-content-display: graphic-only;
+}

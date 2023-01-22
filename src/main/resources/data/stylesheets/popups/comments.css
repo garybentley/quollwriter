@@ -1,0 +1,17 @@
+.label.dealtwith .iconbox,
+.label.dealtwith .iconbox .icon
+{
+    -fx-min-width: 1.333em;
+    -fx-max-width: 1.333em;
+    -fx-pref-width: 1.333em;
+    -fx-min-height: 1.333em;
+    -fx-max-height: 1.333em;
+    -fx-pref-height: 1.333em;
+    -fx-alignment: center;
+    -fx-fill-height: false;
+}
+
+.label.dealtwith
+{
+    -fx-padding: 0 0 0.25em 0.25em;
+}

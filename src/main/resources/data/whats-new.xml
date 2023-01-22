@@ -1,0 +1,443 @@
+<whatsnew>
+
+    <version id="3.0.1">
+          <item id="new" />
+    </version>
+
+    <version id="3.0.0b25">
+          <item id="bugs" onlyIfCurrentVersion="true" />
+    </version>
+
+    <version id="3.0.0b24">
+          <item id="bugs" onlyIfCurrentVersion="true" />
+    </version>
+
+    <version id="3.0.0b23">
+          <item id="bugs" onlyIfCurrentVersion="true" />
+    </version>
+
+    <version id="3.0.0b22">
+          <item id="bugs" onlyIfCurrentVersion="true" />
+    </version>
+
+    <version id="3.0.0b21">
+          <item id="bugs" onlyIfCurrentVersion="true" />
+    </version>
+
+    <version id="3.0.0b20">
+          <item id="bugs" onlyIfCurrentVersion="true" />
+    </version>
+
+    <version id="3.0.0b19">
+          <item id="bugs" onlyIfCurrentVersion="true" />
+    </version>
+
+    <version id="3.0.0b18">
+          <item id="bugs" onlyIfCurrentVersion="true" />
+    </version>
+
+    <version id="3.0.0b17">
+          <item id="bugs" onlyIfCurrentVersion="true" />
+    </version>
+
+    <version id="3.0.0b16">
+          <item id="bugs" onlyIfCurrentVersion="true" />
+    </version>
+
+    <version id="3.0.0b15">
+          <item id="bugs" onlyIfCurrentVersion="true" />
+    </version>
+
+    <version id="3.0.0b14">
+          <item id="bugs" onlyIfCurrentVersion="true" />
+    </version>
+
+    <version id="3.0.0b13">
+          <item id="bugs" onlyIfCurrentVersion="true" />
+    </version>
+
+    <version id="3.0.0b12">
+          <item id="bugs" onlyIfCurrentVersion="true" />
+    </version>
+
+    <version id="3.0.0b11">
+          <item id="newfeatures" onlyIfCurrentVersion="true" />
+          <item id="changes" onlyIfCurrentVersion="true" />
+          <item id="bugs" onlyIfCurrentVersion="true" />
+    </version>
+
+    <version id="3.0.0b10">
+          <item id="bugs" onlyIfCurrentVersion="true" />
+    </version>
+
+    <version id="3.0.0b9">
+          <item id="bugs" onlyIfCurrentVersion="true" />
+          <item id="newfeatures" onlyIfCurrentVersion="true" />
+    </version>
+
+    <version id="2.6.14">
+          <item id="bugs" onlyIfCurrentVersion="true" />
+    </version>
+
+    <version id="2.6.13">
+      <item id="bugs" onlyIfCurrentVersion="true" />
+    </version>
+
+    <version id="2.6.12">
+      <item id="bugs" onlyIfCurrentVersion="true" />
+    </version>
+
+    <version id="2.6.11">
+      <item id="bugs" onlyIfCurrentVersion="true" />
+    </version>
+
+    <version id="2.6.10">
+      <item id="bugs" onlyIfCurrentVersion="true" />
+    </version>
+
+    <version id="2.6.9">
+      <item onlyIfCurrentVersion="true">
+         <title>Bug fix</title>
+         <description><![CDATA[The built-in User Interface strings version has been set to match the {QW} version.  (My apologies for the fixes and updates, the User Interface strings functionality is new and still in beta with the bugs still being shaken out of box.)]]></description>
+      </item>
+    </version>
+
+    <version id="2.6.8">
+      <item onlyIfCurrentVersion="true">
+         <title>Bug fix relating to text boxes</title>
+         <description><![CDATA[Fixed a bug that caused some text boxes to behave strangely when adding/removing text.]]></description>
+      </item>
+    </version>
+
+    <version id="2.6.7">
+      <item onlyIfCurrentVersion="true">
+         <title>Bug fix relating to adding/editing an Idea</title>
+         <description><![CDATA[Fixed a bug that caused the text box for adding an idea to resize when it overflowed the text box.]]></description>
+      </item>
+    </version>
+
+    <version id="2.6.6">
+      <item onlyIfCurrentVersion="true">
+         <title>Bug fix relating to custom types</title>
+         <description><![CDATA[Fixed a bug with missing images preventing editing/addition of custom types.]]></description>
+      </item>
+    </version>
+
+    <version id="2.6.5">
+      <item id="uilanguages" />
+    </version>
+
+    <version id="2.6.4">
+      <item onlyIfCurrentVersion="true">
+        <title>Missing asset type bug fix</title>
+        <description><![CDATA[Fixed a bug that prevented the {project} from opening when one of the asset object types has been deleted.]]></description>
+      </item>
+    </version>
+
+  <version id="2.6.2">
+    <item onlyIfCurrentVersion="true">
+      <title>More bug squashing</title>
+      <description><![CDATA[Fixed a couple of bugs arising from the recent 2.6 changes, namely to ensure that if Asset fields or Tags are removed then they don't prevent a {project} that may use them from being opened.]]></description>
+    </item>
+  </version>
+
+  <version id="2.6.1">
+    <item onlyIfCurrentVersion="true">
+      <title>Bug squashing</title>
+      <description><![CDATA[Fixed a couple of bugs arising from the recent 2.6 changes and made changes to the Quoll Writer logo and splash screen.]]></description>
+    </item>
+  </version>
+
+  <version id="2.6">
+    <item id="assets" />
+    <item id="tags" />
+    <item id="dnd" />
+    <item id="forms" />
+  </version>
+
+    <version id="2.5.8">
+      <item onlyIfCurrentVersion="true">
+        <title>Bug fix</title>
+        <description><![CDATA[Fixed a bug that prevented a project from being exported.]]></description>
+      </item>
+    </version>
+
+    <version id="2.5.7">
+      <item onlyIfCurrentVersion="true">
+        <title>Bug fix</title>
+        <description><![CDATA[Fixed a bug that could cause performance issues when calculating the A4 page count.]]></description>
+      </item>
+    </version>
+
+    <version id="2.5.6">
+      <item onlyIfCurrentVersion="true">
+        <title>Bug fix for future versions</title>
+        <description><![CDATA[Made a fix for a bug preventing upgrades to future versions.]]></description>
+      </item>
+    </version>
+
+    <version id="2.5.4">
+      <item id="problemfinder" />
+      <item id="newrule" />
+    </version>
+
+    <version id="2.5.3">
+      <item onlyIfCurrentVersion="true">
+        <title>Project import bug fixes</title>
+        <description><![CDATA[A number of fixes for the {project}/file import have been made.]]></description>
+      </item>
+      <item onlyIfCurrentVersion="true">
+        <title>The way updates are handled is changing</title>
+        <description><![CDATA[The way that Quoll Writer is updated is changing.  The next time you update an installer will run to handle the updating for you, don't worry, it's just a couple of extra clicks.  <a href="http://wp.me/p1AW9p-7H">Click here for more detail about this change.</a>]]></description>
+      </item>
+    </version>
+
+    <version id="2.5.2">
+      <item id="chapterpreview" />
+      <item id="import" />
+    </version>
+
+  <version id="2.5.1">
+    <item onlyIfCurrentVersion="true">
+      <title>Bug squashing</title>
+      <description><![CDATA[Fixed a bug relating to shutdown after a new user creates their first project.  Fixed a bug that prevented the Editors environment from being inited.]]></description>
+    </item>
+  </version>
+
+  <version id="2.5">
+    <item id="targets" />
+    <item id="updatedcharts" />
+  </version>
+
+  <version id="2.4.2">
+    <item onlyIfCurrentVersion="true">
+      <title>Bug fixes and a change to Editors service invites</title>
+      <description><![CDATA[A number of minor bugs have been fixed, please see the release notes for full details.<br /><br />Also, you can now resend invites to your contacts in the Editors service, right click on a pending contact and select <b>Resend Invite</b>.]]></description>
+    </item>
+  </version>
+
+  <version id="2.4.1">
+    <item onlyIfCurrentVersion="true">
+      <title>Bug squashing</title>
+      <description><![CDATA[A number of minor bugs have been fixed and one major one relating to words getting chopped up in a chapter when moving from normal mode to full screen or when resizing the window.]]></description>
+    </item>
+
+    <item onlyIfCurrentVersion="true">
+      <title>Editors and some projects</title>
+      <description><![CDATA[I've discovered that some projects weren't opening, including the Editors database, this version fixes that problem.  If one or more of your projects are not showing up when you open a Project then, in the Projects window, select <b>Find your Projects</b> from the menu and add them back in."]]></description>
+    </item>
+  </version>
+
+  <version id="2.4">
+    <item>
+      <title>Projects window</title>
+      <description><![CDATA[There is now a new way to interact with your projects.  The Projects window will show you all your projects on a single "page" and you can sort them, manage them and apply a status.]]></description>
+    </item>
+
+    <item>
+      <title>Documents</title>
+      <description><![CDATA[A much requested feature.  You can now add/link documents to your characters, locations, items and research.  Just drag-n-drop a file onto a character, location, item or research tab to add it (or use the add button and do it the slow way).]]></description>
+    </item>
+
+    <item>
+      <title>Backups</title>
+      <description><![CDATA[Snapshots have now become real backups.  You can restore your project from a backup, specify where they should be stored and manage them.]]></description>
+    </item>
+
+    <item>
+      <title>Bold/italic/underline and more</title>
+      <description><![CDATA[Another frequent flyer in the "Can you add..." feature club.  You can now use bold/italic/underline in the description of just about anything (if I've missed something please let me know).  Most multi-line text boxes also have support for spell checking and synonym lookups.  Go wild!]]></description>
+    </item>
+
+  </version>
+
+  <version id="2.3.1">
+    <item onlyIfCurrentVersion="true">
+      <title>Bug fixes</title>
+      <description><![CDATA[A few fixes arising from the major 2.3 update.  See the release notes for the gory detail.]]></description>
+    </item>
+  </version>
+
+  <version id="2.3">
+    <item>
+      <title>Editor Mode Beta</title>
+      <description><![CDATA[Editor Mode is here!  The service is currently in beta and all feedback is welcome.<br /><br /><a href='help:editor-mode/overview.html'>Click here</a> to find out more about the Editors Service and Editor Mode.</a>  In short, it allows you to get feedback from other people about your work.  However it is not designed for proofreading or copy editing.<br /><br />Please don't hesitate to let me know if you hit a bug or want to provide feedback.<br /><br />If you have any problems or questions please just let me know.<br /><br />To get started with Editor Mode just click on the {contacts} [editors] icon on the header bar.]]></description>
+    </item>
+
+    <item>
+      <title>Multiple sidebar layouts</title>
+      <description><![CDATA[You can now have two sidebars visible at any time, the standard {project} and another such as the find or text properties.  Check out the <b>How things look and sound</b> section in the [options] <a href="action:options.look">Options panel</a> to try it out.]]></description>
+    </item>
+
+    <item>
+      <title>Spellchecker change and more languages</title>
+      <description><![CDATA[The spellchecker has been changed and now more languages are available.  Czech, Dutch, French, German, Italian, Polish, Russian and Spanish are now available as well as English.<br /><br />However a side-effect of this change is that I've had to remove the English dialect options.  Sorry UK users!  I'm looking at ways to make that available again.]]></description>
+    </item>
+
+    <item>
+      <title>Patreon</title>
+      <description><![CDATA[Quoll Writer now has a Patreon page.  Development on QW will always continue but if you want to help speed things up consider donating.<br /><br /><a href="https://www.patreon.com/quollwriter?ty=h">Click here to view the Patreon page</a>.]]></description>
+    </item>
+
+  </version>
+
+  <version id="2.2.5">
+    <item onlyIfCurrentVersion="true">
+      <title>Bug fix</title>
+      <description><![CDATA[This update fixes an issue with the .docx export so that styled text will export correctly.]]></description>
+    </item>
+
+  </version>
+
+  <version id="2.2.4">
+    <item onlyIfCurrentVersion="true">
+      <title>Bug fixes</title>
+      <description><![CDATA[This update fixes a few issues:<ul><li>The project export will now export all text.</li><li>Having special characters in your project name will no longer the project from being exported.</li><li>The keyboard shortcuts for bold, italic and underline will now toggle properly.</li><li>When exiting with unsaved changes you can now elect to not save.</li><li>Finally the links to assets in descriptions won't match to longer words, for example, the <b>Ben</b> part of <b>Bend</b> will no longer link to Ben the character.</li></ul>]]></description>
+    </item>
+
+  </version>
+
+  <version id="2.2.3">
+    <item onlyIfCurrentVersion="true">
+      <title>Bug fixes</title>
+      <description><![CDATA[This update fixes a problem with the Finder not displaying all the results and not showing scrollbars when needed.  A problem with exporting an empty chapter to a docx file has been fixed and the tab order is now saved and restored properly.]]></description>
+    </item>
+
+  </version>
+
+  <version id="2.2.2">
+    <item onlyIfCurrentVersion="true">
+      <title>Fixing a couple of oopsies</title>
+      <description><![CDATA[This quick update fixes a problem with the Readability Indices having crazy values and the chapter information not displaying properly.  Also, the sidebar should now keep to a more consistent size (sometimes what you think is a good idea just isn't).]]></description>
+    </item>
+
+  </version>
+
+  <version id="2.2.1">
+    <item onlyIfCurrentVersion="true">
+      <title>Mostly bug fixes and a big thank you</title>
+      <description><![CDATA[Mostly bug fixes this time round, <a href='help:version-changes/2_2_1.html'>click here for the full details</a>.<br /><br />Also a big thank you to everyone who sent in kind feedback and messages about QW.  It's encouraging and I'm pleased people are getting enjoyment from QW.<br /><br />Finally, another big thank you to everyone who checked the box to allow errors to be sent back to base.  It really does help.]]></description>
+    </item>
+
+  </version>
+
+  <version id="2.2" class="com.quollwriter.ui.whatsnewcomps.version_2_2">
+    <item id="errors">
+      <title>Sometimes things go wrong</title>
+      <description>Quoll Writer isn't perfect and while I try to make it error free sometimes things cluck up.  When they do it would be helpful for Quoll Writer to send a report back to me to let me know what the problem is and I get on with fixing it.  Please check the box below to enable this feature.  It helps you and it helps me.</description>
+    </item>
+
+    <item id="distractionfreemode">
+      <title>Distraction free mode</title>
+      <description><![CDATA[Want to keep distractions at bay?  Now you can with distraction free mode.  It switches off all the extra bits like borders and scrollbars to let you focus purely on writing.  But, it is only available in full screen mode, yes a mode within a mode.  Just use the <i>headphones</i> icon on the top bar to switch the mode on and off.<br /><br /><a href='help:full-screen-mode/distraction-free-mode'>Click here to find out more about distraction free mode</a>]]></description>
+    </item>
+
+    <item id="highlightwritingline">
+      <title>Highlight the writing line</title>
+      <description>Sometimes it's nice to see where you are writing, enable this setting to add a background color to the writing line (where the cursor thingy is).  I recommend you have this enabled when using distraction free mode (it is on by default).  This setting can be changed at any time in the text properties and is available in full screen mode.</description>
+    </item>
+
+  </version>
+
+  <version id="2.1">
+    <item onlyIfCurrentVersion="true">
+      <title>Splitting Chapters</title>
+      <description>You can now split a chapter to create a new one.  Either select some text or a point in the text.  Any {Scenes}/{Outline-items}/{Notes} in the text will also be added to the new chapter.</description>
+    </item>
+
+    <item onlyIfCurrentVersion="true">
+      <title>Edit Marker</title>
+      <description><![CDATA[Mark chapters as <b>edit complete</b> (you have finished editing it) or set a position in the text where you have edited.  This helps you keep track of what still needs to be done.]]></description>
+    </item>
+
+    <item onlyIfCurrentVersion="true">
+      <title>Change object names</title>
+      <description>It is now possible to change the names of objects.  This is useful if you wish to use Quoll Writer for something other than writing novels.</description>
+    </item>
+
+    <item onlyIfCurrentVersion="true">
+      <title>New problem finder rules</title>
+      <description>Paragraphs are now checked for complexity and length.  Also a new sentence complexity rule has been added.</description>
+    </item>
+
+    <item onlyIfCurrentVersion="true">
+      <title>Notes shown in chapter list</title>
+      <description>{Notes} can now be shown in the {chapter} list.  This helps keep track of what notes have been added to each {chapter}.</description>
+    </item>
+
+    <item onlyIfCurrentVersion="true">
+      <title>Usability</title>
+      <description><![CDATA[An option to compress the chapter context menu (usually shown when you right click when editing a chapter) to save space has been added.<br /><br />Also you can now double click on a margin when editing a chapter to show a menu of items that can be added.]]></description>
+    </item>
+
+    <item onlyIfCurrentVersion="true">
+      <title>And finally...</title>
+      <description>This has been a very painful release, let us never speak of it again.</description>
+    </item>
+  </version>
+
+  <version id="2.0.1">
+    <item onlyIfCurrentVersion="true">
+      <title>Chapter information sidebar</title>
+      <description><![CDATA[Chapter information sidebar has been improved with sections resizing correctly.]]></description>
+    </item>
+
+    <item onlyIfCurrentVersion="true">
+      <title>Mouse over text</title>
+      <description><![CDATA[When you hover your mouse over an item in the project sidebar the first line of the item description will be shown.]]></description>
+    </item>
+
+    <item onlyIfCurrentVersion="true">
+      <title>Word counts</title>
+      <description><![CDATA[A count of how many words have been written is now output next to the spark lines in the word count sidebar.]]></description>
+    </item>
+  </version>
+
+  <version id="2.0">
+    <item onlyIfCurrentVersion="true">
+      <title>A New Look</title>
+      <description><![CDATA[Welcome to the new look Quoll Writer.  I hope you like it.  If not please give it a try, it may grow on you.]]></description>
+    </item>
+    <item onlyIfCurrentVersion="true">
+      <title>Improvements to full screen mode</title>
+      <description><![CDATA[Full screen mode has been improved in this version.  You can now work purely in full screen mode if you wish.]]></description>
+    </item>
+    <item onlyIfCurrentVersion="true">
+      <title>Sidebar focus</title>
+      <description><![CDATA[A number of popups have been removed and instead, where appropriate, information is shown in the sidebar.  Just press <b>Escape</b> to get rid of a sidebar.]]></description>
+    </item>
+    <item onlyIfCurrentVersion="true">
+      <title>Set things up how you like it</title>
+      <description><![CDATA[You can now change the location of the sidebar, either left or right of the window and change where the tabs are displayed.]]></description>
+    </item>
+    <item onlyIfCurrentVersion="true">
+      <title>Improved project sidebar</title>
+      <description><![CDATA[The project sidebar has been improved, things are now easier to find and manage.]]></description>
+    </item>
+    <item onlyIfCurrentVersion="true">
+      <title>Other useful things to know</title>
+    <description><![CDATA[A <b>plan</b> has been added for each chapter.  The look of the word counts have been improved and are now displayed in the sidebar.]]></description>
+    </item>
+    <item onlyIfCurrentVersion="true">
+      <title>And that's it...</title>
+    <description><![CDATA[I hope you enjoy the new look Quoll Writer.  If you do please let me know, if not please also let me know but be nice about it!]]></description>
+    </item>
+  </version>
+
+  <version id="1.4.4" class="com.quollwriter.ui.whatsnewcomps.version_1_4_4">
+    <item onlyIfCurrentVersion="true">
+      <title>Usability improvements</title>
+      <description><![CDATA[Over 50 usability improvements and bug fixes have been made in this version including the ability to manage your personal dictionary, item and note types and much more.  For details see the <a href='help:version-changes/1_4_4'>full list of changes online</a>.]]></description>
+    </item>
+
+    <item id="tips">
+      <title>Tips</title>
+      <description><![CDATA[Helpful tips will be shown when Quoll Writer starts.  The tip is shown for 90s and will help give you a feel for how Quoll Writer works and may let you know about features you weren't aware of.  Of course if you don't want the distraction you can turn them off below.]]></description>
+    </item>
+
+    <item id="achievements">
+      <title>Achievements</title>
+      <description>Let's face it writing can be tiring, dull and a thankless task at times.  Achievements will help you get through those more tedious moments.  If you aren't interested in achievements then you can switch them off below.</description>
+    </item>
+  </version>
+</whatsnew>

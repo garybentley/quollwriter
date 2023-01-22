@@ -1,0 +1,49 @@
+.commentset
+{
+    -fx-border-width: 0 0 1px 0;
+    -fx-border-color: -qw-component-border-color;
+    -fx-cursor: hand;
+}
+
+.commentset:hover
+{
+    -fx-background-color: -qw-hover-bg;
+}
+
+.items .commentset .label.title
+{
+    -fx-font-size: 1.5em;
+    -fx-border-width: 0;
+}
+
+.items .commentset .label
+{
+    -fx-border-width: 0;
+}
+
+.items .commentset .label .iconbox
+{
+    visibility: hidden;
+}
+
+.items .commentset .qtextview.comments,
+.items .commentset .label.when
+{
+    -fx-padding: 0 0.5em 0.25em 1em;
+}
+
+.items .commentset .tooltip > *
+{
+    -fx-font-size: 1em;
+}
+
+.items .commentset .qtextview.comments,
+.items .commentset .qtextview.comments .label
+{
+    -fx-font-size: 1em;
+}
+
+.items .commentset .label.when
+{
+    -fx-font-size: 1em;
+}

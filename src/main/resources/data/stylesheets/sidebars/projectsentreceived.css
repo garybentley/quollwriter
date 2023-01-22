@@ -1,0 +1,14 @@
+.form
+{
+    -fx-padding: 0.25em 0.5em 0.25em 0.5em;
+}
+
+.form:stacked .items > .label
+{
+    -fx-font-size: 1.2em;
+}
+
+.accordion.comments .cell .label
+{
+    -fx-content-display: text-only;
+}

@@ -1,0 +1,33 @@
+/**
+ * Styles for the sidebar shown for a project the user is editing, class: com.quollwriter.editors.ui.sidebars.EditorProjectSideBar
+ * The class also makes use of the sidebars/project.css stylesheet.
+ */
+.projectversioninfo
+{
+    -fx-padding: 0.5em 0.5em 0.25em 0.5em;
+}
+
+.projectversioninfo .label
+{
+    -fx-font-style: italic;
+    -fx-min-width: 5em;
+}
+
+.projectversioninfo .control .label
+{
+    -fx-padding: 0;
+    -fx-font-style: normal;
+    -fx-min-width: -1;
+}
+
+.hyperlink.comment,
+.hyperlink.view
+{
+    -fx-padding: 0 0 0.5em 0.5em;
+    -fx-alignment: top-left;
+}
+
+.tree
+{
+    -fx-cell-indent: 0;
+}

@@ -1,0 +1,127 @@
+/*
+ * Styles for the achievements panel, com.quollwriter.ui.fx.panels.AchievementsPanel
+ */
+ /*
+.header{ -fx-padding: 0.5em 0 0.2em 0.5em; }
+*/
+.header > .iconbox .icon {
+    -fx-pref-width: 1.13em;
+    -fx-max-width: 1.13em;
+    -fx-min-width: 1.13em;
+}
+.description { -fx-padding: 0.5em 0.5em 0.5em 1em; }
+.accordion { -fx-padding: 0 0 1em 0; }
+.accordion > .header { -fx-cursor: hand; }
+.accordion .content { -fx-padding: 0 1em 0 1em; }
+.accordion .header { -fx-padding: 0 0 0.5em 1em; }
+.accordion .header > .iconbox,
+.accordion .header > .iconbox .icon {
+    -fx-pref-width: 1.7em;
+    -fx-pref-height: 1.7em;
+    -fx-max-height: 1.7em;
+    -fx-min-height: 1.7em;
+    -fx-max-width: 1.7em;
+    -fx-min-width: 1.7em;
+    -fx-fill-height: false;
+    -fx-alignment: center;
+}
+.achievement { -fx-border-width: 0 0 1px 0; -fx-border-color: -qw-component-border-color; -fx-padding: 0.5em 0.5em 0.5em 0.5em; }
+.content .achievement .title { -fx-font-size: 1.3em; -fx-padding: -0.3em 0 0 0.75em; -fx-alignment: top-left; }
+.achievement .description { -fx-padding: 0 0 0 1em; }
+.achievement .iconbox,
+.achievement .iconbox .icon {
+    -fx-pref-width: 2em;
+    -fx-pref-height: 2em;
+    -fx-fill-height: false;
+    -fx-alignment: center;
+}
+.achievement .iconbox .eye-icon.icon {
+    -fx-pref-height: 1.666em;
+    -fx-max-height: 1.666em;
+    -fx-min-height: 1.666em;
+}
+.achievement .iconbox .help-icon.icon {
+    -fx-pref-width: 1em;
+    -fx-max-width: 1em;
+    -fx-min-width: 1em;
+}
+.achievement .iconbox .warning-icon.icon {
+    -fx-pref-width: 0.375em;
+    -fx-min-width: 0.375em;
+    -fx-max-width: 0.375em;
+}
+.achievement .iconbox .move-icon.icon {
+    -fx-pref-height: 1.5em;
+    -fx-max-height: 1.5em;
+    -fx-min-height: 1.5em;
+}
+.achievement .iconbox .ideaboard-icon.icon,
+.achievement .iconbox .idea-icon.icon {
+    -fx-pref-width: 1.333em;
+    -fx-max-width: 1.333em;
+    -fx-min-width: 1.333em;
+}
+.achievement .iconbox .bold-icon.icon {
+    -fx-pref-width: 1.65em;
+    -fx-max-width: 1.65em;
+    -fx-min-width: 1.65em;
+}
+.achievement .iconbox .comment-icon.icon {
+    -fx-pref-width: 1.75em;
+    -fx-min-width: 1.75em;
+    -fx-max-width: 1.75em;
+}
+.achievement .iconbox .chapter-icon.icon {
+    -fx-pref-width: 1.5em;
+    -fx-max-width: 1.5em;
+    -fx-min-width: 1.5em;
+}
+.hide { -fx-padding: 0 0 0.5em 1em; }
+/*
+.achievement .icon { -fx-image: url(/imgs/achievement24.png); }
+.achievement.fullscreen .icon { -fx-image: url(/imgs/fullscreen24.png); }
+.achievement.spellchecker  .icon { -fx-image: url(/imgs/spellchecker24.png); }
+.achievement.edit .icon { -fx-image: url(/imgs/edit24.png); }
+.achievement.help .icon { -fx-image: url(/imgs/help24.png); }
+.achievement.find .icon { -fx-image: url(/imgs/find24.png); }
+.achievement.clock .icon { -fx-image: url(/imgs/clock24.png); }
+.achievement.bold .icon { -fx-image: url(/imgs/bold24.png); }
+.achievement.editors .icon { -fx-image: url(/imgs/editor24.png); }
+.achievement.project-export .icon { -fx-image: url(/imgs/project-import24.png); }
+.achievement.settings .icon { -fx-image: url(/imgs/settings24.png); }
+.achievement.sound .icon { -fx-image: url(/imgs/notify24.png); }
+.achievement.warmups .icon { -fx-image: url(/imgs/warmups24.png); }
+.achievement.eye .icon { -fx-image: url(/imgs/eye24.png); }
+.achievement.project .icon { -fx-image: url(/imgs/project24.png); }
+.achievement.idea .icon { -fx-image: url(/imgs/idea24.png); }
+.achievement.bug .icon { -fx-image: url(/imgs/bug24.png); }
+.achievement.save .icon { -fx-image: url(/imgs/save24.png); }
+.achievement.snapshot .icon { -fx-image: url(/imgs/snapshot24.png); }
+.achievement.comment .icon { -fx-image: url(/imgs/comment24.png); }
+.achievement.note .icon { -fx-image: url(/imgs/note24.png); }
+.achievement.chapter .icon { -fx-image: url(/imgs/chapter24.png); }
+.achievement.character .icon { -fx-image: url(/imgs/character24.png); }
+.achievement.object .icon { -fx-image: url(/imgs/object24.png); }
+.achievement.location .icon { -fx-image: url(/imgs/location24.png); }
+.achievement.project-import .icon { -fx-image: url(/imgs/project-import24.png); }
+.achievement.researchitem .icon { -fx-image: url(/imgs/researchitem24.png); }
+.achievement.outlineitem .icon { -fx-image: url(/imgs/outlineitem24.png); }
+.achievement.scene .icon { -fx-image: url(/imgs/scene24.png); }
+.achievement.statistics .icon,
+.achievement.wordcount .icon { -fx-image: url(/imgs/wordcount24.png); }
+.achievement.warning .icon { -fx-image: url(/imgs/warning24.png); }
+*/
+.achievement:achieved .achieved
+{
+     -fx-translate-x: 12px;
+     -fx-translate-y: 16px;
+     -fx-shape: "M 16,0 C 7.164,0 0,7.164 0,16 0,24.836 7.164,32 16,32 24.836,32 32,24.836 32,16 32,7.164 24.836,0 16,0 Z m -2.48,23.383 -7.362,-7.363 2.828,-2.828 4.533,4.535 9.617,-9.617 2.828,2.828 z";
+     -fx-background-color: #86c440;
+     -fx-pref-width: 1em;
+     -fx-pref-height: 1em;
+ }
+
+.check-box.hide
+{
+    -fx-padding: 0 0 0.5em 1.5em;
+}

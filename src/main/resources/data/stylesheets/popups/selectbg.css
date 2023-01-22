@@ -1,0 +1,570 @@
+/*
+ * Styles for the select background popup, com.quollwriter.ui.fx.popups.SelectBGPopup
+ */
+.header .button { -fx-content-display: graphic-only; }
+/*
+.header .controls .button.reset { -fx-graphic: url(/imgs/restore16.png); }
+.header .icon { -fx-image: url(/imgs/bg-select16.png); }
+*/
+.scroll-pane {
+    -fx-pref-height: 31em;
+    -fx-min-height: 31em;
+    -fx-border-width: 0;
+    -fx-hbar-policy: never;
+    -fx-vbar-policy: as-needed;
+    -fx-fit-to-width: true;
+    -fx-pannable: true;
+    -fx-background-insets: 0;
+}
+.scroll-pane { -fx-border-width: 1px 0 0 0; -fx-border-color: transparent; }
+.scroll-pane:scrolling { -fx-border-color: -qw-component-border-color; }
+.scroll-pane .viewport { -fx-border-width: 0px; }
+.accordion { -fx-padding: 0 0 0.5em 0; }
+.accordion .header {
+    -fx-padding: 0 0 0 0;
+    -fx-cursor: hand;
+    -fx-border-style: solid;
+    -fx-border-width: 0 0 1px 0;
+    -fx-border-color: -qw-component-border-color;
+}
+.accordion .header .button .iconbox,
+.accordion .header .button .iconbox .icon
+{
+    -fx-pref-width: 1.333em;
+    -fx-pref-height: 1.333em;
+    -fx-fill-height: false;
+    -fx-alignment: center;
+}
+.accordion .content {
+    -fx-hgap: 0.0em;
+    -fx-vgap: 0.0em;
+    -fx-padding: 0;
+    -fx-alignment: top-left;
+    -fx-min-width: 1px;
+    -fx-padding: 0.2em 0 0 0;
+}
+.accordion .content .item {
+    -fx-border-style: solid;
+    -fx-border-width: 1px;
+    -fx-border-color: -qw-component-border-color;
+    -fx-cursor: hand;
+    -fx-pref-width: 6.3em;
+    -fx-pref-height: 6.3em;
+    -fx-min-width: 6.3em;
+    -fx-min-height: 6.3em;
+    -fx-max-width: 6.3em;
+    -fx-max-height: 6.3em;
+    -fx-effect: -qw-no-effect-spacer;
+}
+.accordion .content :selected .item {
+    -fx-border-color: -qw-selected-border-color;
+    -fx-effect: -qw-selected-effect;
+}
+.accordion .content :hover .item {
+    -fx-border-color: -qw-selected-border-color;
+    -fx-effect: -qw-selected-effect;
+}
+/*
+.accordion .header .controls .add { -fx-graphic: url(/imgs/add16.png); }
+.accordion.images .header .icon { -fx-image: url(/imgs/scene16.png); }
+.accordion.colors .header .icon { -fx-image: url(/imgs/transparency16.png); }
+*/
+.bgimage{-fx-background-size: contain;}
+
+/*
+ * Built-in background images
+ * Note: some of the images are resized, the point here is to try and show the user the potential repetition of the image
+ * it is not to have a completely accurate representation of the image.
+ */
+.bgimage._1-park{-fx-background-image: url(/imgs/bgs/_1-park.jpg);}
+.bgimage._1-sand{-fx-background-image: url(/imgs/bgs/_1-sand.jpg);-fx-background-size: stretch;}
+.bgimage._1-skyline{-fx-background-image: url(/imgs/bgs/_1-skyline.jpg);-fx-background-size: stretch;}
+.bgimage.bamboo-1{-fx-background-image: url(/imgs/bgs/bamboo-1.jpg);}
+.bgimage.bamboo-2{-fx-background-image: url(/imgs/bgs/bamboo-2.jpg);}
+.bgimage.bamboo-3{-fx-background-image: url(/imgs/bgs/bamboo-3.jpg);}
+.bgimage.beige-flowers-1{-fx-background-image: url(/imgs/bgs/beige-flowers-1.jpg);-fx-background-size: 3em 3em;}
+.bgimage.beige-squares-1{-fx-background-image: url(/imgs/bgs/beige-squares-1.gif);-fx-background-size: 3em 3em;}
+
+ .bgimage.black-dots-1
+ {
+     -fx-background-image: url(/imgs/bgs/black-dots-1.gif);
+     -fx-background-size: 3em 3em;
+ }
+
+ .bgimage.black-flowers-1
+ {
+     -fx-background-image: url(/imgs/bgs/black-flowers-1.jpg);
+ }
+
+ .bgimage.black-squares-1
+ {
+     -fx-background-image: url(/imgs/bgs/black-squares-1.jpg);
+ }
+
+ .bgimage.black-squares-2
+ {
+     -fx-background-image: url(/imgs/bgs/black-squares-2.gif);
+     -fx-background-size: 1em 1em;
+ }
+
+ .bgimage.blue-dots-1
+ {
+     -fx-background-image: url(/imgs/bgs/blue-dots-1.gif);
+ }
+
+ .bgimage.blue-dots-2
+ {
+     -fx-background-image: url(/imgs/bgs/blue-dots-2.gif);
+ }
+
+ .bgimage.blue-flowers-1
+ {
+     -fx-background-image: url(/imgs/bgs/blue-flowers-1.jpg);
+ }
+
+ .bgimage.blue-snowflakes-1
+ {
+     -fx-background-image: url(/imgs/bgs/blue-snowflakes-1.jpg);
+ }
+
+ .bgimage.blue-squares-1
+ {
+     -fx-background-image: url(/imgs/bgs/blue-squares-1.jpg);
+ }
+
+ .bgimage.blue-teardrops-1
+ {
+     -fx-background-image: url(/imgs/bgs/blue-teardrops-1.png);
+     -fx-background-size: 3em 3em;
+ }
+
+ .bgimage.brick-1
+ {
+     -fx-background-image: url(/imgs/bgs/brick-1.jpg);
+ }
+
+ .bgimage.brick-2
+ {
+     -fx-background-image: url(/imgs/bgs/brick-2.jpg);
+ }
+
+ .bgimage.brick-3
+ {
+     -fx-background-image: url(/imgs/bgs/brick-3.jpg);
+ }
+
+ .bgimage.brick-4
+ {
+     -fx-background-image: url(/imgs/bgs/brick-4.jpg);
+ }
+
+ .bgimage.brown-blobs-1
+ {
+     -fx-background-image: url(/imgs/bgs/brown-blobs-1.gif);
+     -fx-background-size: 3em 3em;
+ }
+
+ .bgimage.brown-circles-1
+ {
+     -fx-background-image: url(/imgs/bgs/brown-circles-1.jpg);
+ }
+
+ .bgimage.brown-flowers-1
+ {
+     -fx-background-image: url(/imgs/bgs/brown-flowers-1.jpg);
+ }
+
+ .bgimage.brown-squares-1
+ {
+     -fx-background-image: url(/imgs/bgs/brown-squares-1.gif);
+     -fx-background-size: 3em 3em;
+ }
+
+ .bgimage.clouds-1
+ {
+     -fx-background-image: url(/imgs/bgs/clouds-1.jpg);
+ }
+
+ .bgimage.clouds-2
+ {
+     -fx-background-image: url(/imgs/bgs/clouds-2.jpg);
+ }
+
+ .bgimage.clouds-3
+ {
+     -fx-background-image: url(/imgs/bgs/clouds-3.jpg);
+ }
+
+ .bgimage.clouds-4
+ {
+     -fx-background-image: url(/imgs/bgs/clouds-4.jpg);
+ }
+
+ .bgimage.clouds-5
+ {
+     -fx-background-image: url(/imgs/bgs/clouds-5.jpg);
+ }
+
+ .bgimage.clouds-6
+ {
+     -fx-background-image: url(/imgs/bgs/clouds-6.jpg);
+ }
+
+ .bgimage.clouds-7
+ {
+     -fx-background-image: url(/imgs/bgs/clouds-7.jpg);
+ }
+
+ .bgimage.grass-1
+ {
+     -fx-background-image: url(/imgs/bgs/grass-1.jpg);
+ }
+
+ .bgimage.grass-2
+ {
+     -fx-background-image: url(/imgs/bgs/grass-2.jpg);
+ }
+
+ .bgimage.green-circles-1
+ {
+     -fx-background-image: url(/imgs/bgs/green-circles-1.jpg);
+ }
+
+ .bgimage.green-circles-2
+ {
+     -fx-background-image: url(/imgs/bgs/green-circles-2.jpg);
+ }
+
+ .bgimage.green-diagonal-1
+ {
+     -fx-background-image: url(/imgs/bgs/green-diagonal-1.gif);
+ }
+
+ .bgimage.green-flowers-1
+ {
+     -fx-background-image: url(/imgs/bgs/green-flowers-1.jpg);
+ }
+
+ .bgimage.green-light-bulb-1
+ {
+     -fx-background-image: url(/imgs/bgs/green-light-bulb-1.jpg);
+ }
+
+ .bgimage.green-squares-1
+ {
+     -fx-background-image: url(/imgs/bgs/green-squares-1.jpg);
+ }
+
+ .bgimage.grey-squares-1
+ {
+     -fx-background-image: url(/imgs/bgs/grey-squares-1.jpg);
+ }
+
+ .bgimage.grey-squares-2
+ {
+     -fx-background-image: url(/imgs/bgs/grey-squares-2.png);
+     -fx-background-size: 12em 4em;
+ }
+
+ .bgimage.grey-squares-3
+ {
+     -fx-background-image: url(/imgs/bgs/grey-squares-3.gif);
+     -fx-background-size: 3em 3em;
+ }
+
+ .bgimage.grey-tribal-1
+ {
+     -fx-background-image: url(/imgs/bgs/grey-tribal-1.jpg);
+     -fx-background-size: 3em 3em;
+ }
+
+ .bgimage.orange-diagonal
+ {
+     -fx-background-image: url(/imgs/bgs/orange-diagonal.gif);
+     -fx-background-size: 3em 3em;
+ }
+
+ .bgimage.orange-flowers-1
+ {
+     -fx-background-image: url(/imgs/bgs/orange-flowers-1.jpg);
+ }
+
+ .bgimage.orange-flowers-2
+ {
+     -fx-background-image: url(/imgs/bgs/orange-flowers-2.jpg);
+ }
+
+ .bgimage.orange-squares-1
+ {
+     -fx-background-image: url(/imgs/bgs/orange-squares-1.jpg);
+ }
+
+ .bgimage.paper-1
+ {
+     -fx-background-image: url(/imgs/bgs/paper-1.jpg);
+ }
+
+ .bgimage.paper-2
+ {
+     -fx-background-image: url(/imgs/bgs/paper-2.jpg);
+ }
+
+ .bgimage.paper-3
+ {
+     -fx-background-image: url(/imgs/bgs/paper-3.jpg);
+ }
+
+ .bgimage.paper-4
+ {
+     -fx-background-image: url(/imgs/bgs/paper-4.jpg);
+ }
+
+ .bgimage.paper-5
+ {
+     -fx-background-image: url(/imgs/bgs/paper-5.jpg);
+ }
+
+ .bgimage.paper-6
+ {
+     -fx-background-image: url(/imgs/bgs/paper-6.jpg);
+ }
+
+ .bgimage.pink-butterfly-1
+ {
+     -fx-background-image: url(/imgs/bgs/pink-butterfly-1.gif);
+ }
+
+ .bgimage.pink-circles-1
+ {
+     -fx-background-image: url(/imgs/bgs/pink-circles-1.jpg);
+ }
+
+ .bgimage.pink-dots-1
+ {
+     -fx-background-image: url(/imgs/bgs/pink-dots-1.gif);
+ }
+
+ .bgimage.pink-dots-2
+ {
+     -fx-background-image: url(/imgs/bgs/pink-dots-2.gif);
+ }
+
+ .bgimage.pink-flowers-1
+ {
+     -fx-background-image: url(/imgs/bgs/pink-flowers-1.png);
+     -fx-background-size: 3em 3em;
+ }
+
+ .bgimage.pink-flowers-2
+ {
+     -fx-background-image: url(/imgs/bgs/pink-flowers-2.jpg);
+ }
+
+ .bgimage.pink-flowers-3
+ {
+     -fx-background-image: url(/imgs/bgs/pink-flowers-3.gif);
+ }
+
+ .bgimage.pink-squares-1
+ {
+     -fx-background-image: url(/imgs/bgs/pink-squares-1.png);
+     -fx-background-size: 12em 4em;
+ }
+
+ .bgimage.pink-squares-2
+ {
+     -fx-background-image: url(/imgs/bgs/pink-squares-2.gif);
+ }
+
+ .bgimage.pink-squares-3
+ {
+     -fx-background-image: url(/imgs/bgs/pink-squares-3.gif);
+     -fx-background-size: 3em 3em;
+ }
+
+ .bgimage.pink-squares-4
+ {
+     -fx-background-image: url(/imgs/bgs/pink-squares-4.jpg);
+ }
+
+ .bgimage.pink-stars-1
+ {
+     -fx-background-image: url(/imgs/bgs/pink-stars-1.jpg);
+     -fx-background-size: 12em 11em;
+ }
+
+ .bgimage.pink-stars-2
+ {
+     -fx-background-image: url(/imgs/bgs/pink-stars-2.gif);
+ }
+
+ .bgimage.pink-strips-1
+ {
+     -fx-background-image: url(/imgs/bgs/pink-strips-1.gif);
+ }
+
+ .bgimage.purple-dots
+ {
+     -fx-background-image: url(/imgs/bgs/purple-dots.gif);
+ }
+
+ .bgimage.purple-flowers-1
+ {
+     -fx-background-image: url(/imgs/bgs/purple-flowers-1.jpg);
+ }
+
+ .bgimage.purple-squares-1
+ {
+     -fx-background-image: url(/imgs/bgs/purple-squares-1.gif);
+     -fx-background-size: 3em 3em;
+ }
+
+ .bgimage.purple-squares-2
+ {
+     -fx-background-image: url(/imgs/bgs/purple-squares-2.jpg);
+ }
+
+ .bgimage.purple-squares-3
+ {
+     -fx-background-image: url(/imgs/bgs/purple-squares-3.png);
+     -fx-background-size: 12em 4em;
+ }
+
+ .bgimage.purple-stars-1
+ {
+     -fx-background-image: url(/imgs/bgs/purple-stars-1.gif);
+ }
+
+ .bgimage.red-stars-1
+ {
+     -fx-background-image: url(/imgs/bgs/red-stars-1.jpg);
+ }
+
+ .bgimage.trees-1
+ {
+     -fx-background-image: url(/imgs/bgs/trees-1.png);
+ }
+
+ .bgimage.wood-1
+ {
+     -fx-background-image: url(/imgs/bgs/wood-1.jpg);
+ }
+
+ .bgimage.wood-2
+ {
+     -fx-background-image: url(/imgs/bgs/wood-2.jpg);
+ }
+
+ .bgimage.wood-3
+ {
+     -fx-background-image: url(/imgs/bgs/wood-3.jpg);
+ }
+
+ .bgimage.wood-4
+ {
+     -fx-background-image: url(/imgs/bgs/wood-4.jpg);
+ }
+
+ .bgimage.wood-5
+ {
+     -fx-background-image: url(/imgs/bgs/wood-5.jpg);
+ }
+
+ .bgimage.wood-6
+ {
+     -fx-background-image: url(/imgs/bgs/wood-6.jpg);
+ }
+
+ .bgimage.wood-7
+ {
+     -fx-background-image: url(/imgs/bgs/wood-7.jpg);
+ }
+
+ .bgimage.wood-8
+ {
+     -fx-background-image: url(/imgs/bgs/wood-8.jpg);
+ }
+
+ .bgimage.wood-9
+ {
+     -fx-background-image: url(/imgs/bgs/wood-9.jpg);
+ }
+
+ .bgimage.wood-10
+ {
+     -fx-background-image: url(/imgs/bgs/wood-10.jpg);
+ }
+
+ .bgimage.wood-11
+ {
+     -fx-background-image: url(/imgs/bgs/wood-11.jpg);
+ }
+
+ .bgimage.yellow-dots-1
+ {
+     -fx-background-image: url(/imgs/bgs/yellow-dots-1.gif);
+ }
+
+ .bgimage.yellow-flowers-1
+ {
+     -fx-background-image: url(/imgs/bgs/yellow-flowers-1.jpg);
+ }
+
+ .bgimage.yellow-flowers-2
+ {
+     -fx-background-image: url(/imgs/bgs/yellow-flowers-2.jpg);
+ }
+
+ .bgimage.yellow-light-bulb-1
+ {
+     -fx-background-image: url(/imgs/bgs/yellow-light-bulb-1.jpg);
+ }
+
+ .bgimage.yellow-squares-1
+ {
+     -fx-background-image: url(/imgs/bgs/yellow-squares-1.gif);
+     -fx-background-size: 3em 3em;
+ }
+
+ .bgimage.yellow-squares-2
+ {
+     -fx-background-image: url(/imgs/bgs/yellow-squares-2.png);
+     -fx-background-size: 12em 4em;
+ }
+
+ .bgimage.yellow-squares-3
+ {
+     -fx-background-image: url(/imgs/bgs/yellow-squares-3.png);
+     -fx-background-size: 12em 4em;
+ }
+
+.overlay
+{
+    -fx-alignment: center;
+    -fx-cursor: move;
+    -fx-fill-width: true;
+    -fx-border-width: 1px 0 1px 0;
+    -fx-border-color: -qw-component-border-color;
+    -fx-background-color: #ffffff;
+    -fx-opacity: 1;
+    -fx-padding: 1em;
+    -fx-max-height: 4em;
+}
+
+.overlay .label
+{
+    -fx-alignment: center;
+    -fx-cursor: move;
+    -fx-fill-width: true;
+
+    -fx-border-width: 0;
+    -fx-font-size: 1.3em;
+    -fx-text-alignment: center;
+
+    -fx-wrap-text: true;
+}
+
+.accordion .header .qtoolbar.controls
+{
+    -fx-padding: 0 0.25em 0 0;
+}

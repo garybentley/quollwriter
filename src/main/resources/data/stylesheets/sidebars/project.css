@@ -1,0 +1,204 @@
+/*
+ * Styles for the project sidebar, com.quollwriter.ui.fx.sidebars.ProjectSideBar
+ */
+.scroll-pane {
+    -fx-fit-to-width: false;
+    -fx-fit-to-height: true;
+}
+.content {
+    -fx-min-width: 23.7em;
+    /*-fx-pref-width: 22em;*/
+}
+.accordion:dragover { -fx-background-color: -qw-dragover-bg; }
+.accordion:dragging {
+    -fx-background-color: -qw-dragging-bg;
+    -fx-opacity: 0.3;
+}
+.accordion .header {
+    -fx-padding: 0 0 0.2em 0.5em;
+    -fx-alignment: center-left;
+}
+.accordion .header .title {
+    -fx-font-size: 1.6em;
+    -fx-font-weight: normal;
+}
+.accordion .header .iconbox
+{
+    -fx-pref-width: 1.333em;
+    -fx-pref-height: 1.333em;
+    -fx-alignment: center;
+    -fx-fill-height: false;
+}
+.accordion .header .iconbox .icon
+{
+    -fx-pref-width: 1.333em;
+    -fx-pref-height: 1.333em;
+}
+.accordion.chapter .header.chapter > .iconbox .icon,
+.accordion.character .header.chapter > .iconbox .icon {
+    -fx-pref-width: 1em;
+    -fx-max-width: 1em;
+    -fx-min-width: 1em;
+}
+
+.label.chapter > .iconbox {
+    visibility: false;
+}
+
+.accordion.asset .header .iconbox .icon {
+    -fx-pref-width: 1.333em;
+}
+
+.accordion .label.outlineitem .iconbox,
+.accordion .label.outlineitem .iconbox .icon,
+.accordion .label.scene .iconbox,
+.accordion .label.scene .iconbox .icon,
+.accordion .label.notes .iconbox,
+.accordion .label.notes .iconbox .icon {
+    -fx-pref-width: 1.333em;
+    -fx-pref-height: 1.333em;
+    -fx-fill-height: false;
+    -fx-alignment: center;
+}
+
+.accordion.chapter .tree .cell .label.note.editneedednote .iconbox .editneedednote-icon.icon {
+    -fx-shape: "m 10.836,26.832 c 1.562,-1.562 1.562,-4.094 0,-5.656 -1.562,-1.562 -4.094,-1.562 -5.656,0 L 0,32 Z M 30.828,1.172 c -1.562,-1.562 -4.094,-1.562 -5.656,0 L 10.047,16.301 c 1.352,0.352 2.602,1.031 3.617,2.047 1.031,1.031 1.688,2.289 2.039,3.609 L 30.828,6.828 c 1.563,-1.562 1.563,-4.094 0,-5.656 z";
+    -fx-background-color: -qw-icon-color;
+}
+
+.accordion.chapter .tree .cell .label.note .iconbox .note-icon.icon,
+.accordion.notes .tree .cell .label.note .iconbox .note-icon.icon {
+    -fx-shape: "m 106.60139,138.8493 a 4,4 0 0 1 -4,4 4,4 0 0 1 -4.000003,-4 4,4 0 0 1 4.000003,-4 4,4 0 0 1 4,4 z";
+    -fx-background-color: -qw-icon-color;
+    -fx-pref-width: 0.666em;
+    -fx-pref-height: 0.666em;
+}
+
+.accordion .header .controls { visibility: hidden; }
+.accordion.asset .cell .label { -fx-content-display: text-only; }
+.accordion .tree .cell { -fx-cursor: hand; }
+.accordion .tree .cell .label:dragover { -fx-background-color: -qw-hover-bg; }
+.accordion .tree .cell .label:dragging {
+    -fx-background-color: -qw-hover-bg;
+    -fx-opacity: 0.5;
+}
+.accordion.chapter .tree .cell > .label.chapter:editcomplete .iconbox,
+.accordion.chapter .tree .cell > .label.chapter:editcomplete .iconbox .editcomplete-icon,
+.accordion.chapter .tree .cell > .label.chapter:editposition .iconbox,
+.accordion.chapter .tree .cell > .label.chapter:editposition .iconbox .editposition-icon,
+.accordion.chapter .tree .cell > .label.note .iconbox,
+.accordion.chapter .tree .cell > .label.note .iconbox .icon,
+.accordion.notes .tree .cell > .label.note .iconbox
+{
+    visibility: true;
+    -fx-pref-width: 1.333em;
+    -fx-pref-height: 1.333em;
+    -fx-fill-height: false;
+    -fx-alignment: center;
+}
+
+.items { -fx-padding: 0 0.5em 0 0; }
+.toolbar { -fx-padding: 0.2em; }
+.toolbar:bottom {
+    -fx-border-width: 1px 0 0 0;
+    -fx-border-color: -qw-component-border-color;
+}
+.toolbar:top {
+    -fx-border-width: 0 0 1px 0;
+    -fx-border-color: -qw-component-border-color;
+}
+.toolbar .button > .iconbox,
+.toolbar .button > .iconbox .icon,
+.toolbar .menu-button > .label .iconbox,
+.toolbar .menu-button > .label .iconbox .icon {
+    -fx-pref-width: 1.666em;
+    -fx-pref-height: 1.666em;
+    -fx-min-width: 1.666em;
+    -fx-min-height: 1.666em;
+    -fx-max-width: 1.666em;
+    -fx-max-height: 1.666em;
+    -fx-fill-height: false;
+    -fx-alignment: center;
+}
+.toolbar .button > .iconbox .info-icon.icon {
+    -fx-pref-width: 0.833em;
+    -fx-min-width: 0.833em;
+    -fx-max-width: 0.833em;
+}
+.toolbar .button > .iconbox .more-icon.icon {
+    -fx-pref-width: 0.415em;
+    -fx-min-width: 0.415em;
+    -fx-max-width: 0.415em;
+}
+
+.toolbar > .button > .iconbox .icon
+{
+    -fx-background-color: -qw-icon-color;
+}
+
+.toolbar > .button > .controls .iconbox:hover .icon
+{
+    -fx-background-color: -qw-icon-hover-color;
+}
+
+.toolbar .button.spellcheck > .iconbox {
+    -fx-alignment: top-center;
+}
+.toolbar .button > .iconbox .spellcheckoff-icon.icon {
+    -fx-pref-height: 1.3em;
+}
+.toolbar .button { -fx-content-display: graphic-only; }
+
+.accordion.contacts .content .information
+{
+    -fx-padding: 0 0 0.5em 1em;
+}
+
+.accordion.contacts .content .contact
+{
+    -fx-padding: 0 0 0.5em 1em;
+}
+
+.accordion.contacts .content .label.subtitle
+{
+    -fx-font-size: 1.2em;
+    -fx-padding: 0 0.25em 0.25em 0.5em;
+}
+
+.hyperlink.view
+{
+    -fx-padding: 0 0 0 0.5em;
+}
+
+.fullscreen .accordion.contacts .information
+{
+    -fx-border-width: 0;
+}
+
+.fullscreen .accordion.contacts .information .label
+{
+    -fx-font-size: 1em;
+    -fx-padding: 0;
+}
+.nosections
+{
+    -fx-font-size: 1.2em;
+    -fx-padding: 1em 2em 2em 1em;
+}
+
+.accordion.tag .cell .label.chapter .iconbox,
+.accordion.tag .cell .label.chapter .iconbox .icon
+{
+    visibility: visible;
+    -fx-pref-width: 1.333em;
+    -fx-pref-height: 1.333em;
+    -fx-alignment: center-left;
+    -fx-fill-height: false;
+}
+
+.accordion.tag .cell .label.chapter > .iconbox .icon
+{
+    -fx-pref-width: 1em;
+    -fx-max-width: 1em;
+    -fx-min-width: 1em;
+}

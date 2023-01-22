@@ -1,0 +1,19 @@
+/*
+ * Used by the popup created in: com.quollwriter.ui.fx.WordCountTimerProgress
+ */
+.content { -fx-pref-width: 26em;
+-fx-max-width: 26em; }
+.content FlowPane {
+    -fx-alignment: center-left;
+    -fx-spacing: 0.5em;
+    -fx-hgap: 0.5em;
+}
+.button.start { -fx-content-display: graphic-only; }
+/*
+.content .label
+{
+    -fx-min-width: 3em;
+    -fx-pref-width: 3em;
+    -fx-max-width: 3em;
+}
+*/

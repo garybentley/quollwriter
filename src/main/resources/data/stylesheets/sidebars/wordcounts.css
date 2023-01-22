@@ -1,0 +1,36 @@
+/*
+ * Styles for com.quollwriter.ui.fx.sidebars.WordCountsSideBar
+ */
+ /*
+.header .icon { -fx-image: url(/imgs/wordcount16.png); }
+*/
+.accordion { -fx-padding: 0 0.5em 0.5em 0.5em; }
+.accordion .header {
+    -fx-border-width: 0 0 1px 0;
+    -fx-border-color: -qw-component-border-color;
+    -fx-padding: 0 0 0.25em 0;
+}
+.scroll-pane { -fx-fit-to-width: false; }
+.accordion .content { -fx-padding: 0.5em 0 0.5em 0.5em; }
+/*
+.accordion.selected .header .icon { -fx-image: url(/imgs/edit16.png); }
+.accordion.session .header .icon { -fx-image: url(/imgs/clock16.png); }
+.accordion.chapter .header .icon { -fx-image: url(/imgs/chapter16.png); }
+.accordion.allchapters .header .icon { -fx-image: url(/imgs/book16.png); }
+*/
+.subtitle {
+    -fx-font-style: italic;
+    -fx-padding: 0.25em;
+}
+.value {
+    -fx-alignment: center-right;
+    -fx-pref-width: 7em;
+    -fx-padding: 0 0.5em 0.25em 0;
+    -fx-font-weight: bold;
+    -fx-font-style: italic;
+}
+.hyperlink { -fx-padding: 0.25em 0.5 0.25em 0.5em; }
+.hyperlink.help .iconbox .help-icon.icon {
+    -fx-pref-width: 0.666em;
+}
+/*.hyperlink.detail { -fx-graphic: url(/imgs/chart16.png); }*/

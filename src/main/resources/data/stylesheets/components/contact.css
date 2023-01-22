@@ -1,0 +1,88 @@
+/**
+ * Styles relating to the display of a contact in a "box", class: com.quollwriter.editors.ui.EditorInfoBox
+ */
+ .contact .controls .iconbox,
+ .contact .controls .iconbox .icon
+ {
+     -fx-pref-width: 1.333em;
+     -fx-pref-height: 1.333em;
+     -fx-fill-height: false;
+     -fx-alignment: center;
+ }
+
+.contact .controls.statusbar
+{
+    -fx-spacing: 0.5em;
+}
+
+ .contact .controls .iconbox .icon.online-icon
+ {
+     -fx-pref-height: 1.000em;
+ }
+
+ .contact
+ {
+     -fx-padding: 0em 0 0.5em 0.5em;
+     -fx-border-color: -qw-component-border-color;
+     -fx-cursor: hand;
+     -fx-border-width: 0;
+     -fx-fill-width: true;
+ }
+
+ .contact .label.name
+ {
+     -fx-font-size: 1.5em;
+     -fx-padding: 0 0.5em 0em 0em;
+ }
+
+ .contact .avatar-box
+ {
+     -fx-pref-width: 4.5em;
+     -fx-min-width: 4.5em;
+     -fx-max-width: 4.5em;
+     -fx-min-height: 4.5em;
+     -fx-pref-height: 4.5em;
+     -fx-max-height: 4.5em;
+     -fx-border-width: 1px;
+     -fx-border-color: -qw-component-border-color;
+ }
+
+ .contact .avatar-box .icon,
+ .chatmessage .avatar-box .icon
+ {
+     -fx-pref-width: 4.3em;
+     -fx-min-width: 4.3em;
+     -fx-min-height: 4.3em;
+     -fx-pref-height: 4.3em;
+ }
+
+ .contact .statusbar
+ {
+     -fx-padding: 0 0.5em 0 0.5em;
+ }
+
+ .contact .avatar-box:noavatar
+ {
+     -fx-padding: 2px;
+     -fx-alignment: center;
+ }
+
+ .contact .avatar-box:noavatar .icon
+ {
+     -fx-shape: "M 18,6 A 6,6 0 0 1 12,12 6,6 0 0 1 6,6 6,6 0 0 1 12,0 6,6 0 0 1 18,6 M 12,16 C 5.375,16 0,21.375 0,28 c 0,2.211 1.789,4 4,4 h 16 c 2.211,0 4,-1.789 4,-4 0,-6.625 -5.375,-12 -12,-12 z";
+     -fx-background-color: #dfdfdf;
+     -fx-border-width: 0;
+     -fx-pref-width: 3em;
+     -fx-min-width: 3em;
+     -fx-max-width: 3em;
+     -fx-max-height: 4em;
+     -fx-min-height: 4em;
+     -fx-pref-height: 4em;
+     -fx-padding: 0;
+ }
+
+.contact .iconbox .icon.important-icon,
+.contact .button:hover .iconbox .icon.important-icon
+{
+    -fx-background-color: red;
+}

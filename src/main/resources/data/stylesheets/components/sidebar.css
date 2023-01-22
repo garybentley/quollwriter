@@ -1,0 +1,105 @@
+/*
+ * Base styles for a sidebar, com.quollwriter.ui.fx.components.SideBar
+ */
+ .sidebar > .header
+ {
+     -fx-padding: 0em 0 0em 0.5em;
+ }
+ .sidebar > .header > .iconbox,
+ .sidebar > .header > .iconbox .icon,
+ .sidebar > .header > .controls .iconbox,
+ .sidebar > .header > .controls .iconbox .icon {
+     -fx-pref-width: 1.333em;
+     -fx-pref-height: 1.333em;
+     -fx-min-width: 1.333em;
+     -fx-min-height: 1.333em;
+     -fx-fill-height: false;
+     -fx-alignment: center;
+ }
+
+.sidebar > .header > .controls .iconbox .icon
+{
+    -fx-background-color: -qw-icon-color;
+}
+
+.sidebar > .header > .controls .iconbox:hover .icon
+{
+    -fx-background-color: -qw-icon-hover-color;
+}
+/*
+ .sidebar > .header .close.button
+ {
+     -fx-graphic: url(/imgs/close16.png);
+ }
+*/
+/*
+ .sidebar > .header .help.button
+ {
+     -fx-graphic: url(/imgs/help16.png);
+ }
+*/
+.sidebar > .header .button .iconbox .help-icon.icon {
+    -fx-pref-width: 0.666em;
+    -fx-max-width: 0.666em;
+    -fx-min-width: 0.666em;
+}
+.sidebar > .header .iconbox .chapterinfo-icon.icon,
+.sidebar .accordion .iconbox .chapterinfo-icon.icon {
+    -fx-pref-width: 0.666em;
+    -fx-max-width: 0.666em;
+    -fx-min-width: 0.666em;
+}
+.sidebar.wordcounts .hyperlink.detail .iconbox .detail-icon.icon {
+    -fx-shape: "M 15.998,16.016 V 0 C 11.639,0.27 7.701,1.938 4.521,4.537 Z M 19.914,4.158 V 18.804 L 9.646,29.16 C 11.974,30.898 14.802,32 17.843,32 25.703,32 32,25.711 32,17.941 32,10.883 26.766,5.164 19.914,4.158 Z m -6.174,15.24 -10.008,-10 c -4.977,5.754 -4.977,14.246 0,20 z";
+}
+/*
+ .sidebar > .header .other.button
+ {
+     -fx-graphic: url(/imgs/sidebars16.png);
+ }
+*/
+ .sidebar > .header .title
+ {
+     -fx-padding: 0 0 0 0.5em;
+     -fx-font-size: 1.5em;
+     -fx-max-width: Infinity;
+     -fx-text-gap: 0.5em;
+ }
+
+ .accordion .header
+ {
+     -fx-padding: 0 0 0.25em 0;
+     -fx-cursor: hand;
+ }
+
+ .accordion .header .title
+ {
+     -fx-font-size: 1.3em;
+     -fx-padding: 0 0 0 0.25em;
+ }
+
+ /*
+  * We don't show the header for the project (main) sidebar.
+  */
+ .project > .header
+ {
+     visibility: hidden;
+ }
+
+ /*
+  * Icon definitions need to be here since SideBar is a wrapper around the actual sidebar content.
+  */
+ .find > .header .icon
+ {
+     -fx-image: url(/imgs/find16.png);
+ }
+
+.header .controls .container
+ {
+     -fx-spacing: 5.25em;
+ }
+
+.sidebar > .header .controls
+{
+    -fx-padding: 0.25em;
+}

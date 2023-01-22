@@ -1,0 +1,72 @@
+/*
+ * Styles for com.quollwriter.ui.fx.ProblemFinder
+ */
+.problemfinder {
+    -fx-border-width: 1px 0 0 0;
+    -fx-border-color: -qw-component-border-color;
+    -fx-padding: 0em 0.25em 1em 0.5em;
+    -fx-background-color: -qw-bg-color;
+}
+.header { -fx-padding: 0; }
+.problemfinder > .header .iconbox,
+.problemfinder > .header .iconbox .icon,
+.problemfinder > .header > .controls .button .iconbox,
+.problemfinder > .header > .controls .button .iconbox .icon,
+.problemfinder .buttons .button-bar .iconbox,
+.problemfinder .buttons .button-bar .iconbox .icon {
+    -fx-pref-height: 1.333em;
+    -fx-pref-width: 1.333em;
+    -fx-fill-height: false;
+    -fx-alignment: center;
+}
+.problemfinder > .header .iconbox .icon {
+    -fx-pref-height: 0.888em;
+}
+.problemfinder > .header > .controls .button .iconbox .help-icon {
+    -fx-pref-width: 0.666em;
+}
+.problemfinder .buttons .button-bar .iconbox .previous-icon.icon {
+    -fx-rotate: 180;
+}
+/*.header .icon { -fx-image: url(/imgs/eye16.png); }*/
+.check-box { -fx-padding: 0 0 0.5em 0.25em; }
+.buttons { -fx-padding: 0 0 0 0.25em; }
+/*
+.header .controls .config { -fx-graphic: url(/imgs/config16.png); }
+.header .controls .finish { -fx-graphic: url(/imgs/close16.png); }
+.header .controls .help { -fx-graphic: url(/imgs/help16.png); }
+*/
+.buttons .next {
+/*     -fx-graphic: url(/imgs/next16.png);*/
+     -fx-content-display: right;
+}
+.buttons .previous {
+/*    -fx-graphic: url(/imgs/previous16.png);*/
+    -fx-content-display: right;
+}
+.warning {
+    -fx-cursor: hand;
+/*    -fx-graphic: url(/imgs/warning16.png);*/
+    -fx-padding: 0 0.25em 0.5em 0.25em;
+    -fx-graphic-text-gap: 0;
+}
+.noproblems {
+    /*-fx-graphic: url(/imgs/information16.png);*/
+    -fx-padding: 0 0 0.5em 0.5em;
+}
+.issues { -fx-fill-width: false; }
+.problemfinder .label.warning .iconbox,
+.problemfinder .label.warning .iconbox .icon,
+.problemfinder .label.noproblems .iconbox,
+.problemfinder .label.noproblems .iconbox .icon {
+    -fx-pref-height: 1.333em;
+    -fx-pref-width: 1.333em;
+    -fx-fill-height: false;
+    -fx-alignment: center;
+}
+.problemfinder .label.noproblems .iconbox .icon {
+    -fx-pref-width: 0.888em;
+}
+.problemfinder .label.warning .iconbox .icon {
+    -fx-pref-width: 0.333em;
+}

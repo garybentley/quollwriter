@@ -1,0 +1,130 @@
+/*
+ * Styles relating to the find sidebar, com.quollwriter.ui.fx.sidebar.FindSideBar
+ */
+ .content
+ {
+     -fx-pref-width: 20em;
+     -fx-min-width: 20em;
+ }
+
+.content .scroll-pane
+{
+    -fx-fit-to-width: false;
+}
+
+ .accordion.chapter .label.chapter .iconbox {
+     -fx-pref-width: 0;
+     -fx-pref-height: 0;
+ }
+
+ .accordion.chapter .label.snippet .iconbox {
+     -fx-pref-width: 1.333em;
+     -fx-pref-height: 1.333em;
+     -fx-fill-height: false;
+     -fx-alignment: center;
+     -fx-padding: 0 0 0 0.4em;
+ }
+
+ .accordion.chapter .tree .cell .label.snippet .iconbox .snippet-icon.icon {
+     -fx-shape: "m 106.60139,138.8493 a 4,4 0 0 1 -4,4 4,4 0 0 1 -4.000003,-4 4,4 0 0 1 4.000003,-4 4,4 0 0 1 4,4 z";
+     -fx-background-color: -qw-icon-color;
+     -fx-pref-width: 0.666em;
+     -fx-pref-height: 0.666em;
+ }
+
+/*
+ .label.outlineitem .iconbox,
+ .accordion .label.outlineitem .iconbox .icon,
+ .accordion .label.scene .iconbox,
+ .accordion .label.scene .iconbox .icon,
+ .accordion .label.notes .iconbox,
+ .accordion .label.notes .iconbox .icon {
+     -fx-pref-width: 1.333em;
+     -fx-pref-height: 1.333em;
+     -fx-fill-height: false;
+     -fx-alignment: center;
+ }
+*/
+/*
+ .header .icon
+ {
+     -fx-image: url(/imgs/find16.png);
+ }
+*/
+ .findbox
+ {
+     -fx-padding: 0 0.5em 1em 0.5em;
+ }
+
+ .results
+ {
+     -fx-padding: 0 0.5em 0.5em 0.5em;
+ }
+
+ .results .header
+ {
+     -fx-padding: 0;
+ }
+
+ .results .accordion
+ {
+     -fx-padding: 0 0 0.5em 0;
+ }
+/*
+ .results .accordion.chapter .header .icon
+ {
+     -fx-image: url(/imgs/chapter16.png);
+ }
+*/
+/*
+ .results .accordion.scene .header .icon
+ {
+     -fx-image: url(/imgs/scene16.png);
+ }
+
+ .results .accordion.outlineitem .header .icon
+ {
+     -fx-image: url(/imgs/outlineitem16.png);
+ }
+*/
+/*
+ .results .accordion.note .header .icon
+ {
+     -fx-image: url(/imgs/note16.png);
+ }
+*/
+ .results .accordion .tree .cell
+ {
+     -fx-cursor: hand;
+     -fx-padding: 0 0 0 0em;
+ }
+/*
+ .results .snippet
+ {
+     -fx-graphic: url(/imgs/bullet16.png);
+ }
+ */
+/*
+ .results .note .tree .cell .label
+ {
+     -fx-graphic: url(/imgs/bullet16.png);
+     -fx-padding: 0 0 0 -2em;
+ }
+*/
+ VBox
+ {
+     -fx-fill-width: true;
+ }
+
+ .tree
+ {
+     -fx-cell-indent: -0.4em;
+ }
+
+ .results .asset .tree .cell,
+ .results .scene .tree .cell,
+ .results .outlineitem .tree .cell,
+ .results .note .tree .cell
+ {
+     -fx-padding: 0 0 0.25em 0em;
+ }

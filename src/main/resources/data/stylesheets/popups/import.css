@@ -1,0 +1,86 @@
+/*
+ * Styles for com.quollwriter.ui.fx.popups.ImportPopup
+ */
+/*.qpopup.import .header .icon { -fx-image: url(/imgs/project-import16.png); }*/
+.content {
+    -fx-max-height: 30em;
+    -fx-pref-height: 30em;
+}
+.content .header { -fx-padding: 0; }
+.content .header .title { -fx-padding: 0; }
+.content .header .icon { visibility: hidden; }
+.content .radio-button { -fx-padding: 0.5em 0 0.5em 0; }
+/*
+.content .select-project {
+    -fx-border-width: 1px;
+    -fx-border-color: -qw-component-border-color;
+}
+*/
+.content .select-project .projects { -fx-fill-width: true; }
+.content .select-project .projects .label {
+    -fx-font-size: 1.3em;
+    -fx-padding: 0.5em;
+    -fx-border-width: 0 0 1px 0;
+    -fx-border-color: -qw-component-border-color;
+    -fx-max-width: Infinity;
+    -fx-cursor: hand;
+    -fx-text-fill: -qw-text-base-color;
+}
+.content .select-project .projects .label:hover { -fx-background-color: -qw-hover-bg; }
+.content .select-project .projects .label:selected { -fx-background-color: -qw-armed-bg; -fx-text-fill: -qw-title-selected-text-color; }
+.content .select-project .projects .label:hover { -fx-text-fill: -qw-title-selected-text-color; }
+.content .scroll-pane {
+    -fx-border-color: -qw-component-border-color;
+    -fx-border-width: 1px;
+}
+.content .select-items .scroll-pane {
+    -fx-fit-to-width: false;
+    -fx-pref-height: 20em;
+}
+/*content .tree-cell.chapter .text { -fx-graphic: url(/imgs/chapter16.png); }*/
+.content ._string .check-box { visibility: hidden; }
+.content .wizard .header .iconbox {
+    visibility: hidden;
+}
+.content .tree .cell {
+    -fx-padding: 0;
+}
+/*
+.content .tree .cell .label.chapter .iconbox
+{
+    -fx-fill-height: false;
+    -fx-alignment: center;
+
+}
+*/
+
+.content .tree .cell .label .iconbox
+{
+    -fx-pref-height: 1.333em;
+    -fx-pref-width: 1.333em;
+    -fx-fill-height: false;
+    -fx-alignment: center;
+
+}
+
+.content .tree .cell .label.chapter .iconbox .icon {
+    -fx-pref-width: 1em;
+    -fx-pref-height: 1.333em;
+    -fx-fill-height: false;
+    -fx-alignment: center;
+}
+.content .tree {
+    -fx-cell-indent: 1.8em;
+}
+
+.content .tree .cell:leaf .label .iconbox,
+.content .tree .cell:branch:hasparent .label .iconbox,
+.content .tree .cell:branch:hasparent .iconbox.disclosure
+{
+    visibility: hidden;
+}
+
+.content .tree .cell .label
+{
+    -fx-label-padding: 0.1em 0.2em 0.1em 0.2em;
+}

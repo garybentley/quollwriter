@@ -1,0 +1,28 @@
+.items .item .qtextview.info,
+.items .item .qtextview.info .label
+{
+    -fx-font-size: 1em;
+}
+
+.items .item .qtextview.info
+{
+    -fx-padding: 0 0.5em 0.25em 1em;
+}
+
+.content
+{
+    -fx-pref-height: 25em;
+}
+
+.items .item
+{
+    -fx-border-width: 0 0 1px 0;
+    -fx-border-color: -qw-component-border-color;
+    -fx-cursor: hand;
+}
+
+.items .item .label.title
+{
+    -fx-font-size: 1.5em;
+    -fx-border-width: 0;
+}

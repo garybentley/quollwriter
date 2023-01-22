@@ -1,0 +1,94 @@
+/*
+ * Styles for com.quollwriter.ui.fx.popups.FirstUseWizard
+ */
+ .qpopup.editorregister
+ {
+     -fx-pref-width: 50em;
+     -fx-pref-height: 40em;
+     /*-fx-border-width: 0;
+     -fx-border-color: transparent;*/
+ }
+
+.wizard .header
+{
+    -fx-padding: 0 0.5em 0 0;
+}
+
+.wizard .header .iconbox
+{
+    visibility: hidden;
+}
+
+ .content .form .control
+ {
+     -fx-padding: 0.5em 0 0.5em 0.5em;
+ }
+
+ .form .control .image {
+     -fx-border-color: -qw-component-border-color;
+     -fx-border-width: 1px;
+     -fx-cursor: hand;
+     -fx-pref-width: 8em;
+     -fx-min-width: 8em;
+     -fx-max-width: 8em;
+     -fx-max-height: 8em;
+     -fx-min-height: 8em;
+     -fx-pref-height: 8em;
+     -fx-alignment: center;
+ }
+
+.image .iconbox,
+.image .iconbox .icon
+{
+    -fx-pref-width: 8em;
+    -fx-min-width: 8em;
+    -fx-max-width: 8em;
+    -fx-max-height: 8em;
+    -fx-min-height: 8em;
+    -fx-pref-height: 8em;
+    -fx-alignment: center;
+}
+
+ .image:noimage,
+ .image:noimage
+ {
+     -fx-padding: 2px;
+     -fx-alignment: center;
+ }
+
+ .image:noimage .iconbox .icon
+ {
+     -fx-shape: "M 18,6 A 6,6 0 0 1 12,12 6,6 0 0 1 6,6 6,6 0 0 1 12,0 6,6 0 0 1 18,6 M 12,16 C 5.375,16 0,21.375 0,28 c 0,2.211 1.789,4 4,4 h 16 c 2.211,0 4,-1.789 4,-4 0,-6.625 -5.375,-12 -12,-12 z";
+     -fx-background-color: -qw-icon-color;
+     -fx-border-width: 0;
+     -fx-pref-width: 4.5em;
+     -fx-min-width: 4.5em;
+     -fx-max-width: 4.5em;
+     -fx-max-height: 6em;
+     -fx-min-height: 6em;
+     -fx-pref-height: 6em;
+     -fx-padding: 0;
+ }
+
+ .filefind .text-input
+ {
+     -fx-cursor: hand;
+ }
+
+.content .form:stacked .control
+{
+    -fx-padding: 0.5em 0 0.5em 1em;
+}
+
+.label.error,
+.label.information
+{
+    -fx-padding: 0 0.5em 0.5em 0;
+}
+
+.label.information .iconbox
+{
+    -fx-pref-width: 1.333em;
+    -fx-pref-height: 1.333em;
+    -fx-max-width: 1.333em;
+}

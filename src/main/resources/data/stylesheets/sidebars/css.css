@@ -1,0 +1,24 @@
+/*
+ * Styles for the CSS sidebar (inception!) com.quollwriter.ui.fx.sidebars.CSSSideBar
+ */
+.scroll-pane
+{
+    -fx-fit-to-width: false;
+    -fx-fit-to-height: false;
+}
+
+.tree .label
+{
+    -fx-cursor: hand;
+}
+
+.sidebar
+{
+    -fx-min-width: 20em;
+    -fx-pref-width: 30em;
+}
+
+.header
+{
+    visibility: hidden;
+}

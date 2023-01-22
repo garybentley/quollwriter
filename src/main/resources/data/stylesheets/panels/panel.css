@@ -1,0 +1,27 @@
+/*
+ * Base styles for panels using com.quollwriter.ui.fx.components.Panel
+ */
+.panel { -fx-background-color: -qw-bg-color; }
+.header { -fx-padding: 0.3em 0.5em 0.3em 0.3em; }
+.header .title {
+    -fx-max-width: Infinity;
+    -fx-text-fill: -fx-text-base-color;
+    -fx-font-size: 1.7em;
+    -fx-padding: 0 0 0 0.3em;
+}
+.header > .iconbox,
+.header > .iconbox .icon
+{
+    -fx-pref-width: 1.7em;
+    -fx-pref-height: 1.7em;
+    -fx-fill-height: false;
+    -fx-alignment: center;
+}
+.header .controls .button .iconbox,
+.header .controls .button .iconbox .icon
+{
+    -fx-pref-width: 1.333em;
+    -fx-pref-height: 1.333em;
+    -fx-fill-height: false;
+    -fx-alignment: center;
+}

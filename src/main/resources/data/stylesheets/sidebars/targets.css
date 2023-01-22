@@ -1,0 +1,65 @@
+/*
+ * Styles for com.quollwriter.ui.fx.sidebars.TargetsSideBar
+ */
+ /*
+.sidebar.targets .header .icon { -fx-image: url(/imgs/goals16.png); }
+.accordion.mywriting .header .icon { -fx-image: url(/imgs/edit16.png); }
+.accordion.chapter .header .icon { -fx-image: url(/imgs/chapter16.png); }
+.accordion.readability .header .icon { -fx-image: url(/imgs/eye16.png); }
+*/
+.targets {
+    -fx-pref-width: 20em;
+    -fx-min-width: 20em;
+}
+.content {
+    -fx-padding: 0 0.5em 1em 0.5em;
+}
+.hyperlink.warning { -fx-padding: 0.5em 0 0 0; }
+.hyperlink.warning .iconbox .icon {
+    -fx-pref-width: 0.333em;
+    -fx-background-color: -qw-error-color;
+}
+.accordion.readability .header .iconbox .readability-icon.icon {
+    -fx-pref-height: 0.888em;
+    -fx-max-height: 0.888em;
+    -fx-min-height: 0.888em;
+}
+HBox {
+    -fx-alignment: center-left;
+}
+.spinner {
+    -fx-pref-width: 9em;
+    -fx-max-width: 9em;
+    -fx-min-width: 9em;
+}
+.form.column .control .label {
+    -fx-padding: 0 0 0 0.5em;
+    -fx-alignment: center-left;
+}
+.form.column .control { -fx-alignment: center-left; }
+.form .label { -fx-alignment: center-right; }
+.hyperlink.chart {
+    -fx-padding: 0.5em 0.5em 0.5em 0em;
+    /*-fx-graphic: url(/imgs/chart16.png);*/
+    -fx-graphic-text-gap: 0.5em;
+}
+.scroll-pane
+{
+    -fx-fit-to-width: true;
+}
+
+.form:column .items .control
+{
+    -fx-padding: 0 0 1em 0;
+}
+
+.form:column .items > .label
+{
+    -fx-padding: 0 0.25em 1em 0;
+}
+
+.content .check-box,
+.content .hyperlink
+{
+    -fx-padding: 0 0 0.75em 0.5em;
+}

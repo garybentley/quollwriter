@@ -1,0 +1,29 @@
+/*
+ * Styles for the layout selector, it doesn't have its own class.
+ */
+.item {
+    -fx-padding: 0.25em;
+    -fx-cursor: hand;
+    -fx-border-width: 1px;
+    -fx-border-color: transparent;
+}
+.item:selected .layout { -fx-border-color: white; }
+.item:selected, .item:selected:hover {
+    -fx-background-color: -qw-selected-border-color;
+    -fx-border-color: -qw-selected-border-color;
+}
+.item .description { -fx-padding: 0 0 0 0.5em; }
+.item:selected .description > *, .item:selected:hover .description > * {
+    -fx-fill: white;
+}
+.item:hover {
+     -fx-background-color: -qw-hover-bg;
+     -fx-border-width: 1px;
+     -fx-border-color: -qw-border-color;
+}
+.item:hover .description > * { -fx-fill: -qw-text-base-color; }
+.item:selected .description .label { -fx-text-fill: #ffffff; }
+.root:night .item:hover .description .label
+{
+    -fx-text-fill: -qw-dark-color;
+}

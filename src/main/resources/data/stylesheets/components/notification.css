@@ -1,0 +1,155 @@
+/*
+ * Styles related to com.quollwriter.ui.fx.components.Notification
+ */
+.notification > .iconbox,
+.notification > .iconbox .icon {
+    -fx-pref-width: 2em;
+    -fx-pref-height: 2em;
+    -fx-min-width: 2em;
+    -fx-min-height: 2em;
+    -fx-max-height: 2em;
+    -fx-fill-height: false;
+    -fx-alignment: center;
+}
+
+.notification > .iconbox .icon.readability-icon {
+    -fx-pref-height: 1.333em;
+    -fx-max-height: 1.333em;
+    -fx-min-height: 1.333em;
+}
+.notification > .iconbox .icon.tips-icon {
+    -fx-min-width: 1em;
+    -fx-pref-width: 1em;
+    -fx-max-width: 1em;
+}
+.notification > .iconbox .icon.info-icon,
+.notification > .iconbox .icon.information-icon {
+    -fx-pref-width: 1em;
+    -fx-max-width: 1em;
+    -fx-min-width: 1em;
+}
+
+ .icon
+ {
+     -fx-padding: 0 0 0 0.25em;
+ }
+
+ .content
+ {
+     -fx-padding: 0.5em;
+     -fx-alignment: center-left;
+     -fx-fill-width: true;
+ }
+
+ .controls .button
+ {
+     -fx-padding: 0.3em;
+ }
+
+ .controls .button > .iconbox,
+ .controls .button > .iconbox .icon {
+     -fx-pref-width: 1.333em;
+     -fx-pref-height: 1.333em;
+     -fx-min-height: 1.333em;
+     -fx-min-height: 1.333em;
+     -fx-max-width: 1.333em;
+     -fx-min-width: 1.333em;
+     -fx-fill-height: false;
+     -fx-alignment: center;
+ }
+ .controls .button > .iconbox .next-icon.icon {
+     -fx-pref-width: 0.888em;
+     -fx-max-width: 0.888em;
+     -fx-min-width: 0.888em;
+ }
+ .controls .button > .iconbox .information-icon.icon
+ {
+     -fx-pref-width: 1.766em;
+     -fx-max-width: 1.766em;
+     -fx-min-width: 1.766em;
+ }
+
+/*
+ .controls .close
+ {
+     -fx-graphic: url(/imgs/close16.png);
+ }
+*/
+
+ .progress-bar
+ {
+     -fx-padding: 0.5em 0 0.5em 0.5em;
+     -fx-pref-width: 30em;
+     -fx-max-width: 200em;
+     -fx-min-height: 2.5em;
+     -fx-max-height: 2.5em;
+     -fx-pref-height: 2.5em;
+ }
+/*
+ .tips .icon
+ {
+     -fx-image: url(/imgs/help24.png);
+ }
+*/
+ .readability, .wordcounts
+ {
+     -fx-cursor: hand;
+ }
+/*
+ .information .icon
+ {
+     -fx-image: url(/imgs/information24.png);
+ }
+
+ .download .icon
+ {
+     -fx-image: url(/imgs/download24.png);
+ }
+*/
+ .readability .content, .wordcounts .content
+ {
+     -fx-cursor: hand;
+ }
+
+ /*
+  Find projects notification (added by FindProjectsPopup)
+  */
+  /*
+ .findprojects .icon
+ {
+     -fx-image: url(/imgs/find24.png);
+ }
+*/
+
+.content .buttons
+{
+    -fx-padding: 0.5em 0.5em 0 0.5em;
+}
+
+.hyperlink
+{
+    -fx-alignment: center-left;
+}
+
+.filter
+{
+    -fx-background-color: #dddddd;
+    -fx-cursor: hand;
+}
+
+.filter .web-view
+{
+    -fx-cursor: hand;
+}
+
+.filter .iconbox .icon.filter-icon
+{
+    -fx-pref-height: 1.2em;
+    -fx-max-height: 1.2em;
+    -fx-min-height: 1.2em;
+}
+
+.filter .controls
+{
+    visibility: hidden;
+}

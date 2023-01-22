@@ -1,0 +1,12 @@
+.viewer
+{
+    -fx-min-width: 200px;
+    -fx-min-height: -1;
+    -fx-pref-width: -1;
+    -fx-pref-height: -1;
+}
+
+.qtoolbar.controls
+{
+    visibility: hidden;
+}

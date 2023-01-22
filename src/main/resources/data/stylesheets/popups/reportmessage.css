@@ -1,0 +1,25 @@
+.reportmessage .header.title > .iconbox .icon
+{
+    -fx-pref-width: 0.333em;
+    -fx-max-width: 0.333em;
+    -fx-min-width: 0.333em;
+}
+
+.reportmessage .form:stacked .label.sectiontitle
+{
+    -fx-font-size: 1.5em;
+    -fx-font-style: normal;
+    -fx-border-width: 0 0 1px 0;
+    -fx-border-color: -qw-component-inner-border-color;
+    -fx-padding: 0.5em 0.5em 0.2em 0;
+}
+
+.reportmessage .form:stacked .control
+{
+    -fx-padding: 0 0 0.5em 0em;
+}
+
+.reportmessage .form .buttons
+{
+    -fx-padding: 0.5em 0.5em 0.5em 0;
+}

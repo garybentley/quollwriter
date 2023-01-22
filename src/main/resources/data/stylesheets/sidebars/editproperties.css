@@ -1,0 +1,44 @@
+/*
+ * Styles for com.quollwriter.ui.fx.sidebars.TextPropertiesSideBar
+ */
+.editproperties {
+    -fx-pref-width: 23.3em;
+    -fx-min-width: 23.3em;
+}
+/*
+.editproperties > .header .icon { -fx-image: url(/imgs/edit-properties16.png); }
+*/
+.content { -fx-padding: 0 0.5em 1em 0.5em; }
+.form .control {
+    -fx-padding: 0 0 1.5em 1em;
+    -fx-alignment: center-left;
+}
+.fontsize, .linespacing, .textborder, .paragraphspacing {
+    -fx-alignment: center-left;
+    -fx-spacing: 0.5em;
+}
+.control .spinner  { -fx-pref-width: 6em; -fx-min-width: 6em; }
+.control .slider { -fx-min-width: 14em; }
+.control .alignment.choice-box .label { -fx-padding: 0.25em 0.5em 0.25em 0.5em; }
+.form .items > .label
+{
+    -fx-font-style: italic;
+    -fx-font-size: 1.1em;
+    /*-fx-font-style: italic;*/
+    -fx-padding: 1em 0 0.3em 0;
+}
+
+.form .description
+{
+    -fx-padding: 0 0 0.25em 0;
+}
+
+.combo-box
+{
+    -fx-max-width: 20em;
+}
+
+.fullscreen
+{
+    -fx-padding: 0 0 1em 0;
+}

@@ -1,0 +1,30 @@
+/*
+ * Base styles applicable to all instances of com.quollwriter.ui.fx.components.TextEditor
+ */
+ .texteditor
+ {
+     -fx-max-height: Infinity;
+     -fx-background-color: transparent;
+ }
+
+ .texteditor .text
+ {
+     -fx-fill: black;
+     -fx-font-size: 1em;
+ }
+
+ .paragraph-box .first-line-indent
+ {
+     -fx-pref-height: 3em;
+     -fx-min-height: 3em;
+     -fx-pref-width: 3em;
+     -fx-min-width: 3em;
+     -fx-max-width: 3em;
+     -fx-background-color: blue;
+ }
+ .paragraph-text
+ {
+     -fx-line-spacing: 0em;
+     -fx-text-alignment: left;
+
+ }

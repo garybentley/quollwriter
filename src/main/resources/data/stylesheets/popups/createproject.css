@@ -1,0 +1,11 @@
+/*
+ * Styles for com.quollwriter.ui.fx.popups.NewProjectPopup
+ */
+ .createproject .passwords
+ {
+     -fx-spacing: 0.5em;
+     -fx-alignment: center-left;
+     -fx-padding: 0.5em 0 0 0;
+ }
+
+.createproject .passwords .label { -fx-padding: 0 0 0 0.5em; }

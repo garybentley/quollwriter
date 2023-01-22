@@ -1,0 +1,174 @@
+/*
+ * Styles for com.quollwriter.ui.fx.panels.IdeaBoard
+ */
+.header.ideaboard {
+    -fx-background-color: -qw-bg-color;
+    -fx-border-width: 0 0 1px 0;
+    -fx-border-color: -qw-component-border-color;
+    -fx-padding: 0.3em;
+}
+.header.ideaboard > .iconbox,
+.header.ideaboard > .iconbox .icon {
+    -fx-pref-width: 2em;
+    -fx-pref-height: 2em;
+    -fx-fill-height: false;
+    -fx-alignment: center;
+}
+.header.ideaboard > .iconbox .ideaboard-icon.icon {
+    -fx-pref-width: 1.333em;
+}
+.header.ideaboard .controls .button .iconbox,
+.header.ideaboard .controls .button .iconbox .icon {
+    -fx-pref-width: 1.666em;
+    -fx-pref-height: 1.666em;
+    -fx-fill-height: false;
+    -fx-alignment: center;
+}
+.header.ideaboard .controls .button .iconbox .help-icon.icon {
+    -fx-pref-width: 0.888em;
+}
+.header .controls { -fx-padding: 0 0 0 0;}
+/*.header.ideaboard .icon { -fx-image: url(/imgs/idea24.png); }
+.header.ideaboard .controls .add { -fx-graphic: url(/imgs/add20.png); }
+.header.ideaboard .controls .help { -fx-graphic: url(/imgs/help20.png); }
+*/
+.scroll-pane { -fx-fit-to-height: false; }
+.categories {
+    -fx-hgap: 1em;
+    -fx-vgap: 1em;
+    -fx-padding: 1em;
+    -fx-alignment: top-center;
+    -qw-item-width: 25em;
+}
+.categories .ideatype {
+    -fx-min-width: 30em;
+    -fx-max-width: 30em;
+    -fx-pref-width: 30em;
+    -fx-border-width: 1px;
+    -fx-border-color: -qw-border-color;
+    /*-fx-effect: -qw-drop-shadow;*/
+}
+.categories .ideatype .header {
+    -fx-padding: 0.25em 0.25em 0.25em 0.5em;
+    -fx-cursor: hand;
+    -fx-border-width: 0;
+}
+.newidea .buttons .button .iconbox,
+.newidea .buttons .button .iconbox .icon {
+    -fx-pref-width: 1.333em;
+    -fx-pref-height: 1.333em;
+    -fx-fill-height: false;
+    -fx-alignment: center;
+}
+.categories .ideatype .header .title { -fx-font-size: 1.5em; }
+/*
+.categories .ideatype .header .controls .add {
+    -fx-image: url(/imgs/add16.png);
+    -fx-graphic: url(/imgs/add16.png);
+}
+*/
+.categories .ideatype { -fx-background-color: -qw-bg-color; }
+.categories .ideatype .help {
+    -fx-padding: 0.5em;
+    -fx-font-style: italic;
+}
+.categories .ideatype .header .iconbox,
+.categories .ideatype .header .iconbox .icon,
+.categories .ideatype .header .controls .iconbox,
+.categories .ideatype .header .controls .iconbox .icon {
+    -fx-pref-width: 1.333em;
+    -fx-pref-height: 1.333em;
+    -fx-fill-height: false;
+    -fx-alignment: center;
+}
+.categories .ideatype .header .iconbox .chapter-icon.icon {
+    -fx-pref-width: 1em;
+}
+.categories .ideatype .header .iconbox .idea-icon.icon,
+.categories .ideatype .header .iconbox .dialogue-icon.icon {
+    -fx-pref-width: 0.888em;
+}
+/*
+.categories .ideatype .scene.header .icon { -fx-image: url(/imgs/scene16.png); }
+.categories .ideatype .chapter.header .icon { -fx-image: url(/imgs/chapter16.png); }
+.categories .ideatype .location.header .icon { -fx-image: url(/imgs/location16.png); }
+.categories .ideatype .character.header .icon { -fx-image: url(/imgs/character16.png); }
+.categories .ideatype .object.header .icon { -fx-image: url(/imgs/object16.png); }
+.categories .ideatype .researchitem.header .icon { -fx-image: url(/imgs/researchitem16.png); }
+*/
+.idea {
+    /*-fx-padding: 0.25em 0.5em 0.5em 0.5em;*/
+    -fx-border-width: 0 0 1px 0;
+    -fx-border-color: -qw-component-border-color;
+}
+.idea > .edit, .ideatype .newidea {
+    -fx-border-color: -qw-component-border-color;
+    -fx-border-width: 1px 0 1px 0;
+}
+.idea .edit .qtextarea, .ideatype .newidea .qtextarea {
+    -fx-border-width: 0;
+    -fx-padding: 0.25em;
+}
+.idea .edit .buttons, .ideatype .newidea .buttons {
+    -fx-border-width: 1px 0 0 0;
+    -fx-border-color: -qw-component-border-color;
+    -fx-padding: 0.25em;
+    -fx-alignment: center-right;
+}
+.idea .tool-bar .button .iconbox,
+.idea .tool-bar .button .iconbox .icon,
+.idea .tool-bar .menu-button .iconbox,
+.idea .tool-bar .menu-button .iconbox .icon,
+.idea .starbar .iconbox,
+.idea .starbar .iconbox .icon {
+    -fx-pref-width: 1.333em;
+    -fx-pref-height: 1.333em;
+    -fx-fill-height: false;
+    -fx-alignment: center;
+}
+.idea .starbar .iconbox {
+    -fx-padding: 0.25em;
+    -fx-pref-width: 1.833em;
+    -fx-pref-height: 1.833em;
+    -fx-fill-height: false;
+    -fx-alignment: center;
+    -fx-cursor: hand;
+}
+.idea .starbar .iconbox .icon {
+    -fx-pref-width: 1.333em;
+    -fx-pref-height: 1.333em;
+}
+.idea .starbar .iconbox:selected .star-icon.icon,
+.idea .starbar .iconbox:tempselected .star-icon.icon {
+    -fx-background-color: -qw-icon-color;
+}
+.idea .starbar .iconbox .star-icon.icon {
+    -fx-background-color: #ded2d0;
+}
+
+.idea:last { -fx-border-width: 0; }
+.idea .view { -fx-padding: 0.25em 0.25em 0.25em 0.5em; }
+.idea .shorttext { -fx-cursor: hand; }
+.idea .tool-bar {
+    -fx-padding: 0;
+    -fx-alignment: center-left ;
+    -fx-fill-height: true;
+}
+.starbar {
+    -fx-fill-height: false;
+    -fx-alignment: center-left;
+}
+.starbar .star {
+    -fx-padding: 0.25em;
+    -fx-cursor: hand;
+}
+/*
+.starbar .star .image-view { -fx-image: url(/imgs/star-disabled16.png); }
+.starbar .star:tempselected .image-view,
+.starbar .star:selected .image-view { -fx-image: url(/imgs/star16.png); }
+*/
+
+.ideatype .edit .qtextarea .styled-text-area
+{
+    -fx-border-width: 0;
+}

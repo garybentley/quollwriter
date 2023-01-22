@@ -1,0 +1,793 @@
+<properties>
+  <property id="compactMenus" type="boolean">
+    <description>Whether compact menus should be used.</description>
+    <value>false</value>
+  </property>
+
+  <property id="openLastEditedProject" type="boolean">
+    <description>Whether the last edited project should be opened when quoll writer starts.</description>
+    <value>true</value>
+  </property>
+
+  <property id="showLandingOnStart" type="boolean">
+    <description>Whether the landing window should be opened when quoll writer starts.</description>
+    <value>false</value>
+  </property>
+
+  <property id="compressChapterContextMenu" type="boolean">
+    <description>Whether the chapter context menu (usually accessed via right-click) is compressed or not.</description>
+    <value>false</value>
+  </property>
+
+  <property id="showEditPositionIconInChapterList" type="boolean">
+    <description>Show an icon in the chapter list when a chapter has an edit position.</description>
+    <value>true</value>
+  </property>
+
+  <property id="showEditCompleteIconInChapterList" type="boolean">
+    <description>Show an icon in the chapter list when a chapter is marked as edit complete.</description>
+    <value>true</value>
+  </property>
+
+  <property id="showEditMarkerInChapter" type="boolean">
+    <description>Show an edit marker, a thin colored strip at the side of the chapter text.</description>
+    <value>true</value>
+  </property>
+
+  <property id="setChapterAsEditCompleteWhenEditPositionIsAtEndOfChapter" type="boolean">
+    <description>When the edit position is at the end of the chapter mark the chapter as edit complete.</description>
+    <value>true</value>
+  </property>
+
+  <property id="editMarkerColor" type="string">
+    <description>The color of the edit marker.</description>
+    <value>#84a328</value>
+  </property>
+
+  <property id="findHighlightColor" type="string">
+    <description>The color of the highlight for the find.</description>
+    <value>#00ff00</value>
+  </property>
+
+  <property id="editNeededNoteChapterHighlightColor" type="string">
+    <description>The color of the highlight for edit needed note selected text.</description>
+    <value>#84a328</value>
+  </property>
+
+  <property id="editorCommentChapterHighlightColor" type="string">
+    <description>The color of the highlight for editor comments text.</description>
+    <value>#84a328</value>
+  </property>
+
+  <property id="problemFinderIssueHighlightColor" type="string">
+    <description>The color of the highlight for an issue found by the problem finder.</description>
+    <value>#e8deae</value>
+  </property>
+
+  <property id="problemFinderBlockHighlightColor" type="string">
+    <description>The color of the highlight for a block of text (a paragraph or sentence) found by the problem finder.</description>
+    <value>#daebe4</value>
+  </property>
+
+  <property id="synonymHighlightColor" type="string">
+    <description>The color of the highlight for a synonym.</description>
+    <value>#cea5e8</value>
+  </property>
+
+  <property id="showNotesInChapterList" type="boolean">
+    <description>Show the notes in the chapter list.</description>
+    <value>true</value>
+  </property>
+
+  <property id="imgDir" type="string">
+    <description>The image directory.</description>
+    <value>/imgs/</value>
+  </property>
+
+  <property id="dateFormat" type="string">
+    <description>The format for date parsing/formatting.</description>
+    <value>dd MMM yyyy</value>
+  </property>
+
+  <property id="defaultEditorFontSize" type="integer">
+    <description>The default font size for the editor.</description>
+    <value>14</value>
+  </property>
+
+  <property id="defaultEditorTextBorder" type="integer">
+    <description>The default text border for the editor.</description>
+    <value>0</value>
+  </property>
+
+  <property id="defaultEditorWritingLineColor" type="string">
+    <description>The default color for the writing line for the editor.</description>
+    <value>#D3D3D3</value>
+  </property>
+
+  <property id="defaultEditorFontColor" type="string">
+    <description>The default font color for the text for the editor.</description>
+    <value>#000000</value>
+  </property>
+
+  <property id="defaultEditorBGColor" type="string">
+    <description>The default background color for the text for the editor.</description>
+    <value>#FDFDFD</value>
+  </property>
+
+  <property id="defaultEditorFont" type="string">
+    <description>The default font for the editor.</description>
+    <value>Georgia</value>
+  </property>
+
+  <property id="defaultEditorLineSpacing" type="number">
+    <description>The default text line spacing for the editor.</description>
+    <value>1.3</value>
+  </property>
+
+  <property id="defaultEditorIndentFirstLine" type="boolean">
+    <description>Whether the first line of each paragraph should be indented in the editor.</description>
+    <value>false</value>
+  </property>
+
+  <property id="defaultEditorHighlightWritingLine" type="boolean">
+    <description>Whether the writing line should be highlighted in the editor.</description>
+    <value>false</value>
+  </property>
+
+  <property id="editorFontSize" type="integer">
+    <description>The default font size for the editor.</description>
+    <value>14</value>
+  </property>
+
+  <property id="editorTextBorder" type="integer">
+    <description>The default text border for the editor.</description>
+    <value>0</value>
+  </property>
+
+  <property id="editorWritingLineColorNightMode" type="string">
+    <description>The default color for the writing line for the editor in night mode.</description>
+    <value>#D3D3D3</value>
+  </property>
+
+  <property id="editorWritingLineColor" type="string">
+    <description>The default color for the writing line for the editor.</description>
+    <value>#D3D3D3</value>
+  </property>
+
+  <property id="editorFontColorNightMode" type="string">
+    <description>The default font color for the text for the editor in night mode.</description>
+    <value>#FFFFFF</value>
+  </property>
+
+  <property id="editorFontColor" type="string">
+    <description>The default font color for the text for the editor.</description>
+    <value>#000000</value>
+  </property>
+
+  <property id="editorBGColorNightMode" type="string">
+    <description>The default background color for the text for the editor in night mode.</description>
+    <value>#4D4D4D</value>
+  </property>
+
+  <property id="editorBGColor" type="string">
+    <description>The default background color for the text for the editor.</description>
+    <value>#FDFDFD</value>
+  </property>
+
+  <property id="editorFont" type="string">
+    <description>The default font for the editor.</description>
+    <value>Georgia</value>
+  </property>
+
+  <property id="editorAlignment" type="string">
+    <description>The default text alignment for the editor.</description>
+    <value>Left</value>
+  </property>
+
+  <property id="editorLineSpacing" type="number">
+    <description>The default text line spacing for the editor.</description>
+    <value>1.3</value>
+  </property>
+
+  <property id="editorParagraphSpacing" type="number">
+    <description>The default text paragraph spacing for the editor.</description>
+    <value>1.0</value>
+  </property>
+
+  <property id="editorIndentFirstLine" type="boolean">
+    <description>Whether the first line of each paragraph should be indented in the editor.</description>
+    <value>false</value>
+  </property>
+
+  <property id="editorHighlightWritingLine" type="boolean">
+    <description>Whether the writing line should be highlighted in the editor.</description>
+    <value>false</value>
+  </property>
+
+  <property id="textProp" type="number">
+    <description>The default text line spacing for the editor.</description>
+    <value>11</value>
+  </property>
+
+  <property id="fullScreenSidebarWidth" type="integer">
+    <description><![CDATA[The default width of the sidebar in full screen mode.]]></description>
+    <value><![CDATA[250]]></value>
+  </property>
+<!--
+Removed so that the full screen properties will inherit from the standard editor ones.
+  <property id="fullScreenEditorAlignment" type="string">
+    <description><![CDATA[The default text alignment in full screen mode.]]></description>
+    <value><![CDATA[Left]]></value>
+  </property>
+
+  <property id="fullScreenEditorFontBGColor" type="string">
+    <description><![CDATA[The default text background color in full screen mode.]]></description>
+    <value><![CDATA[#ffffff]]></value>
+  </property>
+
+  <property id="fullScreenEditorFontColor" type="string">
+    <description><![CDATA[The default text color in full screen mode.]]></description>
+    <value><![CDATA[#000000]]></value>
+  </property>
+
+  <property id="fullScreenEditorFontSize" type="integer">
+    <description><![CDATA[The default font size in full screen mode.]]></description>
+    <value><![CDATA[14.0]]></value>
+  </property>
+
+  <property id="fullScreenEditorFont" type="string">
+    <description>The default font in full screen mode.</description>
+    <value>Georgia</value>
+  </property>
+
+  <property id="fullScreenEditorIndentFirstLine" type="boolean">
+    <description>Whether the first line of each paragraph should be indented in the editor for full screen mode.</description>
+    <value>false</value>
+  </property>
+
+  <property id="fullScreenEditorTextBorder" type="integer">
+    <description><![CDATA[The default text border in full screen mode.]]></description>
+    <value><![CDATA[0]]></value>
+  </property>
+
+  <property id="fullScreenEditorLineSpacing" type="float">
+    <description><![CDATA[The default line spacing in full screen mode.]]></description>
+    <value><![CDATA[1.3]]></value>
+  </property>
+
+  <property id="fullScreenEditorHighlightWritingLine" type="boolean">
+    <description>Whether the writing line should be highlighted in the editor for full screen mode.</description>
+    <value>false</value>
+  </property>
+
+  <property id="fullScreenEditorWritingLineColor" type="string">
+    <description>The default color for the writing line for the editor in full screen mode.</description>
+    <value>#D3D3D3</value>
+  </property>
+  -->
+  <property id="fullScreenBorderOpacity" type="float">
+    <description>Sets the opacity of the border around the visible area in full screen mode.</description>
+    <value>1</value>
+  </property>
+  <property id="fullScreenShowChildBorder" type="boolean">
+    <description>In full screen mode show the border around the child panel.</description>
+    <value>true</value>
+  </property>
+
+  <property id="fullScreenHideIconColumn" type="boolean">
+    <description>In full screen mode hide the icon column for the editor.</description>
+    <value>false</value>
+  </property>
+<!--
+  <property id="noteTypes" type="string">
+    <description>The default note types.</description>
+    <value>Information|To Do</value>
+  </property>
+-->
+  <property id="quollWriterUpdaterClassName" type="string">
+    <description>The class that will check for updates.</description>
+    <value>com.quollwriter.ui.fx.DefaultQuollWriterUpdater</value>
+  </property>
+
+  <property id="synonymProviderClass" type="string">
+    <description>The synonym provider.</description>
+    <value>com.quollwriter.synonyms.providers.BuiltInSynonymProvider</value>
+  </property>
+
+  <property id="thesaurusFileName" type="string">
+    <description>The name of the thesaurus file.</description>
+    <value>thesaurus-1.0.txt</value>
+  </property>
+
+  <property id="thesaurusIndexFileName" type="string">
+    <description>The name of the thesaurus index file.</description>
+    <value>thesaurus-index-1.0.txt</value>
+  </property>
+
+  <property id="dbUsername" type="string">
+    <description>The db username.</description>
+    <value>QuollWriter</value>
+  </property>
+
+  <property id="dbPassword" type="string">
+    <description>The db password.</description>
+    <value>QuollWriter-password</value>
+  </property>
+
+  <property id="dictionaryFiles" type="string">
+    <description>A list of files, separated by commas that indicate the dictionary files that should be loaded.</description>
+    <value>en/english.0,en/english.1,en/english.2,en/english.3,en/british.0,en/british.1,en/british.2</value>
+  </property>
+
+  <property id="spellCheckLanugage" type="string">
+    <description>The spell check language.</description>
+    <value>English</value>
+  </property>
+
+  <property id="defaultSpellCheckLanugage" type="string">
+    <description>The default spell check language.</description>
+    <value>English</value>
+  </property>
+
+  <property id="EnglishDictionaryFiles" type="string">
+    <description>The list of dictionary files for english.</description>
+    <value>en/english.0,en/english.1,en/english.2,en/english.3</value>
+  </property>
+
+  <property id="US EnglishDictionaryFiles" type="string">
+    <description>The list of dictionary files for english.</description>
+    <value><property id="EnglishDictionaryFiles" />,en/american.0,en/american.1,en/american.2</value>
+  </property>
+
+  <property id="British EnglishDictionaryFiles" type="string">
+    <description>The list of dictionary files for english.</description>
+    <value><property id="EnglishDictionaryFiles" />,en/british.0,en/british.1,en/british.2</value>
+  </property>
+
+  <property id="quollWriterDebugWebsite" type="string">
+    <description>The debug website for quoll writer.</description>
+    <value>http://localhost:8080</value>
+  </property>
+
+  <property id="quollWriterWebsite" type="string">
+    <description>The website for quoll writer.</description>
+    <value>https://quollwriter.com</value>
+  </property>
+
+  <property id="quollWriterWebsitePromptsLinks" type="string">
+    <description>The prompts links on the quoll writer website.</description>
+    <value><property id="quollWriterWebsite" />/resources#prompts</value>
+  </property>
+
+  <property id="quollWriterLanguageFilesUrl" type="string">
+    <description>The url to use for downloading the spell check/synonym language files for quoll writer.</description>
+    <value>language-files/[[LANG]].zip</value>
+  </property>
+
+  <property id="quollWriterSupportedLanguagesUrl" type="string">
+    <description>The url to use for downloading the list of supported spellchecker languages for quoll writer.</description>
+    <value>language-files/supported-languages.txt</value>
+  </property>
+
+  <property id="quollWriterAvailableUILanguageStringsUrl" type="string">
+    <description>The url to use for downloading the list of available ui strings available for quoll writer.</description>
+    <value>available-ui-language-strings.html</value>
+  </property>
+
+  <property id="quollWriterGetUILanguageStringsUrl" type="string">
+    <description>The url to use for downloading the ui strings for quoll writer.</description>
+    <value>get-ui-language-strings.html?version=[[VERSION]]&amp;id=[[ID]]&amp;lastModified=[[LAST_MOD]]</value>
+  </property>
+
+  <property id="quollWriterGetWebsiteLanguageStringsUrl" type="string">
+    <description>The url to use for downloading the website strings for quoll writer.</description>
+    <value>get-website-language-strings.html</value>
+  </property>
+
+  <property id="quollWriterReleaseNotesUrl" type="string">
+    <description>The release notes url for quoll writer.</description>
+    <value><property id="quollWriterWebsite" />/user-guide/version-changes/[[VERSION]].html</value>
+  </property>
+
+  <property id="quollWriterDevPlanUrl" type="string">
+    <description>The development plan url for quoll writer.</description>
+    <value><property id="quollWriterWebsite" />/user-guide/version-changes/development-plan.html</value>
+  </property>
+
+  <property id="quollWriterAcknowledgmentsURL" type="string">
+    <description>The acknowledgments url.</description>
+    <value><property id="quollWriterWebsite" />/acknowledgments.html</value>
+  </property>
+
+  <property id="quollWriterSubmitUILanguageStringsURL" type="string">
+    <description>The url prefix for submitting a set of ui language strings to quoll writer.</description>
+    <value>/submit-ui-language-strings.html</value>
+  </property>
+
+  <property id="quollWriterDeleteUILanguageStringsURL" type="string">
+    <description>The url prefix for submitting a set of ui language strings to quoll writer.</description>
+    <value>/delete-ui-language-strings.html?id=[[ID]]&amp;all=[[ALL]]&amp;version=[[VERSION]]</value>
+  </property>
+
+  <property id="quollWriterSubmitWebsiteLanguageStringsURL" type="string">
+    <description>The url prefix for submitting a set of website language strings to quoll writer.</description>
+    <value>/submit-website-language-strings.html</value>
+  </property>
+
+  <property id="quollWriterTryoutWebsiteLanguageStringsURL" type="string">
+    <description>The url prefix for trying out a set of website language strings for the quoll writer website.</description>
+    <value>/tryout-website-language-strings.html</value>
+  </property>
+
+  <property id="quollWriterDeleteWebsiteLanguageStringsURL" type="string">
+    <description>The url prefix for submitting a set of website language strings to quoll writer.</description>
+    <value>/delete-website-language-strings.html?id=[[ID]]</value>
+  </property>
+
+  <property id="contactSupportMailtoURI" type="string">
+    <description>The base uri to use for contacting support.</description>
+    <value><![CDATA[mailto:support@quollwriter.com?subject=Quoll%20Writer%20Support%20Request&body=Version:%20[[VERSION]]%0D%0ADescription:%20]]></value>
+  </property>
+
+  <property id="bugReportMailtoURI" type="string">
+    <description>The base uri to use for bug reporting.</description>
+    <value><![CDATA[mailto:support@quollwriter.com?subject=Quoll%20Writer%20Bug/Problem&body=Version:%20[[VERSION]]%0D%0AJava%20Details:%20[[JAVA_VERSION]]%0D%0AOS%20Details:%20[[OS_NAME]],%20[[OS_ARCH]],%20[[OS_VERSION]]%0D%0A%0D%0A1.%20Brief%20Description%0D%0A%0D%0A2.%20Steps%20to%20Reproduce%0D%0A%0D%0A3.%20What%20I%20expected%20to%20happen%0D%0A]]></value>
+  </property>
+
+  <property id="doAutoUpdateCheck" type="boolean">
+    <description>Whether we should do auto update checking.</description>
+    <value>true</value>
+  </property>
+
+  <property id="colorSwatches" type="string">
+    <description>The color swatches we display for color selection.</description>
+    <value>#4c4c4c,#2956AD,#0DAB43,#9f7867,#31655E,#fdb443,#a18bf9,#1d5375,#84a328,#7292DA,#f1d956,#99000d,#d3c199,#9eded9</value>
+  </property>
+
+  <property id="toolbarLocation" type="string">
+    <description>The location of the toolbar, can be either "top" or "bottom".</description>
+    <value>bottom</value>
+  </property>
+
+  <property id="uiLayout" type="string">
+    <description>How the UI should be laid out.</description>
+    <value>layout-ps-ch</value>
+  </property>
+
+  <property id="projectSideBarWidth" type="integer">
+    <description>How wide the project sidebar should be.</description>
+    <value>250</value>
+  </property>
+
+  <property id="tabsLocation" type="string">
+    <description>The location of the tabs, can be either "top" or "bottom".</description>
+    <value>bottom</value>
+  </property>
+
+  <property id="showTips" type="boolean">
+    <description>Whether tips should be shown when Quoll Writer starts.</description>
+    <value>true</value>
+  </property>
+
+  <property id="defaultIdeaBoardBackgroundImage" type="string">
+    <description>The default idea board background image.</description>
+    <value>paper-6.jpg</value>
+  </property>
+
+  <property id="supportUrlBase" type="string">
+    <description>The base url used for support operations, such as sending messages and getting the latest version.</description>
+    <value>https://quollwriter.com/</value>
+  </property>
+
+  <property id="debugSupportUrlBase" type="string">
+    <description>The base url used for debug support operations, such as sending messages and getting the latest version.</description>
+    <value>http://localhost:8080/</value>
+  </property>
+
+  <property id="editorsServiceReportMessagePage" type="string">
+    <description>The page used for reporting an editors service message to support.</description>
+    <value>/editor-mode/report-message.html</value>
+  </property>
+
+  <property id="sendMessageToSupportPage" type="string">
+    <description>The page used for sending a message to support.</description>
+    <value>send-message-to-support.html</value>
+  </property>
+
+  <property id="getLatestVersionPage" type="string">
+    <description>The page for getting the latest version.</description>
+    <value>get-news-and-version.html</value>
+  </property>
+
+  <property id="getUpgradeFilePage" type="string">
+    <description>The page for getting the latest upgrade file.</description>
+    <value>get-upgrade-file.html</value>
+  </property>
+
+  <property id="quollWriterDownloadsUrl" type="string">
+    <description>The url for downloading Quoll Writer.</description>
+    <value>https://quollwriter.com/downloads.html</value>
+  </property>
+
+  <property id="writingGenres" type="string">
+    <description>The types of genres supported.  Taken from: http://en.wikipedia.org/wiki/List_of_genres</description>
+    <value>Action,Adventure,Comedy,Crime,Erotica,Faction,Fantasy,Historical,Horror,Mystery,Paranoid,Philosophical,Political,Romance,Saga,Satire,Science Fiction,Slice of Life, Speculative,Thriller,Urban</value>
+  </property>
+
+  <property id="editorsWebserviceBaseURL" type="string">
+    <description>The base url suffix for the editors webserivce.  This is prefixed with the quoll writer website property (debug or normal) to get the full url.</description>
+    <value>/editor/api/rest/</value>
+  </property>
+
+  <property id="editorsAuthorsWebserviceBaseURL" type="string">
+    <description>The url suffix for the editors Authors webserivce.</description>
+    <value><property id="editorsWebserviceBaseURL" />authors</value>
+  </property>
+
+  <property id="editorsAccountsWebserviceBaseURL" type="string">
+    <description>The url suffix for the editors Accounts webserivce.</description>
+    <value><property id="editorsWebserviceBaseURL" />accounts</value>
+  </property>
+
+  <property id="editorsProjectsWebserviceBaseURL" type="string">
+    <description>The url suffix for the editors Projects webserivce.</description>
+    <value><property id="editorsWebserviceBaseURL" />projects</value>
+  </property>
+
+  <property id="editorsEditorsWebserviceBaseURL" type="string">
+    <description>The url suffix for the editors Editors webserivce.</description>
+    <value><property id="editorsWebserviceBaseURL" />editors</value>
+  </property>
+
+  <property id="editorsInvitesWebserviceBaseURL" type="string">
+    <description>The url suffix for the editors Invites webserivce.</description>
+    <value><property id="editorsWebserviceBaseURL" />invites</value>
+  </property>
+
+  <property id="editorsSessionsWebserviceBaseURL" type="string">
+    <description>The url suffix for the editors Sessions webserivce.</description>
+    <value><property id="editorsWebserviceBaseURL" />sessions</value>
+  </property>
+
+  <property id="editorsJIDSuffix" type="string">
+    <description>The jid suffix for the editors service.</description>
+    <value>@www.quollwriter.com</value>
+  </property>
+
+  <property id="editorsServiceHost" type="string">
+    <description>The host for the editors service.</description>
+    <value>www.quollwriter.com</value>
+  </property>
+
+  <property id="editorsServicePort" type="string">
+    <description>The port to use for the editors service.</description>
+    <value>5222</value>
+  </property>
+
+  <property id="autoSendErrorsToSupport" type="boolean">
+    <description>Whether errors should be automatically sent to quoll writer support.</description>
+    <value>true</value>
+  </property>
+
+  <property id="showQuickObjectPreviewInProjectSidebar" type="boolean">
+    <description>Whether a quick preview of the object should be shown as a popup in the project sidebar.</description>
+    <value>true</value>
+  </property>
+
+  <property id="seenFirstTimeInDistractionFreeModeInfoPopup" type="boolean">
+    <description>Has the user been in distraction free mode before?</description>
+    <value>false</value>
+  </property>
+
+  <property id="sortProjectsBy" type="string">
+    <description>The field to sort projects on in the landing viewer.</description>
+    <value>lastEdited</value>
+  </property>
+
+  <property id="defaultProjectInfoFormat" type="string">
+    <description>The default format to use for project information.</description>
+    <value><![CDATA[<b>{s}</b>  {wc}, {ch}
+<i>{le}</i>]]></value>
+  </property>
+
+  <property id="defaultChapterInfoPreviewFormat" type="string">
+    <description>The default format to use for chapter preview information.</description>
+    <value><![CDATA[{d}
+{wc}, {ec}, {le}
+{sp}, {pf}]]></value>
+  </property>
+
+  <property id="backupsToKeepCount" type="integer">
+    <description>The number of backups to keep, the oldest backups are pruned.</description>
+    <value>-1</value>
+  </property>
+<!--
+  <property id="projectStatuses" type="string">
+    <description>The default project statuses.</description>
+    <value>In Progress|Complete|Editing|On Hold|Waiting for feedback</value>
+  </property>
+-->
+  <property id="closeProjectsWindowWhenProjectOpened" type="boolean" deprecated="true" use="keepProjectsWindowWhenProjectOpened">
+    <description>Close the projects window when a project is opened.</description>
+    <value>true</value>
+  </property>
+
+  <property id="keepProjectsWindowWhenProjectOpened" type="boolean">
+    <description>Keep the projects window when a project is opened.</description>
+    <value>false</value>
+  </property>
+
+  <property id="showProjectsWindowWhenNoOpenProjects" type="boolean">
+    <description>Show the projects window when there are no open projects.</description>
+    <value>true</value>
+  </property>
+
+  <property id="targetSessionWriting" type="integer">
+    <description>The default session writing target.</description>
+    <value>500</value>
+  </property>
+
+  <property id="targetDailyWriting" type="integer">
+    <description>The default daily writing target.</description>
+    <value>500</value>
+  </property>
+
+  <property id="targetWeeklyWriting" type="integer">
+    <description>The default weekly writing target.</description>
+    <value>3500</value>
+  </property>
+
+  <property id="targetMonthlyWriting" type="integer">
+    <description>The default monthly writing target.</description>
+    <value>15000</value>
+  </property>
+
+  <property id="targetReadabilityFK" type="integer">
+    <description>The default flesch-kincaid readability target, the zero switches the target off.</description>
+    <value>0</value>
+  </property>
+
+  <property id="targetReadabilityGF" type="integer">
+    <description>The default gunning fog readability target, the zero switches the target off.</description>
+    <value>0</value>
+  </property>
+
+  <property id="targetMaxChapterCount" type="integer">
+    <description>The default max chapter count target, the zero switches the target off.</description>
+    <value>0</value>
+  </property>
+
+  <property id="targetShowMessageWhenMaxChapterCountExceeded" type="boolean">
+    <description>Whether a message should be shown when the max chapter word count target is exceeded.</description>
+    <value>false</value>
+  </property>
+
+  <property id="targetShowMessageWhenSessionTargetReached" type="boolean">
+    <description>Whether a message should be shown when a session target is reached.</description>
+    <value>false</value>
+  </property>
+
+  <property id="showEachChapterFindResult" type="boolean">
+    <description>When a find is performed should the chapter results be expanded to show all results.</description>
+    <value>false</value>
+  </property>
+
+  <property id="editAssetsInPopup" type="boolean">
+    <description>Edit assets in a popup.</description>
+    <value>true</value>
+  </property>
+
+  <property id="addAssets" type="string">
+    <description>How adding a new asset shoudl be handled.</description>
+    <value>popup</value>
+  </property>
+
+  <property id="projectSidebarSections" type="string">
+    <description>The sections that the project sidebar should display.</description>
+    <value>chapter|character|location|object|researchitem|projecteditor</value>
+  </property>
+
+  <property id="defaultProjectSidebarSections" type="string">
+    <description>The default sections that the project sidebar should display.</description>
+    <value>chapter|character|location|object|researchitem|projecteditor</value>
+  </property>
+
+  <property id="highlightSplitpaneDividers" type="boolean">
+    <description>Highlight splitpane dividers when the user mouses over them.</description>
+    <value>true</value>
+  </property>
+
+  <property id="defaultUILanguage" type="string">
+    <description>The default language for the UI.</description>
+    <value>:English</value>
+  </property>
+
+  <property id="copyright" type="string">
+    <description>The copyright notice used in the about popup.  %s1 is replaced with the current year.</description>
+    <value><![CDATA[© 2009-%1s Gary Bentley]]></value>
+  </property>
+
+  <property id="sourceCodeWebsite" type="string">
+    <description>The website where the QW source code can be found.</description>
+    <value>https://github.com/garybentley/quollwriter</value>
+  </property>
+
+  <property id="patreonWebsite" type="string">
+    <description>The Patreon website for QW.</description>
+    <value>https://www.patreon.com/quollwriter?ty=h</value>
+  </property>
+
+  <property id="gofundmeWebsite" type="string">
+    <description>The gofundme website for QW.</description>
+    <value>https://www.gofundme.com/quollwriter</value>
+  </property>
+
+  <property id="userUILanguage" type="string">
+    <description>The user ui language.</description>
+    <value><property id="defaultUILanguage" /></value>
+  </property>
+
+  <property id="achievementsEnabled" type="boolean">
+    <description>Whether achievements are enabled.</description>
+    <value>true</value>
+  </property>
+
+  <property id="achievementsSoundEnabled" type="boolean">
+    <description>Whether the achievement sound in normal mode is enabled.</description>
+    <value>true</value>
+  </property>
+<!--
+  <property id="defaultUIBaseFontSIze" type="integer">
+    <description>The default base font size of the UI.</description>
+    <value>9</value>
+  </property>
+
+  <property id="uiBaseFontSize" type="integer">
+    <description>The base font size of the UI.</description>
+    <value>9</value>
+  </property>
+-->
+  <property id="autoSnapshotsTime" type="integer"><value><![CDATA[43200000]]></value></property>
+  <property id="enableAutoSnapshots" type="boolean"><value><![CDATA[true]]></value></property>
+  <property id="splitPaneDividerLocation" type="integer"><description><![CDATA[The default split pane position.]]></description><value><![CDATA[250]]></value></property>
+  <property id="windowHeight" type="integer"><description><![CDATA[The default window height.]]></description><value><![CDATA[800]]></value></property>
+  <property id="chapterAutoSaveEnabled" type="boolean"><value><![CDATA[true]]></value></property>
+  <property id="windowWidth" type="integer"><description><![CDATA[The default window width.]]></description><value><![CDATA[1000]]></value></property>
+  <property id="chapterAutoSaveInterval" type="integer"><value><![CDATA[300000]]></value></property>
+
+  <property id="defaultWarmupMins" type="integer">
+    <description>The default time in minutes for a warm-up.</description>
+    <value>30</value>
+  </property>
+
+  <property id="defaultWarmupWords" type="integer">
+     <description>The default number of words to write for a warm-up.</description>
+     <value>500</value>
+ </property>
+
+ <property id="allProjectsViewerHeaderControlButtonIds" type="string">
+   <description>The list of control ids for controls that are visible by default in the all projects viewer header.</description>
+   <value>newproject|import|contacts|context</value>
+ </property>
+
+ <property id="projectViewerHeaderControlButtonIds" type="string">
+   <description>The list of control ids for controls that are visible by default in the project viewer header.</description>
+   <value>ideaboard|contacts|find|fullscreenenter|context</value>
+ </property>
+
+ <property id="warmupViewerHeaderControlButtonIds" type="string">
+   <description>The list of control ids for controls that are visible by default in the warmup viewer header.</description>
+   <value>timer|dowarmup|contacts|find|fullscreenenter|context</value>
+ </property>
+
+ <property id="fullScreenHeaderControlButtonIds" type="string">
+   <description>The list of control ids for controls that are visible by default in the full screen view.</description>
+   <value>clock|distractionfreeenter|ideaboard|timer|contacts|find|fullscreenexit|editproperties</value>
+ </property>
+
+ <property id="languageStringsEditorHeaderControlButtonIds" type="string">
+   <description>The list of control ids for controls that are visible by default in the full screen view.</description>
+   <value>submitstrings|find|tryoutstrings|help|context</value>
+ </property>
+
+</properties>

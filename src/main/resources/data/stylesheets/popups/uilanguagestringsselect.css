@@ -1,0 +1,4 @@
+.scroll-pane .items .label
+{
+    -fx-content-display: text-only;
+}

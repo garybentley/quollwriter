@@ -1,0 +1,31 @@
+/*
+ * Styles for com.quollwriter.ui.fx.popups.ShowSynonymsPopup
+ */
+.scroll-pane { -fx-pref-height: 5em; /*-fx-pref-height: 5em;*/ }
+.content .header {
+    -fx-border-width: 0 0 1px 0;
+    -fx-border-color: -qw-component-border-color;
+    -fx-padding: 0.5em 0 0 0;
+}
+.content { -fx-padding: 0 0.25em 0.5em 0.5em; }
+.content .header .title {
+    -fx-padding: 0;
+    -fx-font-size: 1.2em;
+    -fx-font-style: italic;
+}
+.content .words { -fx-padding: 0.25em 0 0.5em 0.25em; }
+.content .header .icon { visibility: false; }
+.link { -fx-cursor: hand; }
+.link:hover { -fx-underline: true; }
+.content .header .iconbox
+{
+    visibility: hidden;
+}
+.header .iconbox .icon,
+.header .iconbox
+{
+    -fx-pref-height: 1.333em;
+    -fx-pref-width: 1.333em;
+    -fx-alignment: center;
+    -fx-fill-height: false;
+}

@@ -1,0 +1,147 @@
+/*
+ * Styles for the popup that displays a list of editor messages.
+ */
+.message
+{
+    -fx-padding: 0.5em 0 0.5em 0;
+    -fx-border-width: 0 0 1px 3px;
+    -fx-border-color: transparent transparent -qw-component-border-color transparent;
+}
+
+.form:column .items > .label
+{
+    -fx-pref-width: 5em;
+    -fx-max-width: 5em;
+    -fx-min-width: 5em;
+    -fx-font-style: italic;
+    -fx-alignment: center-right;
+}
+
+.form:column .items > .control
+{
+    -fx-alignment: center-left;
+}
+
+.form:column .items > .control .label
+{
+    -fx-padding: 0;
+}
+
+.scroll-pane
+{
+    -fx-pref-height: 30em;
+}
+
+.hyperlink.viewproject
+{
+    -fx-content-display: text-only;
+}
+
+.hyperlink.view
+{
+    -fx-padding: 0;
+}
+
+.iconbox.avatar-box
+{
+    -fx-pref-width: 4.5em;
+    -fx-min-width: 4.5em;
+    -fx-max-width: 4.5em;
+    -fx-pref-height: 4.5em;
+    -fx-min-height: 4.5em;
+    -fx-max-height: 4.5em;
+    -fx-border-width: 1px;
+    -fx-border-color: -qw-component-border-color;
+}
+
+.iconbox.avatar-box:noavatar
+{
+    -fx-padding: 2px;
+    -fx-alignment: center;
+}
+
+.iconbox.avatar-box .icon
+{
+    -fx-pref-width: 4.3em;
+    -fx-pref-height: 4.3em;
+    -fx-min-width: 4.3em;
+    -fx-min-height: 4.3em;
+}
+
+.message .header .title
+{
+    -fx-font-size: 1.5em;
+}
+
+.message.editorinfo .name
+{
+    -fx-font-size: 1.3em;
+}
+
+.message.editorinfo .info
+{
+    -fx-padding: 0.5em 0.5em 0.5em 1em;
+}
+
+.message.editorremoved .description
+{
+    -fx-padding: 0.5em 0.5em 0.5em 1em;
+}
+
+.message:attentionrequired
+{
+    -fx-border-width: 0 0 1px 3px;
+    -fx-border-color: transparent transparent -qw-component-border-color red;
+}
+/*
+.message .response
+{
+    -fx-padding: 0 0.5em 0.25em 0.5em;
+}
+*/
+.message .response .header .title
+{
+    -fx-padding: 0;
+}
+
+.message .response .header .iconbox
+{
+    visibility: hidden;
+}
+
+.message .response .header
+{
+    -fx-border-width: 0 0 0 0;
+    -fx-border-color: -qw-component-border-color;
+}
+
+.message .response .buttons
+{
+    -fx-alignment: center;
+    -fx-padding: 1em 0.5em 0.5em 0.5em;
+}
+
+.message.projecteditstopmessage .response
+{
+    -fx-padding: 0 0.5em 0 1em;
+}
+
+.message.invitemessage .qtextview
+{
+    -fx-padding: 0 0.25em 0.25em 1em;
+}
+
+.message.invitemessage .details
+{
+    -fx-padding: 0.5em 0.25em 0.25em 1em;
+}
+
+.message.invitemessage .details .image-view
+{
+    -fx-padding: 0 0.25em 0 0;
+}
+
+.message.invitemessage .details .label
+{
+    -fx-font-size: 1.5em;
+}

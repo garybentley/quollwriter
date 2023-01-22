@@ -1,0 +1,159 @@
+.sidebar > .header
+{
+    visibility: hidden;
+    -fx-padding: 0;
+}
+.accordion .tree .cell .iconbox.disclosure
+{
+    visibility: hidden;
+}
+.accordion .header.section
+{
+    -fx-padding: 0 0 0em 0.5em;
+}
+.accordion .tree .cell .label
+{
+    -fx-cursor: hand;
+}
+.accordion .tree
+{
+    -fx-padding: 0 0 0.5em 1.5em;
+}
+.content .scroll-pane
+{
+    -fx-fit-to-width: true;
+    -fx-fit-to-height: true;
+}
+
+.content .scroll-pane .content
+{
+    -fx-pref-width: 20em;
+    -fx-min-width: 15em;
+    -fx-fill-width: true;
+}
+.toolbar .button > .iconbox,
+.toolbar .button > .iconbox .icon,
+.toolbar .menu-button > .label .iconbox,
+.toolbar .menu-button > .label .iconbox .icon {
+    -fx-pref-width: 1.666em;
+    -fx-pref-height: 1.666em;
+    -fx-min-width: 1.666em;
+    -fx-max-width: 1.666em;
+    -fx-min-height: 1.666em;
+    -fx-max-height: 1.666em;
+    -fx-fill-height: false;
+    -fx-alignment: center;
+}
+
+.toolbar .button .iconbox .icon.errors-icon
+{
+    -fx-pref-width: 0.555em;
+    -fx-min-width: 0.555em;
+    -fx-max-width: 0.555em;
+}
+
+.toolbar:bottom {
+    -fx-border-width: 1px 0 0 0;
+    -fx-border-color: -qw-component-border-color;
+}
+.toolbar:top {
+    -fx-border-width: 0 0 1px 0;
+    -fx-border-color: -qw-component-border-color;
+}
+
+.accordion .header.section .iconbox,
+.accordion .header.section .iconbox .icon
+{
+    -fx-pref-width: 1.333em;
+    -fx-pref-height: 1.333em;
+    -fx-fill-height: false;
+    -fx-alignment: center;
+}
+
+.project .header
+{
+    visibility: visible;
+}
+
+.accordion .tree
+{
+    -fx-cell-indent: 1em;
+}
+
+.tree .cell
+{
+    -fx-padding : 0 0 0.25em 1.8em;
+}
+
+.label.node.error
+{
+    -fx-text-fill: -qw-error-color;
+}
+
+.label.node .iconbox .icon,
+.label.node .iconbox
+{
+    -fx-pref-height: 1em;
+    -fx-pref-width: 1em;
+    -fx-alignment: center;
+    -fx-fill-height: false;
+}
+
+.label.node.error .iconbox .icon.error-icon
+{
+    -fx-background-color: -qw-error-color;
+    -fx-pref-width: 0.555em;
+}
+
+.label.node .iconbox .icon.node-icon
+{
+    -fx-pref-height: 0.666em;
+    -fx-pref-width: 0.666em;
+}
+
+.label.node .iconbox .icon.next-icon
+{
+    -fx-pref-width: 0.666em;
+    -fx-max-width: 0.666em;
+    -fx-min-width: 0.666em;
+}
+
+.label.node .iconbox .icon.error-icon
+{
+    -fx-pref-width: 0.333em;
+    -fx-max-width: 0.333em;
+    -fx-min-width: 0.333em;
+}
+
+.accordion .header .title
+{
+    -fx-font-size: 1.5em;
+}
+
+.accordion .header .title .iconbox,
+.accordion .header .title .iconbox .icon
+{
+    -fx-pref-height: 1.7em;
+    -fx-min-height: 1.7em;
+    -fx-pref-width: 1.7em;
+    -fx-min-width: 1.7em;
+    -fx-alignment: center;
+    -fx-fill-height: false;
+}
+
+.accordion.section
+{
+    -fx-padding: 0 0 0.5em 0;
+}
+
+.toolbar
+{
+    -fx-padding: 0.2em;
+}
+
+.accordion .header.section .iconbox .icon.achievement-icon
+{
+    -fx-pref-width: 0.888em;
+    -fx-max-width: 0.888em;
+    -fx-min-width: 0.888em;
+}

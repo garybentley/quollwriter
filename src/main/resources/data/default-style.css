@@ -1,0 +1,2806 @@
+/**
+ * A note on icon size.  It's better to set all three properties, i.e. pref/min/max to ensure that you get the
+ * size you desire.
+ * e.g.
+ *  -fx-pref-height: 1.3333em;
+ *  -fx-min-height: 1.3333em;
+ *  -fx-max-height: 1.3333em;
+ * This will lock the size to a particular height.  It seems that sometimes the pref-* values are ignored by JavaFX and the
+ * sizes in certain circumstances can change so locking all three properties will prevent this.
+ */
+.root
+{
+
+    -qw-bg-color: #fdfdfd;
+
+    /*
+     * The dark color.  Generally used for borders and drop shadows as well as solid colors.
+     */
+    -qw-dark-color: #4d4d4d;
+
+    -qw-dark-night-color: #ffffff;
+
+    /*
+     * Used for hover effects on things you can click on.
+     */
+    -qw-hover-bg: linear-gradient(from 0% 0% to 0% 100%, #ffffff 0%, #dddddd 100%);
+
+    /*
+     * Experimental
+     */
+    -qw-hover-bg: #dddddd;
+
+    -qw-armed-bg: linear-gradient(from 0% 0% to 0% 100%, #ffffff 0%, #999999 100%);
+
+    /*
+     * Experimental
+     */
+    -qw-armed-bg: #eeeeee;
+
+    -qw-hover-night-bg: linear-gradient(from 0% 0% to 0% 100%, #dddddd 0%, #ffffff 100%);
+    -qw-hover-night-bg: #dddddd;
+    -qw-armed-night-bg: linear-gradient(from 0% 0% to 0% 100%, #dddddd 0%, #ffffff 100%);
+
+    -qw-dragging-bg: linear-gradient(from 0% 0% to 0% 100%, #dddddd 50%, #ffffff 100%);
+    -qw-dragover-bg: linear-gradient(from 0% 0% to 0% 100%, #dddddd 50%, #ffffff 100%);
+
+    /**
+     * The color of borders around components.
+     */
+    -qw-border-color: -qw-dark-color;
+
+    -qw-component-border-color: #aaaaaa;
+
+    -qw-component-inner-border-color: #cccccc;
+
+    -qw-icon-color: -qw-dark-color;
+
+    -qw-button-icon-color: -qw-icon-color;
+
+    -qw-button-border-color: -qw-border-color;
+
+    -qw-title-selected-icon-color: -qw-icon-color;
+
+    -qw-icon-hover-color: -qw-dark-color;
+
+    -qw-error-color: red;
+
+    -qw-hyperlink-color: blue;
+
+    /*
+     * The color used when items have focus.
+     */
+    -qw-focus-color: #aaaaaa;
+
+    -qw-show-delay: 750ms;
+
+    /*
+     * The standard drop shadow.
+     */
+    -qw-drop-shadow: dropshadow(gaussian, -qw-component-border-color, 1.5em, 0.3, 0, 0);
+
+    /*
+     * The popup width.
+     * At 1em = 9pt, 37em equates to 444px.
+     */
+    -qw-popup-width: 37em;
+
+    -qw-error-text-color: red;
+
+    -qw-selected-effect: dropshadow( three-pass-box, blue , 0.35em, 0.25, 0.0, 0.0);
+
+    -qw-selected-border-color: blue;
+
+    -qw-no-effect-spacer: dropshadow( three-pass-box, transparent, 0.35em, 0.5, 0.0, 0.0);
+
+    -fx-background-color: -qw-bg-color;
+    -fx-text-base-color: #333333;
+    -qw-text-base-color: -fx-text-base-color;
+    -fx-font-size: 10pt;
+    -fx-font-family: serif;
+
+    -qw-popup-header-font-size: 2em;
+    -qw-window-header-font-size: 2.5em;
+
+    -qw-component-error-border-color: red;
+
+    -qw-button-text-color: -fx-text-base-color;
+
+    -qw-text-hover-color: -qw-text-base-color;
+
+    -qw-title-selected-text-color: -qw-text-base-color;
+
+}
+
+.root:night
+{
+    -fx-text-base-color: #ffffff;
+
+    -qw-text-base-color: -fx-text-base-color;
+
+    -qw-text-hover-color: #4d4d4d;
+
+    -qw-bg-color: #4d4d4d;
+
+    -qw-title-selected-text-color: -qw-bg-color;
+
+    -qw-title-selected-icon-color: -qw-bg-color;
+
+    /*
+     * The dark color.  Generally used for borders and drop shadows as well as solid colors.
+     */
+    -qw-dark-color: #ffffff;
+
+    /*
+     * Used for hover effects on things you can click on.
+     */
+    -qw-hover-bg: linear-gradient(from 0% 0% to 0% 100%, #dddddd 0%, #ffffff 100%);
+    -qw-hover-bg: #dddddd;
+    -qw-hover-bg: -qw-hover-night-bg;
+
+    -qw-armed-bg: linear-gradient(from 0% 0% to 0% 100%, -fx-pressed-base 0%, #ffffff 100%);
+
+    /**
+     * The color of borders around components.
+     */
+    -qw-border-color: -qw-dark-color;
+
+    -qw-icon-color: -qw-dark-color;
+
+    -qw-icon-hover-color: -qw-bg-color;
+
+    /*
+     * The color used when items have focus.
+     */
+    -qw-focus-color: #aaaaaa;
+
+    /*
+     * The standard drop shadow.
+     */
+    -qw-drop-shadow: dropshadow(gaussian, -qw-border-color, 30, 0.5, 0, 0);
+
+    -qw-hyperlink-color: orange;
+
+    -qw-component-border-color: #ffffff;
+
+    -qw-button-text-color: -qw-bg-color;
+    -qw-button-icon-color: -qw-bg-color;
+    -qw-button-border-color: -qw-hover-bg;
+    /*fx-text-base-color;*/
+
+}
+
+/*
+ These elements are used in a TextFlow.
+ */
+Text
+{
+    -fx-fill: -fx-text-base-color;
+}
+
+.text
+{
+    -fx-font-smoothing-type: gray;
+}
+
+.header .title,
+.label,
+.check-box,
+.radio-button,
+.list-cell
+{
+    -fx-max-width: Infinity;
+    -fx-text-fill: -fx-text-base-color;
+    -fx-fill: -fx-text-base-color;
+}
+
+.check-box
+{
+    -fx-cursor: hand;
+}
+
+.qcheckbox
+{
+    -fx-alignment: center-left;
+}
+
+.qcheckbox .text
+{
+    -fx-padding: 0 0.25em 0 0.25em;
+    -fx-cursor: hand;
+}
+
+/* This needs to be so tightly bound because later styles could override it. */
+.context-menu .menu-item .label.accelerator-text
+{
+    -fx-graphic: none;
+}
+
+.tooltip
+{
+    -fx-font-size: 1em;
+    -fx-show-delay: -qw-show-delay;
+    -fx-hide-delayX: 5000;
+    -fx-background-color: -qw-bg-color;
+    -fx-text-fill: -fx-text-base-color;
+    -fx-background-radius: 0px;
+    -fx-max-width: 30em;
+    -fx-pref-width: 30em;
+}
+
+.tooltip .qtextview
+{
+    -fx-max-width: 30em;
+    -fx-pref-width: 30em;
+}
+
+.tooltip .text
+{
+    -fx-font-size: 1em;
+}
+
+.tool-bar
+{
+    -fx-background-color: transparent;
+}
+
+.textsize
+{
+    -fx-alignment: center-left;
+}
+
+.textsize .slider
+{
+    -fx-min-width: 30em;
+    -fx-pref-width: 30em;
+    -fx-max-width: 30em;
+}
+
+.textsize .less
+{
+    -fx-font-size: 0.75em;
+}
+
+.textsize .more
+{
+    -fx-font-size: 1.5em;
+}
+
+.colorswatch
+{
+    -fx-min-width: 5em;
+    -fx-min-height: 5em;
+    -fx-max-width: 5em;
+    -fx-max-height: 5em;
+    -fx-border-width: 1px;
+    -fx-border-color: -qw-component-border-color;
+    -fx-cursor: hand;
+}
+
+:selected .colorswatch
+{
+    -fx-border-color: -qw-selected-border-color;
+    -fx-effect: -qw-selected-effect;
+}
+
+:hover .colorswatch
+{
+    -fx-border-color: -qw-selected-border-color;
+    -fx-effect: -qw-selected-effect;
+    -fx-border-color: red;
+}
+
+.scroll-pane
+{
+    -fx-background-color: transparent;
+    -fx-padding: 0px;
+    -fx-fit-to-width: true;
+    -fx-pannable: true;
+}
+
+.scroll-pane .viewport
+{
+    -fx-background-color: transparent;
+    -fx-padding: 0px;
+}
+
+.scroll-pane .corner
+{
+    -fx-background-color: transparent;
+}
+
+.combo-box .list-view
+{
+    -fx-min-height: 0px;
+}
+
+.root:night .combo-box-popup .list-view .list-cell
+{
+    -fx-text-fill: -qw-dark-color;
+    -fx-background-color: -qw-bg-color;
+}
+
+.root:night .combo-box-popup .list-view .list-cell:hover
+{
+    -fx-text-fill: -qw-bg-color;
+    -fx-background-color: -qw-hover-bg;
+}
+
+.root:night .combo-box-popup .list-view .list-cell:selected
+{
+    -fx-text-fill: -qw-dark-color;
+    -fx-background-color: -qw-selected-border-color;
+}
+
+.root:night .menu-item .iconbox .icon
+{
+    -fx-background-color: -qw-bg-color;
+}
+
+.list-view *:selected
+{
+    -fx-background-color: -qw-component-border-color;
+}
+
+.root:night .list-view *:selected
+{
+    -fx-background-color: #ffffff;
+}
+
+.list-view .text-input.text-field
+{
+-fx-padding: 0;
+}
+
+/*
+ The following .b, i., .u styles are designed for use in basic HTML rendering.
+ */
+.b, .B { -fx-font-weight: bold; }
+.i, .I { -fx-font-style: italic; }
+.u, .U { -fx-underline: true; }
+
+/*
+ The following .a styles are designed for use in basic HTML rendering.
+ */
+.a, .a > * { -fx-fill: -qw-hyperlink-color; }
+.a:hover, .a:hover > * { -fx-underline: true; -fx-cursor: hand; }
+
+.page-corner
+{
+    -fx-background-color: transparent;
+}
+
+/*
+    General styles related to header.
+    Structure:
+        .header
+            .name
+            .controls
+                .button
+                    .<button-name>
+*/
+
+.radiobuttons .radio-button
+{
+    -fx-padding: 0 0 0.5em 0;
+}
+
+.radio-button
+{
+    -fx-cursor: hand;
+}
+
+.separator:horizontal .line {
+    -fx-border-color: -fx-text-box-border transparent transparent transparent,
+        -fx-shadow-highlight-color transparent transparent transparent;
+    -fx-border-insets: 0, 1 0 0 0;
+}
+.separator:vertical .line {
+    -fx-border-color: transparent transparent transparent -fx-shadow-highlight-color,
+        transparent transparent transparent -fx-text-box-border;
+    -fx-border-width: 3, 1;
+    -fx-border-insets: 0, 0 0 0 1;
+}
+
+/*
+ Icons for menu items.
+ The > * > for menu-items is deliberate and used to prevent cascade issues for submenus.
+ */
+
+.root:night .menu-item .icon
+{
+    -fx-background-color: #ffffff;
+}
+
+.projectitempreview .header.example,
+.projectitempreview .header.example .title {
+    -fx-padding: 0;
+}
+.projectitempreview .header.example .iconbox,
+.dictionarymanager .add .header .iconbox,
+.dictionarymanager .current .header .iconbox,
+.notetypesmanager .add .header .iconbox,
+.notetypesmanager .current .header .iconbox,
+.tagsmanager .add .header .iconbox,
+.tagsmanager .current .header .iconbox
+ {
+    visibility: hidden;
+}
+
+.menu-item .iconbox,
+.menu-item .iconbox .icon,
+.menu-item .iconbox > *,
+.filefind .button .iconbox,
+.filefind .button .iconbox .icon {
+    -fx-pref-width: 1.333em;
+    -fx-pref-height: 1.333em;
+    -fx-min-width: 1.333em;
+    -fx-min-height: 1.333em;
+    -fx-max-width: 1.333em;
+    -fx-max-height: 1.333em;
+    -fx-alignment: center;
+    -fx-fill-height: false;
+}
+
+.menu-item .iconbox .icon.reportmessage-icon,
+.menu-item .iconbox .icon.warning-icon
+{
+    -fx-pref-width: 0.333em;
+    -fx-max-width: 0.333em;
+    -fx-min-width: 0.333em;
+}
+
+.menu-item .iconbox > .icon.view-icon
+{
+    -fx-pref-height: 0.888em;
+    -fx-min-height: 0.888em;
+    -fx-max-height: 0.888em;
+}
+
+.menu-item .iconbox > .chapter-icon.icon
+{
+    -fx-pref-width: 1em;
+    -fx-max-width: 1em;
+    -fx-min-width: 1em;
+}
+
+.menu-item .iconbox .ideaboard-icon.icon
+{
+    -fx-pref-width: 0.888em;
+    -fx-max-width: 0.888em;
+    -fx-min-width: 0.888em;
+}
+
+.menu-item .iconbox .achievements-icon.icon,
+.accordion .header .iconbox .achievements-icon.icon
+{
+    -fx-pref-width: 0.888em;
+    -fx-max-width: 0.888em;
+    -fx-min-width: 0.888em;
+}
+
+.accordion.chapter .header > .iconbox .icon,
+.accordion .header > .iconbox .editing-icon.icon
+{
+    -fx-pref-width: 1em;
+    -fx-max-width: 1em;
+    -fx-min-width: 1em;
+}
+
+.accordion.notes .tree .cell .label .iconbox
+{
+    -fx-pref-width: 1.333em;
+    -fx-max-width: 1.333em;
+    -fx-min-width: 1.333em;
+    -fx-pref-height: 1.333em;
+    -fx-max-height: 1.333em;
+    -fx-min-height: 1.333em;
+}
+
+.accordion.notes .tree .cell .label .iconbox .icon
+{
+    -fx-pref-width: 1.333em;
+    -fx-max-width: 1.333em;
+    -fx-min-width: 1.333em;
+    -fx-pref-height: 1.333em;
+    -fx-max-height: 1.333em;
+    -fx-min-height: 1.333em;
+
+}
+
+.menu-item .iconbox .warmup-icon.icon,
+.accordion .header .iconbox .warmup-icon.icon
+{
+    -fx-pref-width: 1em;
+    -fx-max-width: 1em;
+    -fx-min-width: 1em;
+}
+
+.menu-item .iconbox .contactsupport-icon.icon
+{
+    -fx-pref-height: 1em;
+}
+
+.menu-item .iconbox .help-icon.icon,
+.menu-item .iconbox .viewuserguide-icon.icon,
+.menu-item .iconbox .info-icon.icon
+{
+    -fx-pref-width: 0.666em;
+    -fx-min-width: 0.666em;
+    -fx-max-width: 0.666em;
+}
+
+.accordion .header .iconbox,
+.accordion .header .iconbox .icon {
+    -fx-pref-width: 1.333em;
+    -fx-pref-height: 1.333em;
+    -fx-min-width: 1.333em;
+    -fx-min-height: 1.333em;
+    -fx-max-width: 1.333em;
+    -fx-max-height: 1.333em;
+    -fx-fill-height: false;
+    -fx-alignment: center;
+}
+
+.menu-item .iconbox .eye-icon.icon,
+.menu-item .iconbox .problemfinder-icon.icon,
+.accordion .header .eye-icon.icon,
+.accordion .header .problemfinder-icon.icon,
+.accordion .header .looks-icon.icon,
+.button .iconbox .view-icon.icon,
+.header.title .iconbox .problemfinder-icon.icon {
+    -fx-pref-height: 0.888em;
+    -fx-min-height: 0.888em;
+    -fx-max-height: 0.888em;
+}
+
+.null-icon {
+    -fx-pref-width: 0;
+}
+
+/*
+ * Svg path icon definitions
+ */
+.pause-icon
+{
+    -fx-shape: "m 16,0 h 8 V 32 H 16 Z M 0,0 H 8 V 32 H 0 Z";
+    -fx-background-color: -qw-icon-color;
+    -fx-pref-width: 1em;
+}
+.avatar-box:noavatar .icon
+ {
+     -fx-shape: "M 18,6 A 6,6 0 0 1 12,12 6,6 0 0 1 6,6 6,6 0 0 1 12,0 6,6 0 0 1 18,6 M 12,16 C 5.375,16 0,21.375 0,28 c 0,2.211 1.789,4 4,4 h 16 c 2.211,0 4,-1.789 4,-4 0,-6.625 -5.375,-12 -12,-12 z";
+     -fx-background-color: -qw-icon-color;
+     -fx-border-width: 0;
+     -fx-padding: 0;
+ }
+
+/*
+ * h = w * .6
+ */
+.filter-icon
+{
+    -fx-shape: "m 20.94722,35.94523 h -4.023276 c -0.16605,0 -0.300616,-0.134566 -0.300616,-0.300616 v -0.922032 c 0,-0.16605 0.134566,-0.300616 0.300616,-0.300616 h 4.023276 c 0.166049,0 0.300616,0.134566 0.300616,0.300616 v 0.922032 c 0,0.16605 -0.134567,0.300616 -0.300616,0.300616 z m 2.040328,-2.798977 h -8.103806 c -0.16605,0 -0.300616,-0.134567 -0.300616,-0.300616 v -0.922033 c 0,-0.166049 0.134566,-0.300616 0.300616,-0.300616 h 8.103806 c 0.16605,0 0.300616,0.134567 0.300616,0.300616 v 0.922033 c 0,0.166049 -0.134566,0.300616 -0.300616,0.300616 z m 1.360135,-2.798978 H 13.523481 c -0.16605,0 -0.300616,-0.134566 -0.300616,-0.300616 V 29.1245 c 0,-0.16605 0.134566,-0.300616 0.300616,-0.300616 h 10.824075 c 0.16605,0 0.300616,0.134566 0.300616,0.300616 v 0.922032 c 1.27e-4,0.166177 -0.134439,0.300743 -0.300489,0.300743 z";
+    -fx-background-color: -qw-icon-color;
+}
+
+ .offline-icon
+ {
+     -fx-shape: "m 28,24 c -0.973,0 -1.832,0.391 -2.523,0.965 L 19.379,20.613 C 19.766,19.816 20,18.941 20,18 20,16.707 19.578,15.512 18.883,14.535 L 26.016,7.398 C 26.609,7.746 27.262,8 28,8 30.211,8 32,6.211 32,4 32,1.789 30.211,0 28,0 c -2.211,0 -4,1.789 -4,4 0,0.738 0.254,1.391 0.602,1.984 l -7.133,7.137 C 16.484,12.418 15.297,12 14,12 11.711,12 9.742,13.301 8.73,15.191 L 3.914,13.582 C 3.719,12.684 2.957,12 2,12 c -1.105,0 -2,0.895 -2,2 0,1.105 0.895,2 2,2 0.504,0 0.953,-0.203 1.305,-0.512  l 4.789,1.598 C 8.047,17.387 8,17.688 8,18 c 0,3.312 2.688,6 6,6 1.648,0 3.145,-0.668 4.23,-1.746 l 6.059,4.324 C 24.117,27.023 24,27.496 24,28 c 0,2.207 1.789,4 4,4 2.211,0 4,-1.793 4,-4 0,-2.207 -1.789,-4 -4,-4 z";
+     -fx-background-color: -qw-icon-color;
+ }
+
+ .away-icon
+ {
+     -fx-shape: "m 7.9995001,-7.9995 c 0,0 -5.9996251,3.99975 -5.9996251,13.9991251 0,9.9993749 3.9997501,13.9991249 3.9997501,13.9991249 h 3.99975 c 0,0 3.9997499,-3.99975 3.9997499,-13.9991249 C 13.999125,-3.99975 7.9995001,-7.9995 7.9995001,-7.9995 Z m 0,7.999500031248047 c 1.103931,0 1.999875,0.895943998751953 1.999875,1.999874968751953 0,1.103931 -0.895944,1.999875 -1.999875,1.999875 -1.103931,0 -1.999875,-0.895944 -1.999875,-1.999875 C 5.9996251,0.89594403 6.8955691,3.1248047e-8 7.9995001,3.1248047e-8 Z M 0.43797266,11.68727 -3.99975,23.9985 h 1.999875 L 2.9378164,19.060809 C 2.0578714,17.486907 1.0159365,15.053059 0.43797266,11.68527 Z m 15.12505434,0 c -0.577964,3.367789 -1.619898,5.799637 -2.499843,7.375539 L 18.000875,24.0005 H 20.00075 L 15.563027,11.689269 Z";
+     -fx-background-color: -qw-icon-color;
+     -fx-pref-width: 1em;
+ }
+ .busy-icon
+ {
+     -fx-shape: "m 13,0 -2,2 3,3 2,-2 z m -4,4 -7,7 3,3 7,-7 z m -8,8 -1,4 4,-1 z";
+     -fx-background-color: -qw-icon-color;
+ }
+ .online-icon
+ {
+     -fx-shape: "m 54.569134,6.100029 c -7.715601,5.598316 -7.715601,14.70752 0.0025,20.307682 l -2.543675,1.84565 c -9.121618,-6.6185 -9.121618,-17.382329 -0.0025,-23.998981 z m 4.191197,3.691299 c -4.774544,3.561642 -4.773306,9.360672 0.0037,12.92416 L 56.288617,24.56206 C 50.146479,19.980235 50.145241,12.526581 56.286117,7.945679 Z M 71.099364,6.0022475 c 7.715601,5.5983155 7.715601,14.7075195 -0.0025,20.3076815 l 2.543675,1.84565 c 9.121618,-6.6185 9.121618,-17.382329 0.0025,-23.998981 z m -4.191197,3.6912989 c 4.774544,3.5616416 4.773306,9.3606716 -0.0037,12.9241596 l 2.475414,1.846572 c 6.142138,-4.581825 6.143376,-12.035479 0.0025,-16.6163808 z m -1.998866,8.3081906 a 2.9644437,2.610795 0 0 1 -4.192357,0 2.9644437,2.610795 0 0 1 1e-6,-3.692222 2.9644437,2.610795 0 0 1 4.192356,0 2.9644437,2.610795 0 0 1 0,3.692222";
+     -fx-background-color: -qw-icon-color;
+     -fx-pref-height: 0.888em;
+ }
+
+.undo-icon
+{
+    -fx-shape: "m 21.277,29.166 -2.828,2.836 -2.828,-2.836 2.828,-2.828 z M 28.156,3.719 c -4.957,-4.957 -13.605,-4.961 -18.559,0 L 4,9.32 V 4 H 0 v 12.007 h 12 v -3.92 H 6.977 L 12.43,6.55 C 15.875,3.101 21.883,3.101 25.328,6.554 27.051,8.277 28,10.566 28,13.088 c 0,2.357 -0.949,4.646 -2.672,6.373 l -3.016,3.014 2.828,2.828 3.016,-3.008 C 30.633,19.809 32,16.512 32,13.088 32,9.496 30.633,6.199 28.156,3.719 Z";
+    -fx-background-color: -qw-icon-color;
+}
+.redo-icon
+{
+    -fx-shape: "m 10.723,29.166 2.828,2.836 2.828,-2.836 -2.828,-2.828 z M 3.844,3.719 c 4.957,-4.957 13.605,-4.961 18.559,0 L 28,9.32 V 4 h 4 V 16.007 H 20 v -3.92 h 5.023 L 19.57,6.55 C 16.125,3.101 10.117,3.101 6.672,6.554 4.949,8.277 4,10.566 4,13.088 c 0,2.357 0.949,4.646 2.672,6.373 L 9.688,22.475 6.86,25.303 3.844,22.295 C 1.367,19.809 0,16.512 0,13.088 0,9.496 1.367,6.199 3.844,3.719 Z";
+    -fx-background-color: -qw-icon-color;
+}
+.reset-icon,
+.resetpassword-icon
+{
+    -fx-shape: "m 20,16 c 0,4.41 -3.586,8 -8,8 C 7.586,24 4,20.41 4,16 4,11.59 7.586,8 12,8 l 2.359,0.027 -1.164,1.164 2.828,2.828 L 22.035,6 16.023,0 13.195,2.828 14.375,4 H 12 C 5.375,4 0,9.371 0,16 c 0,6.629 5.375,12 12,12 6.625,0 12,-5.371 12,-12 z";
+    -fx-background-color: -qw-icon-color;
+}
+.send-icon
+{
+    -fx-shape: "m 16.016,0 -5.668,5.672 c 0,0 3.18,3.18 6.312,6.312 H 0 v 8.027 H 16.66 L 10.344,26.327 16.016,32 32,16 Z";
+    -fx-background-color: -qw-icon-color;
+}
+.cut-icon
+{
+    -fx-shape: "M20 4c-11.046 0-20 8.954-20 20s8.954 20 20 20c.345 0 .69-.014 1.031-.031 10.708-.195 11.335-3.17 22.969 4.5.21.139.423.249.625.375 1.481.976 3.235 2.137 4.781 3.156-1.32.869-2.821 1.849-4.094 2.688-.421.245-.85.508-1.313.813-12.056 7.964-12 4.5-24 4.5-11.046 0-20 8.954-20 20s8.954 20 20 20 20-8.954 20-20c0-2.434-.454-4.749-1.25-6.906l5.25-3.469s10.719-7.111 16.031-10.625c3.438-2.274 5.846-3.879 10.375-6.875h.031l57.563-38.125s-3.113-5.158-9.313-5.094c-2.426.025-5.313.844-8.688 3.094-6.059 4.039-28.841 19.069-50.125 33.094l-21.156-14.094c.818-2.183 1.281-4.531 1.281-7 0-11.046-8.954-20-20-20zm0 6c7.72 0 14 6.28 14 14s-6.28 14-14 14-14-6.28-14-14 6.28-14 14-14zm40 40c1.105 0 2 .895 2 2s-.895 2-2 2-2-.895-2-2 .895-2 2-2zm12.594 3.594c-4.374 2.918-7.167 4.777-10.313 6.875 20.535 13.534 42.25 27.885 47.719 31.531 12 8 18-1.469 18-1.469l-55.406-36.938zm-52.594 12.406c7.72 0 14 6.28 14 14s-6.28 14-14 14-14-6.28-14-14 6.28-14 14-14z";
+    -fx-background-color: -qw-icon-color;
+}
+.copy-icon
+{
+    -fx-shape: "M 32,0 H 8 V 8 C 5.094,8 0,8 0,8 v 24 h 24 v -8 h 8 z M 20,28 H 4 V 16 h 4 v 8 h 12 c 0,1.789 0,4 0,4 z m 8,-8 H 12 V 8 h 16 z";
+    -fx-background-color: -qw-icon-color;
+}
+.paste-icon
+{
+    -fx-shape: "m 179.06158,168.87879 c 0,-0.34987 -0.1248,-0.66977 -0.33067,-0.92073 -0.002,-0.002 -0.004,-0.005 -0.006,-0.007 -0.0269,-0.0325 -0.0554,-0.0636 -0.0851,-0.0937 -0.004,-0.004 -0.008,-0.008 -0.0118,-0.012 -0.013,-0.0128 -0.025,-0.0267 -0.0385,-0.039 l -5.34837,-5.34837 V 151.4241 c 0,-0.80329 -0.65124,-1.45454 -1.45454,-1.45454 h -7.35729 C 164.22977,149.40514 163.69265,149 163.05964,149 h -1.9394 c -0.63302,0 -1.17003,0.40514 -1.36999,0.9697 h -7.35728 c -0.8033,0 -1.45455,0.65125 -1.45455,1.45454 v 24.24243 c 0,0.80329 0.65125,1.45454 1.45455,1.45454 h 4.36364 v 2.42424 c 0,0.8033 0.65124,1.45455 1.45454,1.45455 h 19.39394 c 0.8033,0 1.45455,-0.65125 1.45455,-1.45455 v -10.62913 c 3.8e-4,-0.0126 0.002,-0.0248 0.002,-0.0375 z m -10.66861,-7.15511 5.70056,5.70056 h -5.70056 z m -14.54545,12.48844 v -21.33333 h 2.99364 c 0.19996,0.56456 0.73697,0.96969 1.36999,0.96969 h 7.75758 c 0.63302,0 1.17003,-0.40513 1.36999,-0.96969 h 2.99364 v 6.67025 l -2.36509,-2.36519 c -4.8e-4,-3.8e-4 -0.001,-8.7e-4 -0.002,-0.001 -0.0298,-0.0298 -0.0608,-0.0575 -0.0926,-0.0843 -0.0101,-0.008 -0.0205,-0.0163 -0.0307,-0.0244 -0.0233,-0.0185 -0.0471,-0.0365 -0.0714,-0.0534 -0.012,-0.008 -0.024,-0.0168 -0.0364,-0.0248 -0.0257,-0.0168 -0.0519,-0.0326 -0.0784,-0.0477 -0.0107,-0.006 -0.021,-0.0125 -0.0318,-0.0183 -0.0352,-0.0189 -0.0713,-0.0362 -0.10783,-0.052 -0.0146,-0.006 -0.0297,-0.0118 -0.0446,-0.0178 -0.0244,-0.01 -0.0492,-0.0188 -0.0742,-0.0272 -0.0168,-0.006 -0.0336,-0.0109 -0.0505,-0.0159 -0.0283,-0.008 -0.0569,-0.0155 -0.0857,-0.0221 -0.0125,-0.003 -0.0246,-0.006 -0.0372,-0.009 -0.0408,-0.008 -0.082,-0.0142 -0.12335,-0.0188 -0.0125,-10e-4 -0.0252,-0.002 -0.0378,-0.003 -0.0344,-0.003 -0.0687,-0.005 -0.10327,-0.005 -0.007,0 -0.0143,-9.7e-4 -0.0215,-9.7e-4 h -8.72727 c -0.8033,0 -1.45454,0.65124 -1.45454,1.45454 v 16 z m 5.81818,3.87879 v -18.42424 h 5.81818 v 9.21212 c 0,0.80329 0.65125,1.45454 1.45454,1.45454 h 9.21213 v 7.75758 z";
+    -fx-background-color: -qw-icon-color;
+}
+.moon-icon,
+.snooze-icon {
+    -fx-shape: "m 24.633,22.184 c -8.188,0 -14.82,-6.637 -14.82,-14.82 0,-2.695 0.773,-5.188 2.031,-7.363 C 5.02,1.969 0,8.188 0,15.645 0,24.676 7.32,32 16.352,32 23.809,32 30.032,26.977 32,20.156 c -2.18,1.254 -4.672,2.028 -7.367,2.028 z";
+    -fx-background-color: -qw-icon-color;
+}
+.node-icon
+{
+    -fx-shape: "M 16,0 C 7.164,0 0,7.164 0,16 0,24.836 7.164,32 16,32 24.836,32 32,24.836 32,16 32,7.164 24.836,0 16,0 Z m 0.031,19.934 c -2.188,0 -3.965,-1.773 -3.965,-3.965 0,-2.195 1.777,-3.969 3.965,-3.969 2.196,0 3.969,1.773 3.969,3.969 0,2.191 -1.773,3.965 -3.969,3.965 z";
+    -fx-background-color: -qw-icon-color;
+}
+.sun-icon {
+    -fx-shape: "m 27.422,7.416 c -0.781,0.779 -2.047,0.779 -2.828,0 -0.781,-0.785 -0.781,-2.047 0,-2.83 0.781,-0.779 2.047,-0.781 2.828,0.002 0.789,0.781 0.789,2.049 0,2.828 z m 2.574,10.582 C 28.898,17.998 28,17.104 28,16 c 0,-1.109 0.898,-2 2.008,-2 1.098,0 2,0.893 1.988,1.998 0.012,1.107 -0.891,2.002 -2,2 z m -5.402,9.416 c -0.781,-0.781 -0.781,-2.047 0,-2.828 0.781,-0.781 2.047,-0.781 2.828,0 0.789,0.781 0.789,2.047 0,2.828 -0.781,0.781 -2.047,0.781 -2.828,0 z M 14,30 c 0,-1.109 0.891,-2 2,-2 1.109,0 2,0.891 2,2 0,1.105 -0.891,2 -2,2 -1.109,0 -2,-0.895 -2,-2 z M 8,26 A 2,2 0 0 1 6,28 2,2 0 0 1 4,26 2,2 0 0 1 6,24 2,2 0 0 1 8,26 M 2,13.998 c 1.102,0 2,0.895 2,2 0,1.107 -0.898,2 -2,2 -1.109,0 -2,-0.893 -2,-2 0,-1.105 0.891,-2 2,-2 z M 8,6 A 2,2 0 0 1 6,8 2,2 0 0 1 4,6 2,2 0 0 1 6,4 2,2 0 0 1 8,6 M 18,2 c 0,1.105 -0.898,2 -2,2 -1.109,0 -2,-0.895 -2,-2 0,-1.105 0.891,-2 2,-2 1.102,0 2,0.895 2,2 z m -2,6 c -4.422,0 -8,3.582 -8,8 0,4.418 3.578,8 8,8 4.414,0 8,-3.582 8,-8 0,-4.418 -3.586,-8 -8,-8 z";
+    -fx-background-color: -qw-icon-color;
+}
+.split-icon {
+    -fx-shape: "M 12,32 H 0 V 20 l 4,4 6,-6 4,4 -6,6 z M 20,0 h 12 v 12 l -4,-4 -6,6 -4,-4 6,-6 z";
+    -fx-background-color: -qw-icon-color;
+}
+.restore-icon {
+    -fx-shape: "M 4,18.666666 C 4,8.3599998 10.27,0 18,0 c 7.73,0 14,8.3599998 14,18.666666 0,-7.364 -4.477,-13.3333328 -10,-13.3333328 -5.523,0 -10,5.9693328 -10,13.3333328 v 2.666667 h 4 L 8,31.999999 0,21.333333 h 4 z";
+    -fx-background-color: -qw-icon-color;
+}
+.distractionfreeenter-icon {
+    -fx-shape: "M 30,18.285714 H 28 V 13.714286 C 28,6.1428571 22.625,0 16,0 9.375,0 4,6.1428571 4,13.714286 v 4.571428 H 2 c -1.105,0 -2,1.022857 -2,2.285715 v 9.142857 C 0,30.977143 0.895,32 2,32 H 8 V 18.285714 13.714286 c 0,-5.0445717 3.586,-9.1428574 8,-9.1428574 4.414,0 8,4.0982857 8,9.1428574 V 18.285714 32 h 6 c 1.105,0 2,-1.022857 2,-2.285714 v -9.142857 c 0,-1.262858 -0.895,-2.285715 -2,-2.285715 z";
+    -fx-background-color: -qw-icon-color;
+}
+.distractionfreeexit-icon {
+    -fx-shape: "M 12,0 V 12 H 0 v 8 h 12 v 12 h 8 V 20 H 32 V 12 H 20 V 0 Z m 22.803662,-4.8913598 -2.925415,2.7279934 -6.235413,-6.6866615 C 15.31543,-19.924813 -0.92545955,-21.578533 -10.615896,-12.542055 c -9.690437,9.0364784 -9.173652,25.353163 1.1537522,36.427948 l 6.2354128,6.686662 -2.9254148,2.727993 c -1.6162916,1.507217 -1.5302412,4.224134 0.192293,6.071326 l 12.470827,13.373325 c 1.7225328,1.84719 4.4268298,2.122553 6.0431208,0.615337 L 21.33034,45.176556 2.6240987,25.116568 -3.6113142,18.429907 C -10.492093,11.051174 -10.836873,0.16528907 -4.3804825,-5.8553925 2.075908,-11.876074 12.911225,-10.772773 19.792004,-3.394041 l 6.235413,6.6866615 18.706241,20.0599875 8.776245,-8.18398 c 1.616291,-1.507217 1.530241,-4.224134 -0.192292,-6.0713244 L 40.846784,-4.276021 C 39.12425,-6.1232127 36.419953,-6.3985762 34.803662,-4.8913598 Z";
+    -fx-background-color: -qw-icon-color;
+}
+.bold-icon {
+    -fx-shape: "m 101.84365,115.51006 q 0.38486,0.26459 0.6254,0.66749 0.24053,0.39688 0.24053,0.93809 0,0.64945 -0.27661,1.10046 -0.27061,0.44499 -0.78175,0.70357 -0.54121,0.27662 -1.25079,0.39087 -0.703574,0.11426 -1.659709,0.11426 h -4.431896 v -0.46905 q 0.186416,-0.018 0.469047,-0.0541 0.282631,-0.0361 0.396886,-0.0842 0.222497,-0.0902 0.300672,-0.23452 0.08419,-0.15034 0.08419,-0.38486 v -6.01343 q 0,-0.21648 -0.06615,-0.36081 -0.06615,-0.14432 -0.318712,-0.25256 -0.186416,-0.0782 -0.432967,-0.12628 -0.24655,-0.0541 -0.432966,-0.0842 v -0.46905 h 4.636352 q 1.749903,0 2.525643,0.48108 0.77573,0.48107 0.77573,1.41917 0,0.43296 -0.17439,0.7637 -0.17439,0.32473 -0.49911,0.56526 -0.29466,0.2225 -0.70358,0.38486 -0.40891,0.16237 -0.877956,0.27061 v 0.11425 q 0.469046,0.0481 0.974176,0.21047 0.50513,0.15635 0.87796,0.40892 z m -1.936324,-2.56774 q 0,-0.70958 -0.4029,-1.10647 -0.396886,-0.39689 -1.196672,-0.39689 -0.114255,0 -0.300671,0.012 -0.180403,0.006 -0.312699,0.012 v 3.16306 h 0.312699 q 0.974175,0 1.437209,-0.45101 0.463034,-0.45702 0.463034,-1.23275 z m 0.420944,4.09515 q 0,-0.88999 -0.529186,-1.36505 -0.529181,-0.47506 -1.521397,-0.47506 -0.114255,0 -0.306685,0.012 -0.186416,0.006 -0.276618,0.012 v 3.12097 q 0.05412,0.2225 0.336752,0.37885 0.282631,0.15033 0.685531,0.15033 0.715598,0 1.160592,-0.48107 0.451011,-0.48108 0.451011,-1.35302 z";
+    -fx-background-color: -qw-icon-color;
+}
+.italic-icon
+{
+    -fx-shape: "m 70.284741,91.684714 -0.09394,0.413341 q -0.194146,0.0063 -0.507283,0.05636 -0.313137,0.0501 -0.463443,0.09394 -0.263035,0.08142 -0.375765,0.25051 -0.112729,0.169094 -0.162831,0.369502 l -1.503059,6.494466 q -0.01253,0.04384 -0.01879,0.100204 -0.0063,0.05636 -0.0063,0.100204 0,0.144043 0.06263,0.244247 0.06263,0.100204 0.225459,0.175356 0.09394,0.04384 0.413341,0.106466 0.3194,0.0564 0.475968,0.0689 l -0.09394,0.41334 H 64.23493 l 0.09394,-0.41334 q 0.175357,-0.0125 0.501019,-0.0376 0.325663,-0.0251 0.463443,-0.0752 0.244247,-0.08768 0.369502,-0.237982 0.125255,-0.156569 0.169094,-0.375765 L 67.328725,92.931 q 0.01253,-0.05636 0.01879,-0.112729 0.0063,-0.05636 0.0063,-0.112729 0,-0.125255 -0.05636,-0.219196 -0.0501,-0.09394 -0.219196,-0.169095 -0.169095,-0.07515 -0.463443,-0.13778 -0.288087,-0.06889 -0.425867,-0.08142 l 0.09394,-0.413341 z";
+    -fx-background-color: -qw-icon-color;
+}
+.underline-icon
+{
+    -fx-shape: "m 97.316643,48.678333 h 8.466667 V 49.2075 h -8.466667 z m 8.381557,0 c -0.61328,0 -1.22657,0 -1.83985,0 -1.63543,0 -3.27086,0 -4.906283,0 -0.834943,0 -2.054153,0 -1.635428,0 m 7.587831,-7.993606 q -0.13202,0.0047 -0.38663,0.05728 -0.25461,0.0525 -0.41492,0.157511 -0.16031,0.109781 -0.22161,0.453444 -0.0613,0.343663 -0.0613,0.840063 v 2.944997 q 0,0.563224 -0.23103,0.978482 -0.23104,0.415259 -0.60824,0.682552 -0.37248,0.257748 -0.7874,0.367529 -0.41021,0.114553 -0.78741,0.114553 -0.60352,0 -1.07502,-0.162285 -0.471496,-0.157512 -0.792116,-0.429578 -0.315905,-0.272065 -0.476216,-0.620501 -0.160309,-0.353209 -0.160309,-0.735056 v -4.004622 q 0,-0.167057 -0.05658,-0.276838 -0.05186,-0.114555 -0.21689,-0.210016 -0.117875,-0.06683 -0.30176,-0.105008 -0.183884,-0.04296 -0.30176,-0.0525 v -0.338895 h 2.786561 v 0.338889 q -0.13202,0.0047 -0.33476,0.04296 -0.19803,0.03818 -0.29233,0.0716 -0.16031,0.05728 -0.21689,0.190925 -0.05186,0.133646 -0.05186,0.291158 v 3.742102 q 0,0.272065 0.05658,0.57277 0.06129,0.295932 0.23575,0.553678 0.18388,0.262521 0.49979,0.429578 0.3159,0.167058 0.86756,0.167058 0.51865,0 0.86756,-0.167058 0.35362,-0.167057 0.55637,-0.439124 0.19331,-0.257746 0.27347,-0.539359 0.0802,-0.281612 0.0802,-0.567997 v -2.777938 q 0,-0.529813 -0.0754,-0.863929 -0.0754,-0.338889 -0.22161,-0.443897 -0.16502,-0.119328 -0.45264,-0.186151 -0.2829,-0.06683 -0.43378,-0.07637 v -0.338898 h 2.7347 z";
+    -fx-background-color: -qw-icon-color;
+}
+.book-icon,
+.allchapters-icon {
+    -fx-shape: "M 16,4.5714284 C 16,4.5714284 12,0 0,0 v 27.42857 c 12.125,0 16,4.571429 16,4.571429 0,0 3.875,-4.571429 16,-4.571429 V 0 C 20,0 16,4.5714284 16,4.5714284 Z m -12,0 c 5.084,0.4868571 8.203,1.8308571 10,2.9199999 V 25.901713 c -1.797,-1.084571 -4.916,-2.428571 -10,-2.92 z M 28,22.981713 c -5.086,0.491429 -8.205,1.834286 -10,2.92 V 7.4914283 C 19.795,6.4022855 22.914,5.0582855 28,4.5714284 Z";
+    -fx-background-color: -qw-icon-color;
+}
+.clock-icon,
+.timer-icon,
+.session-icon {
+    -fx-shape: "M 21.422,18.578 18,15.152 V 8 h -4.023 v 7.992 c 0,0.602 0.277,1.121 0.695,1.492 l 3.922,3.922 z M 16,4 C 22.617,4 28,9.383 28,16 28,22.617 22.617,28 16,28 9.383,28 4,22.617 4,16 4,9.383 9.383,4 16,4 M 16,0 C 7.164,0 0,7.164 0,16 0,24.836 7.164,32 16,32 24.836,32 32,24.836 32,16 32,7.164 24.836,0 16,0 Z";
+    -fx-background-color: -qw-icon-color;
+}
+ .notify-icon,
+ .sound-icon {
+     -fx-shape: "M 5.996,4 C 18.129,4 28,13.871 28,26.008 h 4 C 32,11.664 20.336,0 5.996,0 Z m 0,8 c 7.719,0 14.002,6.285 14.002,14.008 H 24 C 24,16.078 15.924,8 5.996,8 Z m 0.027,8.004 c 3.309,0 6,2.691 6,6.004 h 4.002 C 16.025,20.492 11.537,16 6.023,16 Z M 8.0019999,28 a 4.0009999,4.0009999 0 0 1 -4.001,4.001 A 4.0009999,4.0009999 0 0 1 0,28 4.0009999,4.0009999 0 0 1 4.0009999,23.999 4.0009999,4.0009999 0 0 1 8.0019999,28";
+     -fx-background-color: -qw-icon-color;
+ }
+ .encrypt-icon,
+ .encrypted-icon
+ {
+     -fx-shape: "m 14.004,22 c 0,1.102 -0.898,2 -2,2 -1.109,0 -2,-0.898 -2,-2 0,-1.109 0.891,-2 2,-2 1.101,0 2,0.891 2,2 z m 0,-22 C 8.494,0 4.006,4.484 4.006,10 v 2 H 0 v 14 c 0,3.305 2.695,6 5.998,6 H 18 c 3.312,0 6,-2.695 6,-6 V 10 C 24,4.484 19.516,0 14.004,0 Z M 8.006,10 c 0,-3.312 2.693,-6 5.998,-6 C 17.312,4 20,6.688 20,10 v 2 H 8.006 Z M 18,28 H 5.998 c -1.102,0 -2,-0.898 -2,-2 V 16 H 20 v 10 c 0,1.102 -0.891,2 -2,2 z";
+     -fx-background-color: -qw-icon-color;
+     -fx-pref-width: 0.888em;
+ }
+ .convert-icon,
+ .sortmenu-icon,
+ .refresh-icon,
+ .sort-icon {
+     -fx-shape: "m 20,16.035 v 4 h 4.703 l -5.336,5.34 c -3.389,3.391 -9.309,3.391 -12.701,0 l -2.83,2.82 C 6.287,30.648 9.551,32 13.02,32 c 3.471,0 6.727,-1.352 9.176,-3.805 L 28,22.395 v 5.637 h 4 V 16.035 Z M 9.805,3.677 4,9.479 V 3.841 H 0 V 15.84 h 12 v -4 H 7.299 l 5.334,-5.334 c 3.389,-3.392 9.309,-3.392 12.703,0 l 2.828,-2.829 c -4.902,-4.906 -13.457,-4.899 -18.359,0 z";
+     -fx-background-color: -qw-icon-color;
+ }
+ .scene-icon,
+ .images-icon {
+     -fx-shape: "m 0,4 v 24 4 h 4 24 l 4,-4 H 4 V 0 Z m 12,8 4,4 8,-8 8,8 v 8 H 8 v -8 z";
+     -fx-background-color: -qw-icon-color;
+ }
+ .stop-icon {
+     -fx-shape: "M 0,0 H 32 V 32 H 0 Z";
+     -fx-background-color: -qw-icon-color;
+ }
+ .movetop-icon,
+ .movebottom-icon
+ {
+     -fx-shape: "M 0 0 L 0 4.5722656 L 11.988281 4.5722656 L 24 4.5722656 L 24 0 L 0 0 z M 11.988281 4.5722656 L 4 13.714844 L 8 13.714844 L 8 32 L 16 32 L 16 13.714844 L 20 13.714844 L 11.988281 4.5722656 z ";
+     -fx-background-color: -qw-icon-color;
+ }
+ .movebottom-icon
+ {
+     -fx-rotate: 180;
+ }
+ .movedown-icon,
+ .moveup-icon,
+ .submit-icon
+ {
+     -fx-shape: "M 12.011719,32 20,21.333333 H 16 V 0 H 8 V 21.333333 H 4 Z";
+     -fx-background-color: -qw-icon-color;
+     -fx-pref-width: 0.666em;
+ }
+ .moveup-icon,
+ .submit-icon
+ {
+     -fx-rotate: 180;
+ }
+ .denied-icon {
+     -fx-shape: "M 16,0 C 7.164,0 0,7.164 0,16 0,24.836 7.164,32 16,32 24.836,32 32,24.836 32,16 32,7.164 24.836,0 16,0 Z m 0,4 c 2.59,0 4.973,0.844 6.934,2.242 L 6.238,22.93 C 4.84,20.969 4,18.586 4,16 4,9.383 9.383,4 16,4 Z m 0,24 C 13.41,28 11.027,27.156 9.066,25.758 L 25.762,9.07 C 27.16,11.031 28,13.414 28,16 28,22.617 22.617,28 16,28 Z";
+     -fx-background-color: -qw-icon-color;
+ }
+ .accepted-icon
+ {
+     -fx-shape: "M 16,0 C 7.164,0 0,7.164 0,16 0,24.836 7.164,32 16,32 24.836,32 32,24.836 32,16 32,7.164 24.836,0 16,0 Z m -2.48,23.383 -7.362,-7.363 2.828,-2.828 4.533,4.535 9.617,-9.617 2.828,2.828 z";
+     -fx-background-color: -qw-icon-color;
+ }
+ .next-icon,
+ .start-icon,
+ .previous-icon,
+ .tree-disclosure-icon,
+ .scroll-pane .scroll-bar .increment-arrow,
+ .scroll-pane .scroll-bar .decrement-arrow,
+ .spinner .increment-arrow-button .increment-arrow,
+ .spinner .decrement-arrow-button .decrement-arrow {
+     -fx-shape: "M 0,32 V 0 l 24,16 z";
+     -fx-background-color: -qw-button-icon-color;
+     -fx-background-color: -qw-bg-color;
+     -fx-background-color: -qw-icon-color;
+     -fx-pref-width: 0.888em;
+     -fx-max-width: 0.888em;
+     -fx-min-width: 0.888em;
+ }
+
+.spinner .increment-arrow-button:hover .increment-arrow,
+.spinner .decrement-arrow-button:hover .decrement-arrow
+{
+    -fx-background-color: -qw-icon-hover-color;
+}
+
+ .previous-icon
+ {
+     -fx-rotate: 180;
+ }
+ .outlineitem-icon {
+     -fx-shape: "m 32,8 c 0,-4.416 -3.586,-8 -8,-8 -2.984,0 -5.562,1.658 -6.938,4.086 0,-0.002 0.004,-0.004 0.004,-0.006 -0.367,-0.035 -0.723,-0.111 -1.098,-0.111 -6.629,0 -12,5.371 -12,12 0,2.527 0.789,4.867 2.121,6.797 L 0,32 9.289,25.938 c 1.91,1.281 4.207,2.031 6.68,2.031 6.629,0 12,-5.371 12,-12 0,-0.346 -0.07,-0.67 -0.102,-1.008 C 30.32,13.594 32,11.006 32,8 Z M 15.969,23.969 c -4.414,0 -8,-3.586 -8,-8 0,-4.412 3.586,-8 8,-8 0.012,0 0.023,0.004 0.031,0.004 0,-0.008 0.004,-0.014 0.004,-0.02 C 16.004,7.969 16,7.984 16,8 c 0,0.695 0.117,1.355 0.281,1.998 l -3.172,3.174 c -1.562,1.562 -1.562,4.094 0,5.656 1.562,1.562 4.094,1.562 5.656,0 l 3.141,-3.141 c 0.66,0.18 1.344,0.305 2.059,0.309 -0.016,4.402 -3.594,7.973 -7.996,7.973 z M 24,12 c -2.203,0 -4,-1.795 -4,-4 0,-2.205 1.797,-4 4,-4 2.203,0 4,1.795 4,4 0,2.205 -1.797,4 -4,4 z";
+     -fx-background-color: -qw-icon-color;
+ }
+.information-icon,
+.noproblems-icon,
+.info-icon,
+.chapterinfo-icon,
+.description-icon,
+.hyperlink .iconbox .icon.information-icon
+ {
+    -fx-shape: "M 12,4 A 4,4 0 0 1 8,8 4,4 0 0 1 4,4 4,4 0 0 1 8,0 4,4 0 0 1 12,4 M 2,16 c 1.105,0 2,0.895 2,2 v 8 c 0,1.105 -0.895,2 -2,2 H 0 v 4 h 16 v -4 h -1.992 c -1.102,0 -2,-0.895 -2,-2 L 12,12 H 0 v 4 z";
+    -fx-background-color: -qw-icon-color;
+    -fx-pref-width: 0.666em;
+    -fx-max-width: 0.666em;
+    -fx-min-width: 0.666em;
+}
+
+.accordion .header .iconbox .icon.description-icon
+{
+    -fx-pref-width: 0.666em;
+    -fx-min-width: 0.666em;
+    -fx-max-width: 0.666em;
+}
+
+.sidebars-icon,
+.other-icon {
+    -fx-shape: "M 7.14375,0 H 8.4666667 V 8.4666662 H 7.14375 Z M 4.7625001,0 H 6.0854168 V 8.4666662 H 4.7625001 Z M 2.3812499,0 H 3.7041666 V 8.4666662 H 2.3812499 Z M 0,0 H 1.3229167 V 8.4666662 H 0 Z";
+    -fx-background-color: -qw-icon-color;
+}
+.linkedto-icon,
+.link-icon,
+.weblinks-icon {
+    -fx-shape: "m 31.415596,0.586 c -0.78104,-0.781 -2.059105,-0.781 -2.840144,0 L 24.505245,4.66 C 22.83716,3.551 20.923063,3 19.000965,3 16.441835,3 13.799701,3.977 11.930606,5.93 l -6.0003048,6 C 2.5081274,15.348 2.086106,20.633 4.6572366,24.512 l -4.07020678,4.074 c -0.78103968,0.781 -0.78103968,2.047 0,2.828 C 0.97704963,31.805 1.4880756,32 2.0001016,32 c 0.512026,0 1.023052,-0.195 1.4140718,-0.586 L 7.4843802,27.34 C 9.1524649,28.449 11.078563,29 13.00066,29 c 2.475126,0 5.11726,-0.977 7.07036,-2.93 l 5.988304,-6 c 3.422174,-3.418 3.844195,-8.703 1.273064,-12.582 l 4.082208,-4.074 c 0.78204,-0.781 0.78204,-2.047 0.001,-2.828 z M 24.989269,13 c 0,1.602 -0.625031,3.109 -1.758089,4.242 l -5.988304,6 C 16.105818,24.375 14.518738,25 13.00066,25 12.094614,25 11.22757,24.777 10.43053,24.398 l 2.900147,-2.984 c 0.78104,-0.781 0.78104,-2.047 0,-2.828 -0.697035,-0.781 -1.9631,-0.781 -2.744139,0 L 7.6023862,21.57 C 7.2193667,20.777 7.0003556,19.91 7.0003556,19 c 0,-1.602 0.6250317,-3.109 1.7580893,-4.242 l 5.9163001,-6 C 15.807803,7.625 17.398884,7 19.000965,7 c 0.906046,0 1.77009,0.223 2.566131,0.602 l -3.043155,3.047 c -0.78104,0.781 -0.78104,2.047 0,2.828 0.39102,0.391 0.902046,0.586 1.414072,0.586 0.508026,0 1.020052,-0.195 1.410071,-0.586 l 3.039155,-3.047 c 0.384019,0.793 0.60203,1.66 0.60203,2.57 z";
+    -fx-background-color: -qw-icon-color;
+}
+
+.button .weblinks-icon
+{
+    -fx-background-color: -qw-button-icon-color;
+}
+
+.colorchooser-icon,
+.colors-icon {
+    -fx-shape: "M 10.918,17.961 5.174,27.719 C 8.027,30.352 11.809,32 16,32 c 1.041,0 2.055,-0.117 3.041,-0.305 z M 12.105,12 H 0.566 C 0.232,13.285 0,14.609 0,16 c 0,3.891 1.445,7.41 3.756,10.188 z m 3.528,10 5.391,9.117 C 25.473,29.633 29.063,26.316 30.813,22 Z M 16.5,10 11.092,0.848 C 6.592,2.307 2.953,5.646 1.188,10 Z m 3.451,10 H 31.433 C 31.766,18.715 32,17.391 32,16 32,12.127 30.57,8.623 28.277,5.855 Z m 1.221,-6.02 5.691,-9.664 C 24.008,1.658 20.211,0 16,0 15.002,0 14.035,0.119 13.088,0.293 Z";
+    -fx-background-color: -qw-icon-color;
+}
+.selectbg-icon
+{
+    -fx-shape: "m 29.655646,13.684 c 3.125806,-3.119 3.125806,-8.18 0,-11.297 -1.559402,-1.559 -3.60593,-2.34 -5.642455,-2.34 -2.047528,0 -4.093055,0.781 -5.647456,2.34 L 17.771582,2.977 14.798816,0 11.980089,2.822 14.955856,5.797 0,20.758 v 7.25 L 3.9310135,32 h 7.4159125 l 14.898841,-14.906 2.879743,2.877 2.828729,-2.82 -2.883744,-2.877 z M 10.322662,27.367 C 10.369674,25.851 9.8455385,24.332 8.6932414,23.179 7.6339683,22.117 6.2516119,21.597 4.8602531,21.55 L 17.779584,8.627 l 5.640454,5.639 z";
+    -fx-background-color: -qw-icon-color;
+}
+.plan-icon {
+    -fx-shape: "m 8,27.42857 h 24 v 4.571429 H 8 Z m 0,-9.142856 h 24 v 4.571428 H 8 Z M 8,9.1428568 H 32 V 13.714285 H 8 Z M 8,0 H 32 V 4.5714284 H 8 Z M 4,29.714285 A 2,2.2857142 0 0 1 2,31.999999 2,2.2857142 0 0 1 0,29.714285 2,2.2857142 0 0 1 2,27.42857 2,2.2857142 0 0 1 4,29.714285 M 4,20.571428 A 2,2.2857142 0 0 1 2,22.857142 2,2.2857142 0 0 1 0,20.571428 2,2.2857142 0 0 1 2,18.285714 2,2.2857142 0 0 1 4,20.571428 M 4,11.428571 A 2,2.2857142 0 0 1 2,13.714285 2,2.2857142 0 0 1 0,11.428571 2,2.2857142 0 0 1 2,9.1428568 2,2.2857142 0 0 1 4,11.428571 M 4,2.2857142 A 2,2.2857142 0 0 1 2,4.5714284 2,2.2857142 0 0 1 0,2.2857142 2,2.2857142 0 0 1 2,0 2,2.2857142 0 0 1 4,2.2857142";
+    -fx-background-color: -qw-icon-color;
+}
+.dictionary-icon {
+    -fx-shape: "m 100.9351,87.855191 1.81591,-2.172822 h -1.56028 q -0.16399,0 -0.24839,-0.07235 -0.082,-0.07235 -0.082,-0.190514 0,-0.12299 0.082,-0.197749 0.0844,-0.07717 0.24839,-0.07717 h 2.01125 q 0.39067,0 0.39067,0.364147 0,0.173633 -0.0651,0.27733 -0.0651,0.103697 -0.26286,0.335208 l -1.69775,2.020893 h 1.87138 q 0.1664,0 0.24839,0.06994 0.082,0.06752 0.082,0.190514 0,0.127813 -0.082,0.202571 -0.082,0.07476 -0.24839,0.07476 h -2.29581 q -0.23393,0 -0.35209,-0.103697 -0.11817,-0.106109 -0.11817,-0.282154 0,-0.06029 0.0193,-0.110932 0.0193,-0.05064 0.0507,-0.09405 0.0338,-0.04582 0.0916,-0.113344 0.0579,-0.06994 0.10128,-0.120578 z m -1.193724,0.424436 -0.168809,-0.443729 h -1.437295 l -0.168809,0.453375 q -0.09888,0.265272 -0.16881,0.359324 -0.06994,0.09164 -0.229099,0.09164 -0.135048,0 -0.238745,-0.09887 -0.103697,-0.09887 -0.103697,-0.224276 0,-0.07235 0.02411,-0.149517 0.02412,-0.07717 0.07958,-0.21463 l 0.904338,-2.295812 q 0.03859,-0.09887 0.09164,-0.236333 0.05547,-0.139871 0.115756,-0.231511 0.0627,-0.09164 0.161575,-0.147105 0.101285,-0.05788 0.248391,-0.05788 0.149517,0 0.248391,0.05788 0.101286,0.05547 0.161575,0.144694 0.0627,0.08923 0.103698,0.192925 0.04341,0.101286 0.10852,0.272507 l 0.923624,2.281343 q 0.10852,0.260449 0.10852,0.378616 0,0.12299 -0.10369,0.226687 -0.10129,0.101286 -0.24598,0.101286 -0.0844,0 -0.1447,-0.03135 -0.06029,-0.02894 -0.10128,-0.07958 -0.041,-0.05305 -0.08923,-0.159163 -0.04582,-0.108521 -0.07958,-0.190514 z m -1.418001,-0.981508 h 1.056266 l -0.532956,-1.458998 z m 6.270755,-4.483021 -8.194847,0.0987 v 8.095631 l 8.113197,-0.0987 z m -0.2558,0.256315 -0.077,7.589203 -7.606248,0.0925 v -7.589203 z";
+    -fx-background-color: -qw-icon-color;
+}
+.project-icon,
+.projectmessages-icon,
+.allprojects-icon {
+    -fx-shape: "M 27.973,8.047 32,4.016 H 27.973 V 0 H 3.996 C 1.789,0 0,1.789 0,4 v 24 c 0,2.211 1.789,4 3.996,4 H 27.973 V 12.047 h 3.996 z M 23.977,28 H 7.992 V 4 H 23.976 V 28 Z M 11.988,8 h 7.992 v 4.031 h -7.992 z";
+    -fx-background-color: -qw-icon-color;
+}
+.chart-icon,
+.statistics-icon,
+.detail-icon {
+    -fx-shape: "M 15.998,16.016 V 0 C 11.639,0.27 7.701,1.938 4.521,4.537 Z M 19.914,4.158 V 18.804 L 9.646,29.16 C 11.974,30.898 14.802,32 17.843,32 25.703,32 32,25.711 32,17.941 32,10.883 26.766,5.164 19.914,4.158 Z m -6.174,15.24 -10.008,-10 c -4.977,5.754 -4.977,14.246 0,20 z";
+    -fx-background-color: -qw-icon-color;
+}
+.delete-icon,
+.deleteaccount-icon {
+    -fx-shape: "M 28,4 H 24 C 24,1.789 22.211,0 20,0 H 12 C 9.789,0 8,1.789 8,4 H 4 0 v 4 h 4 v 18 c 0,3.312 2.688,6 6,6 h 12 c 3.312,0 6,-2.688 6,-6 V 8 h 4 V 4 Z M 12,24 c -1.105,0 -2,-0.895 -2,-2 0,-1.105 0.895,-2 2,-2 1.105,0 2,0.895 2,2 0,1.105 -0.895,2 -2,2 z m 0,-8 c -1.105,0 -2,-0.895 -2,-2 0,-1.105 0.895,-2 2,-2 1.105,0 2,0.895 2,2 0,1.105 -0.895,2 -2,2 z m 8,8 c -1.105,0 -2,-0.895 -2,-2 0,-1.105 0.895,-2 2,-2 1.105,0 2,0.895 2,2 0,1.105 -0.895,2 -2,2 z m 0,-8 c -1.105,0 -2,-0.895 -2,-2 0,-1.105 0.895,-2 2,-2 1.105,0 2,0.895 2,2 0,1.105 -0.895,2 -2,2 z";
+    -fx-background-color: -qw-icon-color;
+}
+.warmup-icon,
+.warmups-icon,
+.dowarmup-icon {
+    -fx-shape: "M 6.5253792,31.398539 6.6286558,14.19846 16.853013,14.317081 Z M 10.619981,0.60146119 10.516705,17.801541 0.29234709,17.68292 Z";
+    -fx-background-color: -qw-icon-color;
+}
+.targets-icon,
+.goals-icon {
+    -fx-shape: "m 27.945,18.025 c -0.859,5.076 -4.848,9.061 -9.922,9.92 V 32 C 25.336,31.078 31.074,25.336 32,18.025 Z m -13.972,9.92 C 8.899,27.086 4.911,23.101 4.051,18.025 H 0 C 0.922,25.336 6.664,31.078 13.973,32 Z M 4.051,13.975 C 4.91,8.9 8.898,4.912 13.973,4.053 V 0 C 6.664,0.924 0.922,6.664 0,13.975 Z M 18.023,4.053 c 5.074,0.859 9.062,4.848 9.922,9.922 H 32 C 31.074,6.664 25.336,0.924 18.023,0 Z m -4.05,13.972 H 8.184 c 0.73,2.834 2.953,5.057 5.789,5.787 z m 0,-4.05 V 8.186 c -2.836,0.732 -5.059,2.953 -5.789,5.789 z m 4.05,4.05 v 5.787 c 2.836,-0.73 5.055,-2.953 5.789,-5.787 z m 0,-4.05 h 5.789 C 23.078,11.139 20.859,8.918 18.023,8.186 Z";
+    -fx-background-color: -qw-icon-color;
+}
+
+.find-chapter-icon,
+.find-icon,
+.findprojects-icon,
+.view-icon {
+    -fx-shape:"m 20.133,0 c -6.539,0 -11.86,5.32 -11.86,11.863 0,1.566 0.32,3.051 0.871,4.418 L 0,25.426 6.57,32 15.718,22.848 c 1.367,0.555 2.852,0.875 4.414,0.875 6.543,0 11.867,-5.32 11.867,-11.859 C 32,5.32 26.676,0 20.133,0 Z m 0,19.727 c -4.332,0 -7.863,-3.531 -7.863,-7.863 0,-4.336 3.531,-7.867 7.863,-7.867 4.34,0 7.871,3.531 7.871,7.867 0,4.331 -3.531,7.863 -7.871,7.863 z m -8.797,0.011 c -1.855,1.852 -4.414,4.418 -5.688,5.688 0.43,0.43 0.488,0.484 0.922,0.922 1.27,-1.273 3.832,-3.836 5.684,-5.688 -0.32,-0.289 -0.625,-0.594 -0.918,-0.922 z";
+    -fx-background-color: -qw-icon-color;
+}
+.contacts-icon,
+.editors-icon,
+.previouscontacts-icon,
+.previouseditors-icon,
+.invitemessage-icon
+{
+    -fx-shape:"M 18,6 A 6,6 0 0 1 12,12 6,6 0 0 1 6,6 6,6 0 0 1 12,0 6,6 0 0 1 18,6 M 12,16 C 5.375,16 0,21.375 0,28 c 0,2.211 1.789,4 4,4 h 16 c 2.211,0 4,-1.789 4,-4 C 24,21.375 18.625,16 12,16 Z M -3,-8 a 6,6 0 0 1 -6,6 6,6 0 0 1 -6,-6 6,6 0 0 1 6,-6 6,6 0 0 1 6,6 M -9,2 c -6.625,0 -12,5.375 -12,12 0,2.211 1.789,4 4,4 H -1 C 1.211,18 3,16.211 3,14 3,7.375 -2.375,2 -9,2 Z";
+    -fx-background-color: -qw-icon-color;
+}
+.editor-icon
+{
+    -fx-shape: "M 18,6 A 6,6 0 0 1 12,12 6,6 0 0 1 6,6 6,6 0 0 1 12,0 6,6 0 0 1 18,6 M 12,16 C 5.375,16 0,21.375 0,28 c 0,2.211 1.789,4 4,4 h 16 c 2.211,0 4,-1.789 4,-4 0,-6.625 -5.375,-12 -12,-12 z";
+    -fx-background-color: -qw-icon-color;
+}
+.fullscreenenter-icon,
+.fullscreen-icon {
+    -fx-shape:"M 32,0 H 20 l 4.586,4.586 -4.543,4.539 2.828,2.828 L 27.414,7.414 32,12 Z M 12,22.828 9.172,20 4.586,24.586 0,20 V 32 H 12 L 7.414,27.414 Z M 12,0 H 0 V 12 L 4.586,7.414 9.129,11.953 11.957,9.125 7.414,4.586 Z M 27.414,24.586 22.828,20 20,22.828 24.586,27.414 20,32 H 32 V 20 Z";
+    -fx-background-color: -qw-icon-color;
+}
+.fullscreenexit-icon {
+    -fx-shape: "M 27.414,7.414 31.961,2.871 29.133,0.043 24.586,4.586 20,0 v 12 h 12 z m -20,20 L 12,32 V 20 H 0 L 4.586,24.586 0,29.172 2.828,32 Z M 12,0 7.414,4.586 2.875,0.043 0.047,2.871 4.586,7.414 0,12 H 12 Z M 32,29.172 27.414,24.586 32,20 H 20 V 32 L 24.586,27.414 29.172,32 Z";
+    -fx-background-color: -qw-icon-color;
+}
+.comment-icon,
+.message-icon,
+.othercomments-icon,
+.comments-icon {
+    -fx-shape: "m 14,4 c 5.516,0 10,4.484 10,10 0,5.516 -4.484,10 -10,10 -0.707,0 -1.473,-0.105 -2.34,-0.316 L 9.957,23.262 8.496,24.23 8.039,24.531 8.043,23.847 8.051,22.195 6.891,21.019 C 5.027,19.129 4,16.637 4,14 4,8.484 8.484,4 14,4 M 14,0 C 6.27,0 0,6.27 0,14 c 0,3.832 1.547,7.297 4.043,9.828 L 4,32 10.703,27.566 C 11.766,27.828 12.859,28 14,28 21.73,28 28,21.73 28,14 28,6.27 21.73,0 14,0 Z";
+    -fx-background-color: -qw-icon-color;
+    -fx-pref-width: 1.166em;
+}
+.ideaboard-icon,
+.idea-icon,
+.dialogue-icon {
+    -fx-shape:"M 6.0040002,27.992001 H 14 V 32 H 6.0040002 Z M 10,4.008 c 3.312,0 6,2.699 6,6.016 0,1.895 -0.863,3.637 -2.375,4.773 -2.256,1.707 -3.168,3.594 -3.482,5.18 H 9.857 C 9.545,18.391 8.63,16.504 6.373,14.797 4.865,13.66 3.998,11.918 3.998,10.024 3.998,6.707 6.689,4.008 10,4.008 M 10,0 C 4.477,0 0,4.488 0,10.023 0,13.305 1.545,16.172 3.969,18 c 1.115,0.844 2.035,1.93 2.035,3.43 v 2.555 H 14 V 21.43 C 14,19.93 14.918,18.844 16.031,18 18.457,16.172 20,13.305 20,10.023 20,4.488 15.523,0 10,0 Z";
+    -fx-background-color: -qw-icon-color;
+}
+.bug-icon,
+.reportbug-icon {
+    -fx-shape:"m 15.691721,3.096385 c 0.899781,3.5689098 2.699345,4.078754 3.099248,1.0196885 0.199952,-1.1216573 0.799806,-1.8354393 1.299685,-1.5295327 1.39966,0.9177196 1.099733,3.7728474 -0.699831,5.8122244 -1.799563,1.9374078 -2.09949,1.7334708 3.099249,3.3649718 1.699587,0.509845 2.09949,4.588599 0.499878,4.588599 -0.599854,0 -0.999757,-0.713782 -0.999757,-1.529533 0,-0.815751 -0.399903,-1.529533 -0.899782,-1.529533 -1.299685,0 -1.999515,3.772847 -0.899782,4.894505 0.499879,0.509844 0.799806,2.039377 0.499879,3.364972 l -0.399903,2.447252 -0.799806,-2.243314 c -0.799806,-2.447253 -1.999515,-2.957097 -2.999272,-1.325595 -0.299928,0.509844 -1.299685,1.019688 -2.099491,1.019688 -0.999757,0 -1.39966,-1.325595 -1.39966,-5.098442 0,-2.855128 -0.499879,-5.098443 -0.999758,-5.098443 -0.599855,0 -0.999757,2.243315 -0.999757,5.098443 0,3.772847 -0.399903,5.098442 -1.399661,5.098442 -0.799806,0 -1.7995635,-0.509844 -2.0994908,-1.019688 -0.9997574,-1.631502 -2.1994665,-1.121658 -2.9992725,1.223626 l -0.799806,2.345283 -0.399903,-2.447252 c -0.2999272,-1.325595 0,-2.855128 0.4998788,-3.364972 1.0997333,-1.121658 0.399903,-4.894505 -0.8997817,-4.894505 -0.4998788,0 -0.8997818,0.713782 -0.8997818,1.529533 0,0.815751 -0.4998788,1.529533 -0.9997575,1.529533 -1.49963625,0 -1.199709,-4.078754 0.1999515,-4.48663 C 6.4939518,10.234205 6.393976,10.336173 4.5944125,8.3987652 2.794849,6.3593882 2.4949217,3.5042604 3.8945822,2.5865408 4.394461,2.2806342 4.9943155,3.096385 5.194267,4.3200112 5.59417,7.6849833 7.193782,7.175139 8.1935395,3.3003227 9.0933213,0.0373195 10.992861,-1.2882755 10.992861,1.5668523 c 0,0.8157508 0.399902,1.5295327 0.999757,1.5295327 0.499879,0 0.999758,-0.7137819 0.999758,-1.5295327 0,-2.753159 1.899539,-1.63150165 2.699345,1.5295327 z";
+    -fx-background-color: -qw-icon-color;
+}
+.import-icon {
+    -fx-shape:"M 28.419183,32 V 21.922882 c 0,0 -5.648313,0 -11.211368,0 L 32,7.1270019 24.874778,-2.4945e-7 10.082593,14.79588 10.075488,3.5746049 -7.1520001e-8,3.5737165 0.01420952,31.985787 Z";
+    -fx-background-color: -qw-icon-color;
+}
+.export-icon,
+.download-icon {
+    -fx-shape: "M 3.5808169,-8.0485002e-8 3.5879169,10.070011 c 0,0 5.648312,0 11.2113681,0 L -8.0485e-8,24.872998 7.1252219,32 21.924512,17.197013 V 28.425395 L 32,28.426283 31.98579,0.01421292 Z";
+    -fx-background-color: -qw-icon-color;
+}
+.download-icon
+{
+    -fx-rotate: 135;
+}
+.achievement-icon,
+.achievements-icon {
+    -fx-shape: "M 16,8 A 8,8 0 0 1 8,16 8,8 0 0 1 0,8 8,8 0 0 1 8,0 8,8 0 0 1 16,8 M 8,20 C 6.59,20 5.258,19.711 4,19.264 V 32 l 4,-4 4,4 V 19.264 C 10.742,19.711 9.41,20 8,20 Z";
+    -fx-background-color: -qw-icon-color;
+}
+.star-icon,
+.whatsnew-icon {
+    -fx-shape: "M 20,12 16,0 12,12 H 0 L 9.875,19.594 6,32 16.016,24.32 26.008,32 22.137,19.625 32,12 Z";
+    -fx-background-color: -qw-icon-color;
+}
+.createchapter-icon,
+.createproject-icon,
+.add-icon,
+.newproject-icon,
+.newstatus-icon,
+.new-icon {
+    -fx-shape:"M 16,0 C 7.164,0 0,7.164 0,16 0,24.836 7.164,32 16,32 24.836,32 32,24.836 32,16 32,7.164 24.836,0 16,0 Z m 8,18 h -6 v 6 H 14 V 18 H 8 v -4 h 6 V 8 h 4 v 6 h 6 z";
+    -fx-background-color: -qw-icon-color;
+}
+.help-icon,
+.viewuserguide-icon,
+.tips-icon {
+    -fx-shape: "m 7.676,25.977 c -1.336,0 -2.59,-0.523 -3.535,-1.469 -0.945,-1.105 -1.465,-2.359 -1.465,-3.695 0,-1.336 0.52,-2.59 1.465,-3.371 l 6.688,-6.688 C 11.584,9.996 12,8.992 12,7.926 12,6.856 11.584,5.852 10.828,5.098 9.269,3.539 6.732,3.536 5.174,5.098 4.416,5.852 4,6.855 4,7.926 H 0 C 0,5.789 0.834,3.778 2.348,2.266 5.368,-0.757 10.633,-0.754 13.657,2.27 15.168,3.777 16,5.785 16,7.926 c 0,2.137 -0.832,4.145 -2.344,5.656 l -6.688,6.523 c -0.389,0.391 -0.389,1.023 0,1.414 0.391,0.391 1.023,0.391 1.414,0 0.254,-0.258 0.293,-0.555 0.293,-0.711 h 4 c 0,1.336 -0.52,2.594 -1.465,3.699 -0.944,0.946 -2.198,1.47 -3.534,1.47 z M 9.6,30 c 0,1.102 -0.895,2 -2,2 -1.105,0 -2,-0.898 -2,-2 0,-1.109 0.895,-2 2,-2 1.105,0 2,0.891 2,2 z";
+    -fx-background-color: -qw-icon-color;
+    -fx-pref-width: 0.666em;
+}
+.edit-icon,
+.rename-icon,
+.managestatuses-icon,
+.editneedednote-icon,
+.mywriting-icon,
+.changedisplay-icon,
+.setstatus-icon,
+.managebackups-icon,
+.editneeded-icon,
+.updateinfo-icon,
+.changepassword-icon {
+    -fx-shape:"m 10.836,26.832 c 1.562,-1.562 1.562,-4.094 0,-5.656 -1.562,-1.562 -4.094,-1.562 -5.656,0 L 0,32 Z M 30.828,1.172 c -1.562,-1.562 -4.094,-1.562 -5.656,0 L 10.047,16.301 c 1.352,0.352 2.602,1.031 3.617,2.047 1.031,1.031 1.688,2.289 2.039,3.609 L 30.828,6.828 c 1.563,-1.562 1.563,-4.094 0,-5.656 z";
+    -fx-background-color: -qw-icon-color;
+}
+.tools-icon {
+    -fx-shape: "m 31.605,5.643 -5.023,5.023 h -5.25 V 5.334 L 26.293,0.375 C 25.562,0.154 24.801,0 24,0 c -4.418,0 -8,3.584 -8,8 0,1.232 0.301,2.385 0.801,3.43 L 0.781,27.445 C 0.301,27.93 0,28.594 0,29.336 0,30.805 1.191,32 2.668,32 3.406,32 4.074,31.703 4.551,31.219 L 20.574,15.201 C 21.613,15.697 22.77,16 24,16 28.418,16 32,12.416 32,8 32,7.174 31.84,6.393 31.605,5.643 Z";
+    -fx-background-color: -qw-icon-color;
+}
+.chapter-icon,
+.editing-icon {
+    -fx-shape:"M 14,0 H 0 V 32 H 24 V 9.998 Z M 4,28 V 4 h 8 v 8 h 8 v 16 z";
+    -fx-background-color: -qw-icon-color;
+    -fx-pref-width: 1em;
+    -fx-max-width: 1em;
+    -fx-min-width: 1em;
+}
+.editcomplete-icon {
+    -fx-shape: "m 134.04575,134.45734 h 1.05833 v 8.46666 h -1.05833 z m 2.813,3.20028 1.34272,1.35555 3.08789,-3.11716 1.22428,1.23597 -4.31217,4.35335 -2.567,-2.59174 z";
+    -fx-background-color: -qw-icon-color;
+}
+.editposition-icon,
+.seteditposition-icon {
+    -fx-shape: "m 135.90764,155.13403 h 1.05833 v 8.46666 h -1.05833 z m 5.02364,7.58472 1.21934,-1.21934 c 0,0 -0.68362,-0.68361 -1.35692,-1.35691 h 3.58061 v -1.72474 h -3.58061 l 1.35692,-1.35863 -1.21934,-1.21955 -3.43614,3.43958 z";
+    -fx-background-color: -qw-icon-color;
+}
+.removeeditposition-icon {
+    -fx-shape: "M 28,5.602 22.398,0 14,8.402 5.598,0 0,5.602 8.398,14 0,22.398 5.598,28 14,19.598 22.398,28 28,22.398 19.594,14 Z M -6.8205124,-3.2307693 h 4.3076791 V 31.230743 h -4.3076791 z";
+    -fx-background-color: -qw-icon-color;
+}
+.gotoeditposition-icon {
+    -fx-shape: "m 135.90764,155.13403 h 1.03662 v 8.46666 h -1.03662 z m 8.46666,4.23677 -1.20676,-1.21934 c 0,0 -0.67657,0.68362 -1.34292,1.35692 v -3.58061 h -1.70696 v 3.58061 l -1.34463,-1.35692 -1.20697,1.21934 3.40412,3.43614 z";
+    -fx-background-color: -qw-icon-color;
+}
+.openproject-icon,
+.open-icon,
+.up-icon {
+    -fx-shape: "m 0,15.984 5.672,5.664 c 0,0 3.182,-3.18 6.314,-6.312 V 32 h 8.021 V 15.336 l 6.32,6.32 L 32,15.984 16.002,0 Z";
+    -fx-background-color: -qw-icon-color;
+}
+.print-icon {
+    -fx-shape: "M 4.646488,0.44847494 C 4.2435921,0.8598553 3.9414202,2.7110669 3.9414202,4.5622785 c 0,2.3654371 -0.5036198,3.393888 -2.0144794,3.8052684 C 0.01318537,8.8817723 -0.18826257,9.601688 0.11390934,16.492309 l 0.30217191,7.507692 H 11.999338 23.582594 l 0.302172,-7.507692 C 24.186938,9.704533 23.98549,8.8817723 22.172459,8.3675469 20.762323,7.9561665 20.057255,6.8248705 19.855807,4.0480531 L 19.553636,0.34562985 12.502958,0.03709458 c -3.9282352,-0.10284509 -7.4535741,0 -7.85647,0.41138036 z M 18.042776,6.5163353 V 11.144364 H 11.999338 5.9558996 V 6.5163353 1.8883062 h 6.0434384 6.043438 z M 5.9558996,16.080929 c 0,1.336986 -1.2086876,2.262592 -2.2159273,1.645521 -1.0072397,-0.61707 -0.100724,-2.468282 1.3094116,-2.468282 0.5036198,0 0.9065157,0.41138 0.9065157,0.822761 z m 14.6049754,4.833719 c 0,1.131296 -13.8999076,2.056902 -16.3172829,1.131296 C 3.4378004,21.737409 3.1356284,20.914648 3.4378004,20.400422 4.3443161,18.960591 20.560875,19.474817 20.560875,20.914648 Z";
+    -fx-background-color: -qw-icon-color;
+}
+.options-icon,
+.viewermenu-icon,
+.naming-icon,
+.config-icon,
+.settings-icon,
+.editproperties-icon {
+     -fx-shape:"m 32,17.969 v -4 L 27.219,11.977 C 27.086,11.602 26.946,11.239 26.774,10.883 L 28.704,6.078 25.875,3.25 21.113,5.211 C 20.75,5.035 20.379,4.887 19.996,4.75 L 17.969,0 h -4 l -1.977,4.734 c -0.398,0.141 -0.781,0.289 -1.16,0.469 L 6.078,3.293 3.25,6.121 5.188,10.832 C 5,11.219 4.848,11.613 4.703,12.02 L 0,14.031 v 4 l 4.707,1.961 c 0.145,0.406 0.301,0.801 0.488,1.188 l -1.902,4.742 2.828,2.828 4.723,-1.945 c 0.379,0.18 0.766,0.324 1.164,0.461 L 14.031,32 h 4 l 1.98,-4.758 c 0.379,-0.141 0.754,-0.289 1.113,-0.461 l 4.797,1.922 2.828,-2.828 -1.969,-4.773 c 0.168,-0.359 0.305,-0.723 0.438,-1.094 z M 15.969,22 c -3.312,0 -6,-2.688 -6,-6 0,-3.312 2.688,-6 6,-6 3.312,0 6,2.688 6,6 0,3.312 -2.688,6 -6,6 z";
+     -fx-background-color: -qw-icon-color;
+ }
+.more-icon
+{
+    -fx-shape: "M 2.1166666,1.0583333 A 1.0583333,1.0583333 0 0 1 1.0583333,2.1166666 1.0583333,1.0583333 0 0 1 0,1.0583333 1.0583333,1.0583333 0 0 1 1.0583333,0 1.0583333,1.0583333 0 0 1 2.1166666,1.0583333 m 0,3.1749998 A 1.0583333,1.0583333 0 0 1 1.0583333,5.2916664 1.0583333,1.0583333 0 0 1 0,4.2333331 1.0583333,1.0583333 0 0 1 1.0583333,3.1749998 1.0583333,1.0583333 0 0 1 2.1166666,4.2333331 m 0.061127,3.1750002 A 1.0583333,1.0583333 0 0 1 1.11946,8.4666666 1.0583333,1.0583333 0 0 1 0.06112671,7.4083333 1.0583333,1.0583333 0 0 1 1.11946,6.35 1.0583333,1.0583333 0 0 1 2.1777933,7.4083333 Z";
+    -fx-background-color: -qw-icon-color;
+}
+.note-icon,
+.notes-icon {
+    -fx-shape: "M 22.016,0 H 0 V 31.938 L 8.051,25.36 16.07,32 24.082,25.367 32,31.984 V 10 Z m 6.004,23.938 -3.953,-3.227 -7.996,6.617 -7.98,-6.609 -4.086,3.219 c 0,0 0,-17.359 0,-20 2.102,0 7.809,0 12.008,0 v 12 H 28.02 c 0,2.73 0,8 0,8 z m -8.004,-12 c 0,-1.543 0,-5.914 0,-8 1.617,1.617 6.402,6.398 8.004,8 -2.047,0 -6.45,0 -8.004,0 z";
+    -fx-background-color: -qw-icon-color;
+}
+/*
+.location .icon {
+    -fx-shape: "M 16,0 0,16 H 4 V 32 H 28 V 16 h 4 z m 8,28 h -6 v -6 h -4 v 6 H 8 V 13.656 L 16,8 l 8,5.656 z";
+    -fx-background-color: -qw-icon-color;
+}
+*/
+.tag-icon {
+    -fx-shape: "M 28,12 V 8 h -5.004 l 1,-8 h -4 l -1,8 h -7.998 l 1,-8 h -4 l -1,8 H 0 v 4 H 6.498 L 5.5,20 H 0 v 4 h 5 l -1,8 h 4 l 1,-8 h 8 l -1.002,8 H 20 l 1,-8 h 7 v -4 h -6.5 l 0.996,-8 z m -10.5,8 h -8 l 0.998,-8 h 7.998 z";
+    -fx-background-color: -qw-icon-color;
+}
+.save-icon,
+.dealtwith-icon {
+    -fx-shape: "M 5.695,8.117 11.941,14.363 26.305,0 32,5.695 11.941,25.754 0,13.812 Z";
+    -fx-background-color: -qw-icon-color;
+    /* Note ratio: 1w * 0.8125h */
+}
+.noimage-icon
+{
+    -fx-shape: "M 28,8 24.711,1.357 C 24.441,0.568 23.695,0 22.812,0 H 17.32 C 16.427,0 15.674,0.582 15.416,1.385 L 12.004,8 H 4 C 1.791,8 0,9.791 0,12 V 32 H 32 V 12 C 32,9.791 30.211,8 28,8 Z M 6,16 c -1.105,0 -2,-0.895 -2,-2 0,-1.105 0.895,-2 2,-2 1.105,0 2,0.895 2,2 0,1.105 -0.895,2 -2,2 z m 14,12 c -4.418,0 -8,-3.582 -8,-8 0,-4.418 3.582,-8 8,-8 4.418,0 8,3.582 8,8 0,4.418 -3.582,8 -8,8 z m 4,-8 a 4,4 0 0 1 -4,4 4,4 0 0 1 -4,-4 4,4 0 0 1 4,-4 4,4 0 0 1 4,4";
+    -fx-background-color: -qw-icon-color;
+}
+.backup-icon,
+.backups-icon,
+.createbackup-icon {
+    -fx-shape: "M 28,8 24.711,1.357 C 24.441,0.568 23.695,0 22.812,0 H 17.32 C 16.427,0 15.674,0.582 15.416,1.385 L 12.004,8 H 4 C 1.791,8 0,9.791 0,12 V 32 H 32 V 12 C 32,9.791 30.211,8 28,8 Z M 6,16 c -1.105,0 -2,-0.895 -2,-2 0,-1.105 0.895,-2 2,-2 1.105,0 2,0.895 2,2 0,1.105 -0.895,2 -2,2 z m 14,12 c -4.418,0 -8,-3.582 -8,-8 0,-4.418 3.582,-8 8,-8 4.418,0 8,3.582 8,8 0,4.418 -3.582,8 -8,8 z m 4,-8 a 4,4 0 0 1 -4,4 4,4 0 0 1 -4,-4 4,4 0 0 1 4,-4 4,4 0 0 1 4,4";
+    -fx-background-color: -qw-icon-color;
+}
+.warning-icon,
+.important-icon,
+.errors-icon,
+.reportmessage-icon {
+    -fx-shape: "m 81.324673,119.18284 -0.165364,-2.47529 q -0.04651,-0.72347 -0.04651,-1.03869 0,-0.42892 0.222208,-0.66663 0.227376,-0.24287 0.594277,-0.24287 0.444416,0 0.594277,0.31005 0.149861,0.30489 0.149861,0.88367 0,0.34106 -0.03617,0.69246 l -0.222208,2.54764 q -0.03617,0.45475 -0.155029,0.69763 -0.118855,0.24288 -0.392739,0.24288 -0.279052,0 -0.387572,-0.23255 -0.108521,-0.23771 -0.155029,-0.7183 z m 0.573606,3.4003 q -0.315225,0 -0.552936,-0.20154 -0.232543,-0.2067 -0.232543,-0.5736 0,-0.32039 0.222208,-0.5426 0.227376,-0.22738 0.552936,-0.22738 0.325561,0 0.552936,0.22738 0.232543,0.22221 0.232543,0.5426 0,0.36173 -0.232543,0.56844 -0.232543,0.2067 -0.542601,0.2067 z";
+    -fx-background-color: -qw-icon-color;
+    -fx-pref-width: 0.333em;
+    -fx-max-width: 0.333em;
+    -fx-min-width: 0.333em;
+}
+.move-icon,
+.movevert-icon {
+    -fx-shape: "M 4,10 C 4,8.895 4.898,8 6,8 h 14 v 4 L 27.992,6 20,0 V 4 H 6 C 2.691,4 0,6.688 0,10 v 2 h 4 z m 24,2 v 2 c 0,1.102 -0.898,2 -2,2 H 11.996 L 12,12 4,18 12,24 11.996,20 H 26 c 3.309,0 6,-2.695 6,-6 v -2 z";
+    -fx-background-color: -qw-icon-color;
+    -fx-pref-height: 1em;
+}
+.movevert-icon {
+    -fx-rotate: 90;
+}
+.close-icon,
+.clear-icon,
+.finish-icon,
+.novalue-icon,
+.cancel-icon,
+.hide-icon,
+.ignore-icon,
+.stopped-icon,
+.rejected-icon,
+.undealtwith-icon,
+.tab-pane .tab-close-button {
+    -fx-shape: "M 28,5.602 22.398,0 14,8.402 5.598,0 0,5.602 8.398,14 0,22.398 5.598,28 14,19.598 22.398,28 28,22.398 19.594,14 Z";
+    -fx-background-color: -qw-icon-color;
+}
+.error-icon,
+.errorsonly-icon {
+    /* Copy of warning icon */
+    /* Note ratio: 0.1875w * 1h */
+    -fx-shape: "m 81.324714,119.22488 -0.165353,-2.67869 q -0.04651,-0.78292 -0.04651,-1.12404 0,-0.46416 0.222192,-0.72141 0.22736,-0.26282 0.594234,-0.26282 0.444385,0 0.594235,0.33552 0.14985,0.32995 0.14985,0.95629 0,0.36908 -0.03617,0.74936 L 82.415,119.23607 q -0.03617,0.49211 -0.155018,0.75495 -0.118847,0.26284 -0.392711,0.26284 -0.279032,0 -0.387544,-0.25166 -0.108514,-0.25724 -0.155018,-0.77732 z m 0.573565,3.6797 q -0.315203,0 -0.552897,-0.2181 -0.232526,-0.22368 -0.232526,-0.62073 0,-0.34672 0.222192,-0.58719 0.22736,-0.24606 0.552896,-0.24606 0.325538,0 0.552897,0.24606 0.232526,0.24047 0.232526,0.58719 0,0.39145 -0.232526,0.61515 -0.232527,0.22368 -0.542562,0.22368 z";
+    -fx-background-color: -qw-error-color;
+    -fx-pref-height: 1em;
+    -fx-pref-width: 0.333em;
+}
+.qw-icon,
+.about-icon {
+    -fx-shape: "M 16,0 A 16,15.34945 0 0 0 0,15.34945 16,15.34945 0 0 0 16,30.698899 16,15.34945 0 0 0 22.013672,29.572798 l 1.695313,2.182874 c 0.224742,0.289506 0.629638,0.326974 0.908203,0.08432 l 6.759766,-5.887204 c 0.278564,-0.242657 0.322398,-0.671708 0.09766,-0.961214 l -1.580078,-2.034852 a 16,15.34945 0 0 0 2.105468,-7.60727 16,15.34945 0 0 0 -16,-15.34945 z m 0,9.593406 a 6,5.7560436 0 0 1 0.205078,0.00375 6,5.7560436 0 0 1 0.205079,0.011242 6,5.7560436 0 0 1 0.205078,0.016863 6,5.7560436 0 0 1 0.205078,0.022485 6,5.7560436 0 0 1 0.203125,0.029979 6,5.7560436 0 0 1 0.203125,0.037474 6,5.7560436 0 0 1 0.201172,0.044969 6,5.7560436 0 0 1 0.199219,0.048716 6,5.7560436 0 0 1 0.197265,0.058085 6,5.7560436 0 0 1 0.195313,0.063706 6,5.7560436 0 0 1 0.191406,0.069327 6,5.7560436 0 0 1 0.191406,0.07495 6,5.7560436 0 0 1 0.1875,0.08244 6,5.7560436 0 0 1 0.183594,0.08806 6,5.7560436 0 0 1 0.18164,0.09556 6,5.7560436 0 0 1 0.175782,0.09931 6,5.7560436 0 0 1 0.173828,0.106801 6,5.7560436 0 0 1 0.169922,0.110549 6,5.7560436 0 0 1 0.166015,0.118044 6,5.7560436 0 0 1 0.16211,0.121791 6,5.7560436 0 0 1 0.15625,0.129286 6,5.7560436 0 0 1 0.152343,0.133034 6,5.7560436 0 0 1 0.148438,0.136781 6,5.7560436 0 0 1 0.142578,0.142402 6,5.7560436 0 0 1 0.136719,0.148023 6,5.7560436 0 0 1 0.132812,0.151771 6,5.7560436 0 0 1 0.126953,0.155518 6,5.7560436 0 0 1 0.119141,0.16114 6,5.7560436 0 0 1 0.115235,0.163012 6,5.7560436 0 0 1 0.109374,0.168635 6,5.7560436 0 0 1 0.103516,0.170507 6,5.7560436 0 0 1 0.0957,0.174256 6,5.7560436 0 0 1 0.0918,0.178002 6,5.7560436 0 0 1 0.08398,0.179877 6,5.7560436 0 0 1 0.07813,0.183623 6,5.7560436 0 0 1 0.07031,0.185498 6,5.7560436 0 0 1 0.06445,0.187371 6,5.7560436 0 0 1 0.05664,0.189245 6,5.7560436 0 0 1 0.05078,0.191119 6,5.7560436 0 0 1 0.04492,0.192992 6,5.7560436 0 0 1 0.03711,0.194866 6,5.7560436 0 0 1 0.0293,0.194866 6,5.7560436 0 0 1 0.02344,0.19674 6,5.7560436 0 0 1 0.01563,0.19674 6,5.7560436 0 0 1 0.0098,0.198613 6,5.7560436 0 0 1 0.002,0.148023 6,5.7560436 0 0 1 -0.0039,0.198614 6,5.7560436 0 0 1 -0.01172,0.19674 6,5.7560436 0 0 1 -0.01758,0.196739 6,5.7560436 0 0 1 -0.02344,0.19674 6,5.7560436 0 0 1 -0.03125,0.194866 6,5.7560436 0 0 1 -0.03906,0.194866 6,5.7560436 0 0 1 -0.04687,0.191119 6,5.7560436 0 0 1 -0.05078,0.191119 6,5.7560436 0 0 1 -0.06055,0.189244 6,5.7560436 0 0 1 -0.06641,0.187372 6,5.7560436 0 0 1 -0.07227,0.185497 6,5.7560436 0 0 1 -0.07813,0.18175 6,5.7560436 0 0 1 -0.08594,0.179877 6,5.7560436 0 0 1 -0.0918,0.178002 6,5.7560436 0 0 1 -0.09961,0.172382 6,5.7560436 0 0 1 -0.103516,0.170508 6,5.7560436 0 0 1 -0.111328,0.16676 6,5.7560436 0 0 1 -0.115235,0.163013 6,5.7560436 0 0 1 -0.123047,0.159266 6,5.7560436 0 0 1 -0.126953,0.155517 6,5.7560436 0 0 1 -0.134765,0.149897 6,5.7560436 0 0 1 -0.138672,0.14615 6,5.7560436 0 0 1 -0.142578,0.142402 6,5.7560436 0 0 1 -0.148438,0.136781 6,5.7560436 0 0 1 -0.154297,0.13116 6,5.7560436 0 0 1 -0.158203,0.125539 6,5.7560436 0 0 1 -0.162109,0.121791 6,5.7560436 0 0 1 -0.167969,0.11617 6,5.7560436 0 0 1 -0.169922,0.110549 6,5.7560436 0 0 1 -0.175781,0.104928 6,5.7560436 0 0 1 -0.177734,0.09931 6,5.7560436 0 0 1 -0.181641,0.09181 6,5.7560436 0 0 1 -0.185547,0.08619 6,5.7560436 0 0 1 -0.1875,0.08244 6,5.7560436 0 0 1 -0.191406,0.07308 6,5.7560436 0 0 1 -0.193359,0.06933 6,5.7560436 0 0 1 -0.195313,0.06183 6,5.7560436 0 0 1 -0.197266,0.05434 6,5.7560436 0 0 1 -0.199218,0.04872 6,5.7560436 0 0 1 -0.201172,0.0431 6,5.7560436 0 0 1 -0.203125,0.03373 6,5.7560436 0 0 1 -0.203125,0.02998 6,5.7560436 0 0 1 -0.205078,0.02249 6,5.7560436 0 0 1 -0.205079,0.01499 6,5.7560436 0 0 1 -0.207031,0.0075 6,5.7560436 0 0 1 -0.154297,0.0019 6,5.7560436 0 0 1 -0.207031,-0.0019 6,5.7560436 0 0 1 -0.205078,-0.01124 6,5.7560436 0 0 1 -0.205078,-0.01686 6,5.7560436 0 0 1 -0.205078,-0.02436 6,5.7560436 0 0 1 -0.203125,-0.02998 6,5.7560436 0 0 1 -0.203125,-0.03747 6,5.7560436 0 0 1 -0.199219,-0.04309 6,5.7560436 0 0 1 -0.199219,-0.05059 6,5.7560436 0 0 1 -0.197265,-0.05621 6,5.7560436 0 0 1 -0.195313,-0.06371 6,5.7560436 0 0 1 -0.193359,-0.06933 6,5.7560436 0 0 1 -0.189453,-0.07682 6,5.7560436 0 0 1 -0.1875,-0.08244 6,5.7560436 0 0 1 -0.185547,-0.08806 6,5.7560436 0 0 1 -0.179688,-0.09369 6,5.7560436 0 0 1 -0.177734,-0.101181 6,5.7560436 0 0 1 -0.173828,-0.104928 6,5.7560436 0 0 1 -0.169922,-0.112422 6,5.7560436 0 0 1 -0.166016,-0.116171 6,5.7560436 0 0 1 -0.162109,-0.123664 6,5.7560436 0 0 1 -0.15625,-0.127413 6,5.7560436 0 0 1 -0.152344,-0.133034 6,5.7560436 0 0 1 -0.148437,-0.138654 6,5.7560436 0 0 1 -0.142578,-0.142402 6,5.7560436 0 0 1 -0.136719,-0.14615 6,5.7560436 0 0 1 -0.13086,-0.15177 6,5.7560436 0 0 1 -0.126953,-0.155519 6,5.7560436 0 0 1 -0.121094,-0.16114 6,5.7560436 0 0 1 -0.115234,-0.163012 6,5.7560436 0 0 1 -0.109375,-0.168634 6,5.7560436 0 0 1 -0.103515,-0.170508 6,5.7560436 0 0 1 -0.0957,-0.174255 6,5.7560436 0 0 1 -0.08984,-0.178003 6,5.7560436 0 0 1 -0.08594,-0.179876 6,5.7560436 0 0 1 -0.07617,-0.183624 6,5.7560436 0 0 1 -0.07227,-0.185497 6,5.7560436 0 0 1 -0.06445,-0.187372 6,5.7560436 0 0 1 -0.05664,-0.189244 6,5.7560436 0 0 1 -0.05078,-0.191119 6,5.7560436 0 0 1 -0.04492,-0.194866 6,5.7560436 0 0 1 -0.03516,-0.192993 6,5.7560436 0 0 1 -0.03125,-0.196739 6,5.7560436 0 0 1 -0.02344,-0.194866 6,5.7560436 0 0 1 -0.01563,-0.198614 6,5.7560436 0 0 1 -0.0078,-0.19674 6,5.7560436 0 0 1 -0.002,-0.149897 6,5.7560436 0 0 1 0.002,-0.196739 6,5.7560436 0 0 1 0.01172,-0.19674 6,5.7560436 0 0 1 0.01758,-0.19674 6,5.7560436 0 0 1 0.02539,-0.19674 6,5.7560436 0 0 1 0.03125,-0.194866 6,5.7560436 0 0 1 0.03906,-0.194866 6,5.7560436 0 0 1 0.04492,-0.192992 6,5.7560436 0 0 1 0.05273,-0.191119 6,5.7560436 0 0 1 0.05859,-0.189245 6,5.7560436 0 0 1 0.06641,-0.187371 6,5.7560436 0 0 1 0.07227,-0.183624 6,5.7560436 0 0 1 0.08008,-0.183624 6,5.7560436 0 0 1 0.08594,-0.179876 6,5.7560436 0 0 1 0.0918,-0.176129 6,5.7560436 0 0 1 0.09766,-0.174255 6,5.7560436 0 0 1 0.105469,-0.168634 6,5.7560436 0 0 1 0.109375,-0.166761 6,5.7560436 0 0 1 0.117187,-0.163013 6,5.7560436 0 0 1 0.121094,-0.159265 6,5.7560436 0 0 1 0.128906,-0.155518 6,5.7560436 0 0 1 0.132813,-0.149897 6,5.7560436 0 0 1 0.138672,-0.14615 6,5.7560436 0 0 1 0.144531,-0.142402 6,5.7560436 0 0 1 0.148437,-0.136781 6,5.7560436 0 0 1 0.152344,-0.13116 6,5.7560436 0 0 1 0.158203,-0.127412 6,5.7560436 0 0 1 0.16211,-0.121791 6,5.7560436 0 0 1 0.167969,-0.114297 6,5.7560436 0 0 1 0.169921,-0.110549 6,5.7560436 0 0 1 0.175782,-0.104928 6,5.7560436 0 0 1 0.177734,-0.09931 6,5.7560436 0 0 1 0.181641,-0.09181 6,5.7560436 0 0 1 0.185546,-0.08807 6,5.7560436 0 0 1 0.1875,-0.08057 6,5.7560436 0 0 1 0.191407,-0.074949 6,5.7560436 0 0 1 0.193359,-0.067454 6,5.7560436 0 0 1 0.195313,-0.061832 6,5.7560436 0 0 1 0.197265,-0.054338 6,5.7560436 0 0 1 0.199219,-0.048716 6,5.7560436 0 0 1 0.203125,-0.043095 6,5.7560436 0 0 1 0.201172,-0.035601 6,5.7560436 0 0 1 0.205078,-0.028106 6,5.7560436 0 0 1 0.203125,-0.022484 6,5.7560436 0 0 1 0.207031,-0.01499 6,5.7560436 0 0 1 0.205078,-0.00937 6,5.7560436 0 0 1 0.15625,-0.00187 z";
+    -fx-background-color: -qw-icon-color;
+}
+.contactsupport-icon,
+.email-icon,
+.mail-icon,
+.resendconfirmemail-icon {
+    -fx-shape: "M 0,24 H 32 V 8.344 L 16.086,15.879 0,8.32 Z M 32,0 H 0 V 3.906 L 16.078,11.457 32,3.918 Z";
+    -fx-background-color: -qw-icon-color;
+}
+.eye-icon,
+.problemfinder-icon,
+.looks-icon,
+.view-icon,
+.showfolder-icon,
+.readability-icon,
+.show-icon,
+.tryout-icon,
+.showpassword-icon {
+    -fx-shape: "m 20,12.016 a 4,4 0 0 1 -4,4 4,4 0 0 1 -4,-4 A 4,4 0 0 1 16,8.0159998 4,4 0 0 1 20,12.016 M 16,0 C 7.164,0 0,11.844 0,11.844 0,11.844 7.164,24 16,24 24.836,24 32,11.844 32,11.844 32,11.844 24.836,0 16,0 Z m 0,20 c -4.418,0 -8,-3.582 -8,-8 0,-4.418 3.582,-8 8,-8 4.418,0 8,3.582 8,8 0,4.418 -3.582,8 -8,8 z";
+    -fx-background-color: -qw-icon-color;
+    -fx-pref-height: 0.888em;
+}
+.assets-icon,
+.addasset-icon {
+    -fx-shape: "M 0,8 H 14 V 0 H 4 Z M 28,0 H 18 V 8 H 32 Z M 0,12 H 32 V 32 H 0 Z";
+    -fx-background-color: -qw-icon-color;
+}
+.wordcount-icon,
+.wordcounts-icon,
+.synonyms-icon {
+    -fx-shape: "M 0,16 H 8 V 32 H 0 Z M 12,8 h 8 V 32 H 12 Z M 24,0 h 8 v 32 h -8 z";
+    -fx-background-color: -qw-icon-color;
+}
+.spellcheckon-icon,
+.spellchecker-icon {
+    -fx-shape: "M 20,12 V 0 H 12 V 12 H 0 v 8 h 12 v 12 h 8 V 20 h 12 v -8 z m 32.244833,-28.268684 q 0,1.062758 -0.645993,2.271386 -0.625155,1.208627 -1.93797,2.313062 -1.291981,1.083597 -3.271629,1.7504257 -1.979649,0.6668296 -4.459418,0.6668296 -5.272116,0 -8.231168,-3.0632453 -2.959053,-3.084083 -2.959053,-8.252006 0,-3.500852 1.354496,-6.189005 1.354496,-2.688154 3.917619,-4.146842 2.563124,-1.479526 6.12649,-1.479526 2.208871,0 4.04265,0.645992 1.854617,0.645993 3.12576,1.667072 1.291981,1.021082 1.958809,2.188032 0.687667,1.146112 0.687667,2.146355 0,1.021082 -0.771024,1.729588 -0.750186,0.708503 -1.833779,0.708503 -0.708504,0 -1.187789,-0.354256 -0.458439,-0.375089 -1.041914,-1.187786 -1.041921,-1.583718 -2.188033,-2.375577 -1.125273,-0.79186 -2.875699,-0.79186 -2.521447,0 -4.063488,1.979648 -1.542042,1.95881 -1.542042,5.376308 0,1.604556 0.395931,2.959053 0.39593,1.333657 1.146112,2.292223 0.750187,0.937728 1.812941,1.43785 1.062758,0.479287 2.333901,0.479287 1.708749,0 2.917376,-0.791861 1.229465,-0.79186 2.167193,-2.417254 0.520961,-0.958566 1.125274,-1.500365 0.604309,-0.541798 1.479526,-0.541798 1.041921,0 1.729587,0.791861 0.687667,0.79186 0.687667,1.687906 z M 10.390908,-37.565529 v 8.689612 q 1.604556,-1.667071 3.271629,-2.542284 1.667072,-0.896052 4.126003,-0.896052 2.834022,0 4.959539,1.354497 2.146356,1.333657 3.313306,3.896781 1.187788,2.542284 1.187788,6.043136 0,2.583961 -0.666829,4.751155 -0.645993,2.146356 -1.896295,3.730073 -1.250304,1.583719 -3.042406,2.458932 -1.771264,0.8543716 -3.917619,0.8543716 -1.31282,0 -2.47977,-0.3125734 -1.146111,-0.312576 -1.958809,-0.8126982 -0.812698,-0.520959 -1.396173,-1.062758 -0.562636,-0.541798 -1.500364,-1.625395 v 0.562635 q 0,1.604557 -0.7710239,2.438093 -0.7710236,0.8126974 -1.9588095,0.8126974 -1.2086272,0 -1.9379715,-0.8126974 -0.7085029,-0.833534 -0.7085029,-2.438091 v -24.839373 q 0,-1.729588 0.6876667,-2.604801 0.7085037,-0.896051 1.9588094,-0.896051 1.3128196,0 2.021325,0.854375 0.7085037,0.833535 0.7085067,2.396416 z m 0.270899,16.899943 q 0,3.396659 1.542041,5.230438 1.562881,1.81294 4.084327,1.81294 2.146355,0 3.688397,-1.854617 1.56288,-1.875456 1.56288,-5.355468 0,-2.250548 -0.645992,-3.875943 -0.645989,-1.625395 -1.833778,-2.500608 -1.187788,-0.896052 -2.771507,-0.896052 -1.625395,0 -2.896538,0.896052 -1.271142,0.875213 -2.000486,2.563123 -0.729344,1.667072 -0.729344,3.980135 z m -15.9517952,8.231168 q -2.0630018,1.604556 -4.0009724,2.417254 -1.9171324,0.7918609 -4.3135494,0.7918609 -2.188032,0 -3.855104,-0.8543719 -1.646234,-0.875217 -2.542285,-2.354743 -0.896051,-1.479527 -0.896051,-3.209114 0,-2.333901 1.479527,-3.980134 1.479526,-1.646235 4.063488,-2.208871 0.541798,-0.12503 2.688153,-0.562637 2.146355,-0.437606 3.6675586,-0.791859 1.542042,-0.375091 3.3341445,-0.896051 -0.1041923,-2.250547 -0.9168901,-3.292467 -0.7918589,-1.062759 -3.3133057,-1.062759 -2.1671933,0 -3.2716283,0.60431 -1.083597,0.604319 -1.875456,1.812941 -0.771021,1.208628 -1.104436,1.604557 -0.312576,0.375093 -1.375334,0.375093 -0.958567,0 -1.667072,-0.604309 -0.687668,-0.625156 -0.687668,-1.583719 0,-1.500365 1.062759,-2.917376 1.062759,-1.417014 3.313306,-2.333903 2.250547,-0.91689 5.6055293,-0.91689 3.750912,0 5.8972672,0.896051 2.1463552,0.875213 3.02156851,2.792346 0.89605125,1.917133 0.89605125,5.08457 0,2.000486 -0.0208198,3.396659 0,1.396173 -0.0208198,3.104922 0,1.604557 0.52096144,3.354982 0.5417985,1.729587 0.5417985,2.229709 0,0.875212 -0.83353483,1.6045567 -0.81269776,0.7085037 -1.85461807,0.7085037 -0.8752124,0 -1.7295869,-0.8126974 -0.8544143,-0.833534 -1.812981,-2.396414 z m -0.3750907,-8.231168 q -1.250304,0.458441 -3.6467205,0.979404 -2.3755776,0.500125 -3.2924676,0.750187 -0.916889,0.229225 -1.750425,0.937728 -0.833536,0.687666 -0.833536,1.937971 0,1.291981 0.979405,2.20887 0.979405,0.896051 2.563123,0.896051 1.687911,0 3.1049219,-0.72934 1.4378498,-0.750187 2.1046785,-1.917133 0.7710236,-1.291982 0.7710236,-4.251034 z";
+    -fx-background-color: -qw-icon-color;
+}
+.spellcheckoff-icon {
+    -fx-shape: "M 0,0 H 32 V 8 H 0 Z m 51.809463,-25.41154 q 0,1.062758 -0.645992,2.271385 -0.625156,1.208627 -1.937971,2.313062 -1.291981,1.083597 -3.271629,1.750426 -1.979648,0.66683 -4.459417,0.66683 -5.272116,0 -8.231168,-3.063246 -2.959053,-3.084083 -2.959053,-8.252006 0,-3.500851 1.354495,-6.189005 1.354496,-2.688154 3.91762,-4.146841 2.563123,-1.479527 6.126489,-1.479527 2.208871,0 4.04265,0.645993 1.854618,0.645992 3.12576,1.667071 1.291981,1.021082 1.95881,2.188032 0.687666,1.146112 0.687666,2.146355 0,1.021082 -0.771023,1.729588 -0.750187,0.708504 -1.833779,0.708504 -0.708504,0 -1.18779,-0.354257 -0.458439,-0.375088 -1.041914,-1.187786 -1.04192,-1.583718 -2.188033,-2.375577 -1.125273,-0.79186 -2.875698,-0.79186 -2.521447,0 -4.063488,1.979648 -1.542042,1.95881 -1.542042,5.376308 0,1.604557 0.39593,2.959053 0.39593,1.333657 1.146113,2.292223 0.750186,0.937728 1.81294,1.43785 1.062758,0.479287 2.333901,0.479287 1.708749,0 2.917376,-0.79186 1.229465,-0.791861 2.167193,-2.417255 0.520962,-0.958566 1.125274,-1.500364 0.60431,-0.541799 1.479527,-0.541799 1.04192,0 1.729587,0.791861 0.687666,0.79186 0.687666,1.687907 z M 9.9555381,-46.708386 v 8.689613 q 1.6045569,-1.667072 3.2716289,-2.542285 1.667072,-0.896051 4.126004,-0.896051 2.834021,0 4.959539,1.354496 2.146355,1.333657 3.313305,3.896781 1.187789,2.542285 1.187789,6.043136 0,2.583962 -0.66683,4.751156 -0.645992,2.146355 -1.896294,3.730073 -1.250304,1.583718 -3.042407,2.458931 -1.771264,0.854372 -3.917619,0.854372 -1.312819,0 -2.47977,-0.312574 -1.146111,-0.312576 -1.958808,-0.812697 -0.812698,-0.52096 -1.396173,-1.062759 -0.562637,-0.541798 -1.5003649,-1.625395 v 0.562636 q 0,1.604556 -0.7710236,2.438092 -0.7710237,0.812698 -1.9588095,0.812698 -1.2086272,0 -1.9379715,-0.812698 -0.7085029,-0.833534 -0.7085029,-2.438091 v -24.839373 q 0,-1.729587 0.6876667,-2.6048 0.7085037,-0.896051 1.9588094,-0.896051 1.3128196,0 2.021325,0.854374 0.7085038,0.833536 0.7085064,2.396416 z m 0.2708989,16.899943 q 0,3.396659 1.542041,5.230438 1.562881,1.812941 4.084327,1.812941 2.146355,0 3.688398,-1.854617 1.562879,-1.875456 1.562879,-5.355469 0,-2.250548 -0.645992,-3.875943 -0.645988,-1.625395 -1.833778,-2.500608 -1.187788,-0.896051 -2.771507,-0.896051 -1.625394,0 -2.896537,0.896051 -1.271143,0.875213 -2.000486,2.563123 -0.729345,1.667073 -0.729345,3.980135 z m -15.9517948,8.231168 q -2.0630018,1.604557 -4.0009724,2.417254 -1.9171328,0.791861 -4.3135488,0.791861 -2.188032,0 -3.855104,-0.854372 -1.646234,-0.875217 -2.542285,-2.354743 -0.896052,-1.479527 -0.896052,-3.209113 0,-2.333901 1.479527,-3.980135 1.479526,-1.646234 4.063488,-2.208871 0.541798,-0.12503 2.688154,-0.562637 2.146355,-0.437606 3.6675579,-0.791859 1.5420421,-0.375091 3.3341446,-0.896051 -0.1041923,-2.250547 -0.9168901,-3.292467 -0.7918589,-1.062758 -3.3133054,-1.062758 -2.167193,0 -3.271629,0.604309 -1.083597,0.604319 -1.875456,1.812942 -0.771021,1.208627 -1.104435,1.604556 -0.312576,0.375094 -1.375335,0.375094 -0.958566,0 -1.667072,-0.60431 -0.687667,-0.625155 -0.687667,-1.583719 0,-1.500364 1.062758,-2.917376 1.062759,-1.417014 3.313306,-2.333903 2.250547,-0.91689 5.60553,-0.91689 3.7509116,0 5.8972669,0.896051 2.1463552,0.875214 3.0215685,2.792346 0.89605125,1.917133 0.89605125,5.08457 0,2.000486 -0.0208198,3.396659 0,1.396173 -0.0208198,3.104922 0,1.604557 0.52096143,3.354983 0.54179851,1.729586 0.54179851,2.229708 0,0.875213 -0.83353484,1.604557 -0.81269776,0.708504 -1.85461806,0.708504 -0.8752124,0 -1.7295869,-0.812698 -0.8544143,-0.833534 -1.812981,-2.396414 z m -0.3750907,-8.231168 q -1.250304,0.458441 -3.6467205,0.979405 -2.375578,0.500124 -3.292467,0.750186 -0.91689,0.229225 -1.750426,0.937728 -0.833536,0.687667 -0.833536,1.937972 0,1.29198 0.979405,2.208869 0.979405,0.896052 2.563123,0.896052 1.687911,0 3.1049223,-0.729341 1.4378498,-0.750187 2.1046785,-1.917133 0.7710236,-1.291981 0.7710236,-4.251034 z";
+    -fx-background-color: -qw-icon-color;
+}
+.appearsinchapters-icon {
+    -fx-shape: "M 13.277,0 H 0 V 13.277 L 18.719,32 V 18.723 H 32 Z M 7.312,11.121 c -2.102,0 -3.805,-1.703 -3.805,-3.805 0,-2.102 1.703,-3.805 3.805,-3.805 2.102,0 3.805,1.703 3.805,3.805 0,2.102 -1.703,3.805 -3.805,3.805 z";
+    -fx-background-color: -qw-icon-color;
+}
+.menu-item.no-image .label
+{
+    -fx-content-display: text-only;
+}
+/*
+ * Tree
+ */
+.tree
+{
+    -fx-cell-indent: 1.3em;
+}
+
+.tree .cell .check-box
+{
+    -fx-padding: 0 0.25em 0 0em;
+}
+
+.tree .cell
+{
+    -fx-alignment: center-left;
+    -fx-padding: 0 0 0 0.6em;
+}
+
+.tree .cell .label
+{
+    -fx-label-padding: 0.1em 0.2em 0.1em 0.4em;
+}
+
+.tree .cell:selected > .label
+{
+    -fx-background-color: -qw-component-border-color;
+    -fx-text-fill: #ffffff;
+}
+
+.tree .cell:selected > .label > .iconbox > .icon {
+    -fx-background-color: #ffffff;
+    -fx-background-color: -qw-bg-color;
+}
+
+.root:night .tree .cell:selected > .label
+{
+    -fx-text-fill: -qw-bg-color;
+}
+
+.tree .cell .disclosure.iconbox {
+    -fx-pref-width: 1.333em;
+    -fx-pref-height: 1.333em;
+    -fx-fill-height: false;
+    -fx-alignment: center;
+}
+
+.tree .cell .disclosure.iconbox .tree-disclosure-icon.icon {
+    -fx-pref-width: 0.5em;
+    -fx-max-width: 0.5em;
+    -fx-min-width: 0.5em;
+    -fx-pref-height: 0.666em;
+}
+.tree .cell .disclosure.iconbox .tree-disclosure-icon.icon:expanded
+{
+    -fx-rotate: 90;
+}
+
+/*
+ Control buttons
+ */
+ .controls > *
+ {
+     /*
+     -fx-padding: 0 0 0 0.2em;
+     */
+ }
+
+.controls .button,
+.toolbar .button,
+.tool-bar .button,
+.toolbar .menu-button,
+.tool-bar .menu-button,
+.controls .menu-button,
+.chapterinfo .buttons .button,
+.qpopup.chapteritem.view .buttons .button,
+.qpopup.problemfinderconfig .rule .buttons .button,
+.qpopup.problemfinderconfig .button.add,
+.qpopup.problemfinderconfig .menu-button.add,
+.qpopup.problemfinderconfig .button.delete,
+.qpopup.timer .button.start,
+.toolbar.buttons .button,
+.progress .button,
+.filefind .button,
+.tab-header-area .control-buttons-tab .tab-down-button
+ {
+     -fx-border-color: transparent;
+     -fx-border-width: 1px;
+     -fx-background-color: transparent;
+     -fx-cursor: hand;
+     -fx-border-radius: 3px;
+     -fx-padding: 0.25em;
+ }
+
+.qpopup.chapteritem .buttons .button .iconbox,
+.qpopup.chapteritem .buttons .button .iconbox .icon {
+    -fx-pref-width: 1.333em;
+    -fx-pref-height: 1.333em;
+    -fx-fill-height: false;
+    -fx-alignment: center;
+}
+.controls .button:hover,
+.controls .button:focused,
+.controls .menu-button:hover,
+.controls .menu-button:focused,
+.toolbar .button:hover,
+.toolbar .button:focused,
+.tool-bar .button:hover,
+.tool-bar .button:focused,
+.tool-bar .menu-button:hover,
+.tool-bar .menu-button:focused,
+.toolbar .menu-button:hover,
+.toolbar .menu-button:focused,
+.toolbar .menu-button:hover,
+.toolbar .menu-button:focused,
+.chapterinfo .buttons .button:hover,
+.chapterinfo .buttons .button:focused,
+.qpopup.chapteritem.view .buttons .button:hover,
+.qpopup.chapteritem.view .buttons .button:focused,
+.qpopup.problemfinderconfig .rule .buttons .button:hover,
+.qpopup.problemfinderconfig .rule .buttons .button:focused,
+.qpopup.problemfinderconfig .button.add:hover,
+.qpopup.problemfinderconfig .button.add:focused,
+.qpopup.problemfinderconfig .menu-button.add:hover,
+.qpopup.problemfinderconfig .menu-button.add:focused,
+.qpopup.problemfinderconfig .button.delete:hover,
+.qpopup.problemfinderconfig .button.delete:focused,
+.qpopup.timer .button.start:hover,
+.qpopup.timer .button.start:focused,
+.progress .button:hover,
+.progress .button:focused,
+.filefind .button:hover,
+.filefind .button:focused,
+.chatbox .button:hover,
+.chatbox .button:focused,
+.tab-header-area .control-buttons-tab .tab-down-button:hover,
+.tab-header-area .control-buttons-tab .tab-down-button:focused
+ {
+     -fx-border-color: -qw-button-border-color;
+     -fx-background-color: -qw-hover-bg;
+     /* Experimental */
+     -fx-border-radius: 0;
+ }
+.controls .button:armed,
+.controls .menu-button:armed,
+.toolbar .button:armed,
+.toolbar .menu-button:armed,
+.tool-bar .button:armed,
+.tool-bar .menu-button:armed,
+.chapterinfo .buttons .button:armed,
+.qpopup.chapteritem.view .buttons .button:armed,
+.qpopup.problemfinderconfig .rule .buttons .button:armed,
+.qpopup.problemfinderconfig .button.add:armed,
+.qpopup.problemfinderconfig .menu-button.add:armed,
+.qpopup.problemfinderconfig .button.delete:armed,
+.qpopup.problemfinderconfig .menu-button.delete:armed,
+.qpopup.timer .button.start:armed
+ {
+     -fx-background-color: -qw-armed-bg;
+ }
+
+.controls .button:hover .iconbox .icon,
+.controls .menu-button:hover .iconbox .icon,
+.controls .menu-button:armed .iconbox .icon,
+.controls .button:armed .iconbox .icon,
+.controls .menu-button:focused .iconbox .icon,
+.controls .button:focused .iconbox .icon
+{
+    -fx-background-color: -qw-icon-hover-color;
+}
+
+.controls
+ {
+    -fx-orientation: horizontal;
+    -fx-background-color: transparent;
+    -fx-spacing: 0.25em;
+ }
+
+/*
+ Header
+ */
+.header
+{
+    -fx-alignment: center-left;
+}
+
+.sidebar .header
+{
+    -fx-border-width: 0;
+}
+
+.qw-textarea
+{
+    -fx-min-height: 150px;
+    -fx-pref-width: 400px;
+    -fx-border-color: -qw-border-color;
+    -fx-border-width: 1px;
+}
+
+.menu-item:hover, .menu-item:focused, .context-menu .menu-item:hover
+{
+    -fx-background-color: -qw-focus-color;
+}
+
+.scroll-bar
+{
+    -fx-background-color: transparent;
+    -fx-box-border: null;
+    -fx-background-radius: 0px;
+    -fx-padding: 0px;
+}
+
+.scroll-bar .track
+{
+    -fx-padding: 0px;
+    -fx-border-width: 0px;
+}
+
+.scroll-bar .thumb
+{
+    -fx-background-color: #dddddd;
+    -fx-background-radius: 0px;
+}
+
+.scroll-bar .thumb:hover,
+.scroll-bar .thumb:focused,
+.scroll-bar .thumb:armed,
+.scroll-bar .thumb:pressed,
+.scroll-pane .scroll-bar .increment-button:hover .increment-arrow,
+.scroll-pane .scroll-bar .decrement-button:hover .decrement-arrow,
+.virtualized-scroll-pane .scroll-bar .increment-button:hover .increment-arrow,
+.virtualized-scroll-pane .scroll-bar .decrement-button:hover .decrement-arrow
+{
+    -fx-background-color: -qw-focus-color;
+}
+
+.scroll-pane .scroll-bar:vertical *.increment-button .increment-arrow,
+.scroll-pane .scroll-bar:vertical *.decrement-button .decrement-arrow,
+.scroll-pane .scroll-bar:horizontal *.increment-button .increment-arrow,
+.scroll-pane .scroll-bar:horizontal *.decrement-button .decrement-arrow,
+.virtualized-scroll-pane .scroll-bar:vertical *.increment-button .increment-arrow,
+.virtualized-scroll-pane .scroll-bar:vertical *.decrement-button .decrement-arrow,
+.virtualized-scroll-pane .scroll-bar:horizontal *.increment-button .increment-arrow,
+.virtualized-scroll-pane .scroll-bar:horizontal *.decrement-button .decrement-arrow
+{
+    -fx-shape: null;
+    -fx-padding: 0 0.15em;
+    -fx-background-color: transparent;
+    -fx-pref-height: 0;
+    -fx-pref-width: 0;
+}
+
+
+.split-pane-divider, .viewer .divider
+{
+    -fx-border-width: 0 1px 0 0;
+    -fx-border-color: -qw-component-border-color;
+    -fx-pref-width: 2px;
+    -fx-max-width: 2px;
+    -fx-min-width: 2px;
+}
+
+.viewer .viewercontent:dragging
+{
+    -fx-cursor: h-resize;
+    -fx-background-color: transparent;
+}
+
+.split-pane
+{
+    -fx-box-border: transparent;
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.panel.importfile .title
+{
+    -fx-font-size: 2.5em;
+    -fx-label-padding: 0 0 0 0.2em;
+}
+
+/*
+ * Layout image
+ */
+.layout
+{
+    -fx-border-width: 1px;
+    -fx-border-color: -qw-border-color;
+    -fx-max-width: 12em;
+    -fx-min-width: 12em;
+    -fx-min-height: 7em;
+    -fx-pref-height: 7em;
+    -fx-cursor: hand;
+    -fx-alignment: center;
+}
+
+.layout .project
+{
+    -fx-padding: 0em;
+    -fx-alignment: center;
+    -fx-background-color: #C07016;
+    -fx-max-height: 7em;
+    -fx-max-width: 3em;
+    -fx-min-width: 3em;
+    -fx-pref-width: 3em;
+}
+
+.layout .other
+{
+    -fx-padding: 0em;
+    -fx-alignment: center;
+    -fx-background-color: #1732AE;
+    -fx-max-height: 7em;
+    -fx-max-width: 3em;
+    -fx-min-width: 3em;
+    -fx-pref-width: 3em;
+}
+
+.layout .tabs
+{
+    -fx-alignment: center;
+    -fx-max-height: 7em;
+    -fx-background-color: -qw-bg-color;
+}
+
+.layout .tabs .text
+{
+    -fx-font-weight: bold;
+    /*-fx-translate-x: -2em;*/
+}
+
+.layout .project .text, .layout .other .text
+{
+
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-alignment: center;
+    -fx-rotate: 45;
+    -fx-pref-width: 7em;
+    -fx-min-width: 7em;
+    /*-fx-translate-x: -2em;*/
+    /*-fx-min-width: 7em;*/
+    /*
+    -fx-pref-height: 7em;
+    -fx-pref-width: 3em;
+    */
+    /*-fx-min-width: 3.5em;*/
+}
+
+.layoutselector .qtextview.description,
+.layoutselector .qtextview.description > *,
+.layoutselector .qtextview.description > * > *
+{
+    -fx-cursor: hand;
+}
+/**
+ * COPIED FROM AeroFX
+ */
+/*
+.button, .toggle-button{
+    -fx-alignment: center;
+    -fx-background-color:
+        rgb(112,112,112),
+        linear-gradient(rgb(252,252,252), rgb(252,252,252)),
+        linear-gradient(rgb(242,242,242) 0%, rgb(235,235,235) 49%, rgb(221,221,221) 50%, rgb(207,207,207) 100%);
+    -fx-background-insets: 0,1,2;
+    -fx-background-radius: 3,2,1;
+    -fx-padding: 4 4 3 3;
+    -fx-padding: 0.5em 1em 0.5em 1em;
+    -fx-text-fill: -qw-button-text-color;
+}
+*/
+.button
+{
+    -fx-alignment: center;
+    -fx-padding: 0.5em 1em 0.5em 1em;
+    -fx-padding: 0.5em 0.75em 0.5em 0.75em;
+    -fx-background-radius: 0;
+    /*-fx-background-color: linear-gradient(from 0% 0% to 0% 100%, #ffffff 0%, #dddddd 100%);*/
+    -fx-border-radius: 1px;
+    -fx-border-color: -qw-component-border-color;
+    -fx-text-fill: -qw-button-text-color;
+
+    /*
+     Experimental
+     */
+    -fx-background-color: #dddddd;
+}
+
+.button:hover
+{
+/*
+    -fx-background-color: linear-gradient(from 0% 0% to 0% 100%, #ffffff 0%, #cdcdcd 100%);
+*/
+    /*
+     Experimental
+     */
+    -fx-background-color: #eeeeee;
+    -fx-border-color: -qw-border-color;
+}
+
+.button:armed
+{
+    /*
+    -fx-background-color: linear-gradient(from 0% 0% to 0% 100%, #ffffff 0%, #87cde5 100%);
+*/
+    -fx-background-color: #cccccc;
+    -fx-border-color: -qw-border-color;
+}
+
+.combo-box
+{
+    -fx-border-radius: 0;
+    -fx-background-color: transparent;
+    -fx-border-color: -qw-component-border-color;
+    -fx-border-width: 1px;
+}
+
+.combo-box .list-view .list-cell
+{
+    -fx-padding: 0.5em;
+}
+
+.context-menu,
+.choice-box
+{
+    -fx-background-color: -qw-bg-color;
+    -fx-border-color: -qw-component-border-color;
+}
+
+.context-menu
+{
+    -fx-padding: 0;
+}
+
+.context-menu .menu-item .label
+{
+    -fx-label-padding: 0.1em 0.2em 0.1em 0.2em;
+}
+
+.root:night .context-menu
+{
+    -fx-background-color: -qw-dark-color;
+}
+
+.root:night .context-menu .menu-item .label
+{
+    -fx-text-fill: -qw-bg-color;
+}
+
+.qpopup .form .choice-box .label
+{
+    -fx-padding: 0.25em;
+}
+
+.progress-bar .track
+{
+    -fx-border-width: 0;
+    -fx-border-insets: 0;
+    -fx-background-insets: 0;
+    -fx-background-radius: 0;
+    -fx-border-radius: 0;
+    -fx-border-style: none;
+}
+
+.progress-bar .bar
+{
+    -fx-border-width: 0;
+    -fx-border-insets: 0;
+    -fx-border-style: none;
+    -fx-background-color: -qw-dark-color;
+    -fx-background-insets: 0;
+    -fx-background-radius: 0;
+    -fx-border-radius: 0;
+}
+
+.root.popup
+{
+    -fx-pref-width: 200px;
+    -fx-pref-height: 200px;
+    -fx-background-color: transparent;
+    -fx-background-radius: 0px;
+}
+
+.text-field, .text-field:focused
+{
+    -fx-padding: 0.275em;
+}
+
+.text-field
+{
+    -fx-border-radius: 0;
+    -fx-border-color: -qw-component-border-color;
+    -fx-padding: 0.2em;
+    -fx-padding: 0.275em;
+    -fx-background-insets: 0;
+    -fx-text-fill: -qw-text-base-color;
+    -fx-background-color: -qw-bg-color;
+}
+
+.text-field:selected,
+.text-field:focused,
+.text-field:readonly
+{
+    -fx-text-fill: -qw-text-base-color;
+}
+
+.control:error .text-field
+{
+    -fx-border-color: -qw-component-error-border-color;
+}
+
+.qtextarea
+{
+    -fx-pref-height: 15em;
+    -fx-min-height: 15em;
+}
+
+.qtextarea
+{
+    -fx-border-style: solid;
+    -fx-border-width: 1px;
+    -fx-border-color: -qw-component-border-color;
+}
+
+.qtextarea .styled-text-area
+{
+    -fx-padding: 0.2em;
+    -fx-background-color: -qw-bg-color;
+}
+
+.qtextarea .styled-text-area .text
+{
+    -fx-fill: -qw-text-base-color;
+}
+
+.qtextarea .caret
+{
+    -fx-fill: -qw-text-base-color;
+}
+
+.qtextarea.description { -fx-padding: 0; }
+
+.qtextarea .max
+{
+    -fx-padding: 5.2em 0 0 0em;
+    -fx-text-fill: -qw-focus-color;
+}
+
+.qtextarea .max:error
+{
+    -fx-text-fill: -qw-error-text-color;
+}
+
+.text-area:focused .content, .text-area:armed .content, .text-field:focused, .text-field:armed
+{
+    -Xfx-effect: null;
+}
+
+.popuppane
+{
+    -fx-background-color: transparent;
+}
+
+/*
+ Popup (QuollPopup)
+ */
+/*
+ Create new project Popup (NewProjectPopup)
+ */
+.newproject .passwords
+{
+    -fx-spacing: 0.5em;
+    -fx-alignment: center-left;
+    -fx-padding: 0.5em 0 0 0;
+}
+
+.newproject .passwords .label
+{
+    -fx-padding: 0 0 0 0.5em;
+}
+
+/*
+ * About QW popup (AboutPopup)
+ */
+.qpopup.about .content .form, .qpopup.about .content .form .items
+{
+    -fx-padding: 0;
+}
+
+.qpopup.about .content .form
+{
+    -fx-padding: 0 0 0 0.5em;
+}
+
+/*
+ * View scene popup (ViewChapterItemPopup)
+ */
+ .qpopup.chapteritem.view .buttons
+ {
+     -fx-alignment: center-left;
+     -fx-padding: 0.5em 0 0.5em 0;
+ }
+
+.qpopup.chapteritem.view .subtitle
+{
+    -fx-font-style: italic;
+}
+
+.qpopup.chapteritem.view .linkedto .scroll-pane
+{
+    -fx-padding: 0;
+}
+
+.qpopup.chapteritem.edit .linkedto .scroll-pane, .qpopup.chapteritem.add .linkedto .scroll-pane
+{
+    -fx-max-height: 15em;
+}
+
+.qpopup.chapteritem .linkedto .tree
+{
+    -fx-cell-indent: 0.75em;
+}
+
+.qpopup.chapteritem .linkedto .tree .cell
+{
+    -fx-padding: 0 0 0 0.4em;
+}
+.qpopup .itemmanager .buttons, .qpopup .backups .buttons
+{
+    -fx-alignment: center-left;
+    -fx-padding: 1em 0.5em 1em 0em;
+}
+*/
+
+.qpopup.whatsnew .content
+{
+    /* The height of the whats new content area can change, this ensures it's always high enough to view the content. */
+    -fx-min-height: 20em;
+}
+
+ .qpopup.uilangstringsselect .scroll-pane
+ {
+     -fx-fit-to-width: true;
+ }
+
+ .qpopup.uilangstringsselect .items
+ {
+     -fx-pref-height: 20em;
+     -fx-fill-width: true;
+ }
+
+ .qpopup.uilangstringsselect .items .label
+ {
+     -fx-font-size: 1.5em;
+     -fx-cursor: hand;
+     -fx-padding: 0.5em;
+     -fx-border-width: 0 0 1px 0;
+     -fx-border-color: -qw-component-border-color;
+     -fx-max-width: Infinity;
+ }
+
+ .qpopup.uilangstringsselect .items .label:hover, .qpopup.uilangstringsselect .items .label:focused
+  {
+      -fx-background-color: -qw-hover-bg;
+  }
+
+/*
+ * Edit position example popup
+ */
+.qpopup.editpositionexample .content
+{
+    -fx-pref-width: 300px;
+    -fx-min-width: 300px;
+}
+
+.qpopup.editpositionexample .content .image-view
+{
+    -fx-image: url(/data/edit-position-example.png);
+}
+
+/*
+ * Compress chapter context menu example popup
+ */
+ .qpopup.compresschaptercontextexample .content
+ {
+     -fx-pref-width: 280px;
+     -fx-min-width: 280px;
+ }
+
+.qpopup.compresschaptercontextexample .content .image-view:compressed
+{
+    -fx-image: url(/data/compressed-chapter-context-menu.png);
+}
+
+.qpopup.compresschaptercontextexample .content .image-view
+{
+    -fx-image: url(/data/none-compressed-chapter-context-menu.png);
+}
+
+/*
+ * Chapter icons example popup
+ */
+.qpopup.chaptericonsexample .content .image-view
+{
+    -fx-image: url(/data/chapter-icons-example.png);
+}
+
+.qpopup.chaptericonsexample .content
+{
+    -fx-pref-width: 245px;
+    -fx-min-width: 245px;
+}
+/**
+ * Wizard (ui.fx.components.Wizard)
+ */
+.wizard > .header .title, .wizard > .header
+{
+    -fx-padding: 0 0 0 0;
+}
+
+.wizard > .header
+{
+    -fx-border-width: 0 0 1px 0;
+    -fx-border-color: -qw-component-border-color;
+}
+
+.list-cell:error
+{
+    -fx-border-color: -qw-error-text-color;
+}
+
+.scroll-bar:vertical .thumb, .scroll-bar:horizontal .thumb
+{
+    -fx-padding: 0;
+    -fx-background-insets: 0 0 0 0px;
+}
+
+.scroll-bar:vertical .track-background, .scroll-bar:vertical .track, .scroll-bar:horizontal .track-background, .scroll-bar:horizontal .track
+{
+    -fx-padding: 0em;
+    -fx-background-color: transparent;
+    -fx-border-width: 0;
+}
+
+.scroll-pane .viewport
+{
+    -fx-padding: 0;
+    -fx-background-insets: 0;
+    -fx-background-color: transparent;
+}
+
+.scroll-pane .scroll-bar:vertical,
+.virtualized-scroll-pane .scroll-bar:vertical,
+.virtual-flow .scroll-bar:vertical
+{
+    -fx-pref-width: 0.8em;
+}
+
+.scroll-pane .scroll-bar:horizontal,
+.virtualized-scroll-pane .scroll-bar:horizontal,
+.virtual-scroll-pane .scroll-bar:horizontal
+{
+    -fx-pref-height: 0.8em;
+}
+
+.scroll-pane .scroll-bar .decrement-button,
+.scroll-pane .scroll-bar .increment-button,
+.virtualized-scroll-pane .scroll-bar .decrement-button,
+.virtualized-scroll-pane .scroll-bar .increment-button,
+.virtual-scroll-pane .scroll-bar .decrement-button,
+.virtual-scroll-pane .scroll-bar .increment-button
+{
+    -fx-padding: 0;
+}
+
+:dragging, :dragover
+{
+    -fx-cursor: closed-hand;
+}
+
+:dragging
+{
+    -fx-background-color: -qw-dragging-bg;
+}
+
+:dragover
+{
+    -fx-background-color: -qw-dragover-bg;
+}
+
+.controls .button:dragging, .controls .button:dragover
+ {
+     -fx-cursor: closed-hand;
+ }
+
+.header .controls.configuring
+{
+    -fx-min-width: 20.1em;
+    -fx-border-width: 1px;
+    -fx-border-style: segments(0.3em, 0.3em);
+    -fx-border-color: -qw-component-border-color;
+}
+
+.viewer .sidebar .scroll-pane
+{
+    -fx-hbar-policy: as-needed;
+    -fx-vbar-policy: as-needed;
+}
+
+.tab-pane *.tab-header-area .tab .tab-label .iconbox,
+.tab-pane *.tab-header-area .tab .tab-label .iconbox .icon {
+    -fx-pref-height: 1.333em;
+    -fx-pref-width: 1.333em;
+    -fx-fill-height: false;
+    -fx-alignment: center;
+}
+
+.tab-pane > .tab-header-area > .headers-region > .tab:selected {
+    -fx-background-color: -qw-component-border-color, -qw-bg-color, transparent;
+    -fx-padding: 0.25em 0.5em 0.25em 0.5em;
+}
+
+.tab-pane > .tab-header-area > .headers-region > .tab {
+    -fx-padding: 0.25em 0.5em 0.25em 0.5em;
+}
+
+.tab-pane .tab-close-button {
+    -fx-pref-height: 1em;
+    -fx-pref-width: 1em;
+    -fx-cursor: hand;
+    -fx-effect: null;
+    -fx-scale-x: 0.333;
+    -fx-scale-y: 0.333;
+    -fx-translate-y: 0.1em;
+}
+
+.tab-pane .tab .tab-label {
+    -fx-text-fill: -fx-text-base-color;
+    -fx-padding: 0 0.25em 0 0;
+    -fx-cursor: hand;
+}
+
+.root:night .tab-pane .tab .tab-label
+{
+    -fx-text-fill: -qw-bg-color;
+}
+
+.root:night .tab-pane .tab:selected .tab-label {
+    -fx-text-fill: -qw-button-text-color;
+}
+.root:night .tab-pane .tab .tab-label .iconbox .icon,
+.root:night .tab-pane .tab .tab-close-button {
+    -fx-background-color: -qw-bg-color;
+}
+.root:night .tab-pane .tab:selected .tab-label .iconbox .icon,
+.root:night .tab-pane .tab:selected .tab-close-button {
+    -fx-background-color: -qw-dark-color;
+}
+.root:night .tab-pane .tab:selected .tab-label {
+    -fx-text-fill: -qw-dark-color;
+}
+
+.tab-pane > .tab-header-area > .tab-header-background
+{
+    -fx-background-color: -qw-component-border-color, -qw-bg-color, -qw-bg-color;
+}
+
+.tab-pane:bottom > .tab-header-area
+{
+    -fx-padding: 0 0.1em 0.5em 0.1em;
+    -fx-padding: 0 0em 0.69em 0em;
+}
+
+.tab-pane:top > .tab-header-area
+{
+    -fx-padding: 0.7em 0.1em 0 0.1em;
+}
+
+.tab-pane:bottom > .tab-header-area > .tab-header-background
+{
+    -fx-background-color: -qw-bg-color , -qw-component-border-color, -qw-bg-color;
+    /*-fx-background-color: red, green, yellow;*/
+    -fx-background-insets: 0, 1 0 0 0, 0 0 1 0;
+}
+
+.tab.haschanges .tab-label
+{
+    -fx-font-weight: bold;
+}
+
+.tab.chapter .tab-label .iconbox .chapter-icon.icon {
+    -fx-pref-width: 1em;
+    -fx-max-width: 1em;
+    -fx-min-width: 1em;
+}
+
+.tab.ideaboard .tab-label .iconbox .ideaboard-icon.icon,
+.tab.achievements .tab-label .iconbox .achievements-icon.icon {
+    -fx-pref-width: 0.888em;
+    -fx-max-width: 0.888em;
+    -fx-min-width: 0.888em;
+}
+
+.menu-button .label
+{
+    -fx-padding: 0 0.1em 0 0;
+}
+
+.menu-button .arrow-button
+{
+    -fx-padding: 1em 0 0 -0.125em;
+}
+.menu-button .arrow-button .arrow {
+    -fx-background-color: -qw-icon-color;
+}
+
+.menu-button:hover .arrow-button .arrow
+{
+    -fx-background-color: -qw-icon-hover-color;
+}
+
+/*
+.project .sidebar .toolbar:bottom .menu-button .arrow-button
+{
+    -fx-rotate: 180;
+}
+*/
+
+.qpopup.rename .content .form .control
+{
+    -fx-padding: 0 0 0.5em 0;
+}
+
+.qpopup.rename .content .form .buttons
+{
+    -fx-padding: 0.5em 0.5em 0.5em 0;
+}
+
+.qpopup.readability .header .iconbox .icon {
+    -fx-pref-height: 0.888em;
+}
+.qpopup.readability .label.title, .qpopup.readability .label
+{
+    -fx-min-width: 3em;
+}
+
+.qpopup.readability .items .hyperlink, .qpopup.readability .items .label
+{
+    -fx-padding: 0.25em;
+}
+
+.qpopup.readability .items .over
+{
+    -fx-text-fill: red;
+}
+
+/*
+ * Chapters over word count target (ChaptersOverWordCountTargetPopup)
+ */
+.qpopup.wordcount .items .hyperlink, .qpopup.wordcount .items .label
+{
+    -fx-padding: 0.25em;
+}
+
+.qpopup.wordcount .items .over
+{
+    -fx-text-fill: red;
+}
+
+.linkedto .scroll-pane
+{
+    /*-fx-pref-height: 15em;*/
+    -fx-fit-to-width: false;
+    -fx-padding: 0.5em 0 0 0.5em;
+    -fx-max-height: 20em;
+}
+
+.sidebar.chapterinfo .accordion .header
+{
+    -fx-border-width: 0 0 1px 0;
+    -fx-border-color: -qw-component-border-color;
+    -fx-padding: 0 0 0 0;
+}
+
+.sidebar.chapterinfo .accordion .header .controls
+{
+    -fx-padding: 0.25em 0.25em 0.25em 0.5em;
+}
+
+.sidebar.chapterinfo .accordion
+{
+    -fx-padding: 0 0.5em 0.5em 0.5em;
+}
+
+.sidebar.chapterinfo .accordion .edit .text-area
+{
+    -fx-max-width: Infinity;
+    -fx-min-width: 10em;
+    -fx-pref-width: 15em;
+}
+
+.sidebar.chapterinfo .accordion .content .edit
+{
+    -fx-padding: 0.5em 0.5em 0 0.75em;
+}
+
+.sidebar.chapterinfo .accordion .content .view
+{
+    -fx-padding: 0.25em;
+}
+
+.sidebar.chapterinfo .accordion .buttons
+{
+    -fx-padding: 0.25em;
+    -fx-alignment: center-right;
+    -fx-border-width: 0 1px 1px 1px;
+    -fx-border-color: -qw-component-border-color;
+}
+.sidebar.chapterinfo .accordion .placeholder
+{
+    -fx-font-style: italic;
+}
+
+.sidebar.chapterinfo .accordion .placeholder .iconbox
+{
+    visibility: hidden;
+}
+
+.sidebar .tool-bar.buttons .button .iconbox,
+.sidebar .tool-bar.buttons .button .iconbox .icon {
+    -fx-pref-width: 1.333em;
+    -fx-pref-height: 1.333em;
+    -fx-fill-height: false;
+    -fx-alignment: center;
+    /*
+    IS THIS RIGHT?
+    -fx-background-color: -qw-button-icon-color;
+    */
+}
+.viewer.project .sidebar.chapterinfo .scroll-pane
+{
+    -fx-hbar-policy: as-needed;
+    -fx-vbar-policy: as-needed;
+    -fx-fit-to-height: false;
+    -fx-fit-to-width: true;
+}
+
+.viewer.project .sidebar.chapterinfo .linkedto .content .linkedto
+{
+    -fx-padding: 0 0 0.25em 0;
+}
+
+.viewer.project .sidebar.chapterinfo .linkedto .cell
+{
+    -fx-padding: 0;
+}
+
+.viewer.project .sidebar.chapterinfo .linkedto .cell .header
+{
+    -fx-border-width: 0;
+}
+
+.viewer.project .sidebar.chapterinfo .linkedto .content
+{
+    -fx-padding: 0.25em 0.25em 0.25em 0;
+}
+
+.sidebar.chapterinfo .accordion.linkedto .buttons
+{
+    -fx-border-width: 1px 0 0 0;
+}
+
+.nosynonyms
+{
+    -fx-font-style: italic;
+}
+
+.nosynonyms:focused
+{
+    -fx-background-color: transparent;
+}
+
+.nosynonyms:disabled .label
+{
+    -fx-text-fill: -fx-text-base-color;
+}
+
+.compressedmenutitle.label
+{
+    -fx-padding: 0.5em 0.5em 0.5em 0.6em;
+    -fx-font-style: italic;
+    -fx-pref-width: 8em;
+    -fx-text-alignment: right;
+    -fx-alignment: center-right;
+    -fx-content-display: text-only;
+}
+
+.compressedmenu:focused .compressedmenutitle
+{
+    -fx-text-fill: -fx-text-base-color;
+}
+
+.compressedmenu:focused, .compressedmenu:active, .compressedmenu:pressed
+{
+    -fx-background-color: transparent;
+}
+
+.compressedmenu .button
+{
+    -fx-content-display: graphic-only;
+}
+
+.menu-item.compressedmenu:hover
+{
+    -fx-background-color: transparent;
+}
+
+.viewer.project .tab-pane:top .tab-content-area
+{
+    /*-fx-border-width: 1px 0 0 0;*/
+    -fx-border-width: 0;
+    -fx-border-color: -qw-component-border-color;
+}
+    /*
+.tab-pane:top .tab-content-area
+{
+    -fx-border-width: 0 1px 1px 1px;
+    -fx-border-color: -qw-component-border-color;
+}
+*/
+/*
+ * com.quollwriter.ui.fx.ProblemFinder
+ */
+ /* TODO Fix this, causes issue with chapter right click menu */
+/*
+ * IdeaBoard (IdeaBoard)
+ */
+
+.date-picker, .date-picker:focused, .spinner, .spinner:focused
+{
+    -fx-background-color: transparent;
+    -fx-border-radius: 0px;
+    -fx-border-color: -qw-component-border-color;
+    /*-fx-max-width: 15em;*/
+}
+
+.date-picker .text-field,
+.date-picker .text-field:focused,
+.date-picker:focused .text-field,
+.spinner .text-field,
+.spinner .text-field:focused
+{
+    -fx-background-insets: 0;
+    -fx-border-width: 0;
+    -fx-background-color: transparent;
+    -fx-padding: 0.5em;
+}
+
+.date-picker .arrow-button
+{
+    -fx-padding: 0.5em;
+    -fx-background-radius: 0;
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: center;
+    -fx-background-color: transparent;
+    -fx-cursor: hand;
+    -fx-border-width: 0 0 0 1px;
+    -fx-border-color: -qw-component-border-color;
+    -fx-pref-width: 1.333em;
+    -fx-pref-height: 1.333em;
+    -fx-alignment: center;
+    -fx-fill-height: false;
+}
+
+.date-picker .arrow-button:hover,
+.spinner .increment-arrow-button:hover,
+.spinner .decrement-arrow-button:hover
+{
+    -fx-background-color: -qw-hover-bg;
+    -fx-border-color: -qw-component-border-color;
+}
+
+.date-picker .arrow-button .arrow,
+.spinner .increment-arrow-button,
+.spinner .decrement-arrow-button
+{
+    -fx-opacity: 1;
+    -fx-padding: 0.5em;
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-cursor: hand;
+}
+
+.date-picker .arrow-button .arrow
+{
+    -fx-background-color: -qw-dark-color;
+    -fx-shape: "M 20,6 V 2 c 0,-1.105 0.895,-2 2,-2 1.105,0 2,0.895 2,2 V 6 C 24,7.105 23.105,8 22,8 20.895,8 20,7.105 20,6 Z M 8,6 V 2 c 0,-1.105 0.895,-2 2,-2 1.105,0 2,0.895 2,2 V 6 C 12,7.105 11.105,8 10,8 8.895,8 8,7.105 8,6 Z M 26,4 v 2.047 c 0,2.211 -1.789,4 -4,4 -2.211,0 -4,-1.789 -4,-4 V 4 h -4 v 2.047 c 0,2.211 -1.789,4 -4,4 -2.211,0 -4,-1.789 -4,-4 V 4 H 0 V 32 H 32 V 4 Z M 10,28 H 6 v -4 h 4 z m 0,-8 H 6 v -4 h 4 z m 8,8 h -4 v -4 h 4 z m 0,-7.992 h -4 v -4 h 4 z M 22,28 v -4 h 4 z m 4,-8 h -4 v -4 h 4 z";
+    -fx-pref-height: 1.333em;
+    -fx-pref-width: 1.333em;
+    -fx-padding: 0;
+}
+
+.date-picker .text-input, .spinner .text-input
+{
+    -fx-min-width: 3em;
+}
+
+.spinner .increment-arrow-button .increment-arrow, .spinner .decrement-arrow-button .decrement-arrow
+{
+    -fx-cursor: hand;
+}
+
+/* TODO Clean these styles up */
+.spinner .decrement-arrow-button .decrement-arrow,
+.spinner .increment-arrow-button .increment-arrow
+{
+    -fx-pref-height: 1em;
+    -fx-pref-width: 0.5em;
+    -fx-max-width: 0.5em;
+    -fx-max-height: 1em;
+    -fx-min-width: 0.5em;
+    -fx-min-height: 1em;
+    -fx-padding: 0;
+}
+
+.spinner .increment-arrow-button .increment-arrow
+{
+    -fx-rotate: -90;
+}
+
+.spinner .decrement-arrow-button .decrement-arrow
+{
+    -fx-rotate: 90;
+}
+
+.spinner .increment-arrow-button:hover
+{
+    -fx-background-color: -qw-hover-bg;
+    -fx-border-color: transparent transparent -qw-component-border-color -qw-component-border-color;
+}
+
+.spinner .decrement-arrow-button:hover
+{
+    -fx-background-color: -qw-hover-bg;
+    -fx-border-color: -qw-component-border-color transparent transparent -qw-component-border-color;
+}
+
+.spinner .increment-arrow-button
+{
+    -fx-border-width: 1px 1px 1px 1px;
+    -fx-border-color: transparent;
+}
+
+.spinner .decrement-arrow-button
+{
+    -fx-border-width: 1px 1px 1px 1px;
+    -fx-border-color: transparent;
+}
+
+body
+{
+    overflow-x: hidden;
+    overflow-y: hidden;
+}
+
+a
+{
+    font-size: 30pt;
+}
+
+.web-view Label
+{
+    -fx-background: transparent;
+}
+
+.overlay
+{
+    -fx-alignment: top-center;
+    -fx-cursor: move;
+    -fx-fill-width: true;
+    -fx-padding: 5em 0 0 0;
+}
+
+.overlay .label
+{
+    -fx-font-size: 1.5em;
+    -fx-text-alignment: center;
+    -fx-alignment: top-center;
+    -fx-border-width: 1px 0 1px 0;
+    -fx-border-color: -qw-component-border-color;
+    -fx-background-color: #ffffff;
+    -fx-opacity: 1;
+    -fx-padding: 1em;
+    -fx-wrap-text: true;
+}
+
+.root.popupviewer .qpopup.question
+{
+    /*-fx-padding: 0.5em 0.75em 0.5em 0.75em;*/
+    -fx-pref-width: -qw-popup-width;
+    -fx-min-width: -qw-popup-width;
+    -fx-background-color: -qw-bg-color;
+    -fx-border-width: 0;
+    -fx-effect: none;
+}
+
+.root.popupviewer .qpopup .header .controls
+{
+    visibility: hidden;
+}
+
+.sidebar.editproperties .fullscreen .background
+{
+    -fx-min-height: 10em;
+    -fx-min-width: 10em;
+    -fx-border-width: 1px;
+    -fx-border-color: -qw-component-border-color;
+    -fx-cursor: hand;
+}
+
+.sidebar.editproperties .fullscreen .backgroundsizebox
+{
+    -fx-pref-height: 15em;
+    -fx-min-height: 15em;
+    -fx-max-height: 15em;
+}
+
+.sidebar.editproperties .fullscreen .inner
+{
+    -fx-border-width: 1px;
+    -fx-border-color: -qw-component-border-color;
+    -fx-background-color: -qw-hover-bg;
+}
+
+.filefind
+{
+    -fx-spacing: 0.2em;
+    -fx-max-width: 50em;
+}
+
+.filefind .button
+{
+    -fx-padding: 0.3em;
+    -fx-cursor: hand;
+}
+
+.filefind .text-field
+{
+    -fx-cursor: hand;
+}
+.hyperlink {
+    -fx-fill: -qw-hyperlink-color;
+    -fx-text-fill: -qw-hyperlink-color;
+    -fx-graphic-text-gap: 0.5em;
+    -fx-padding: 0;
+    -fx-underline: false;
+    -fx-text-wrap: true;
+}
+.hyperlink.view { -fx-padding: 0.5em 0.5em 0.5em 0em; }
+.hyperlink:hover { -fx-underline: true; }
+.hyperlink .iconbox,
+.hyperlink .iconbox .icon {
+    -fx-pref-width: 0.888em;
+    -fx-max-width: 0.888em;
+    -fx-min-width: 0.888em;
+    -fx-pref-height: 0.888em;
+    -fx-max-height: 0.888em;
+    -fx-min-height: 0.888em;
+    -fx-fill-height: false;
+    -fx-alignment: center;
+    -fx-pref-width: 1.333em;
+    -fx-max-width: 1.333em;
+    -fx-min-width: 1.333em;
+    -fx-pref-height: 1.333em;
+    -fx-max-height: 1.333em;
+    -fx-min-height: 1.333em;
+
+}
+.hyperlink .iconbox .view-icon.icon {
+    -fx-pref-height: 0.888em;
+}
+.hyperlink .iconbox .chapter-icon.icon {
+    -fx-pref-width: 1em;
+    -fx-max-width: 1em;
+    -fx-min-width: 1em;
+}
+
+.hyperlink .iconbox .warning-icon.icon
+{
+    -fx-pref-width: 0.333em;
+    -fx-max-width: 0.333em;
+    -fx-min-width: 0.333em;
+}
+
+.hyperlink .iconbox .help-icon.icon
+{
+    -fx-pref-width: 0.666em;
+    -fx-min-width: 0.666em;
+    -fx-max-width: 0.666em;
+}
+
+.qtextview.placeholder .label
+{
+    -fx-text-fill: -qw-dark-color;
+}
+
+.scroll-pane
+{
+    -fx-border-color: transparent;
+    -fx-border-width: 1px 0 0 0;
+}
+.scroll-pane:scrolling,
+.virtualized-scroll-pane:scrolling
+{
+    -fx-border-color: -qw-component-border-color;
+    -fx-border-width: 1px 0 0 0;
+}
+/*
+.root.viewer .windowed > .header .controls
+{
+    -fx-padding: 0.5em;
+}
+*/
+.root.viewer.css .tab-pane .tab-label .iconbox
+{
+    visibility: hidden;
+}
+
+.root.viewer.css
+{
+    -fx-min-width: 300px;
+    -fx-min-height: 300px;
+    -fx-pref-width: 1200px;
+    -fx-pref-height: 800px;
+}
+
+.root.viewer.css .tooltip
+{
+    -fx-max-width: 200em;
+    -fx-pref-width: 50em;
+}
+
+.qtoolbar .button
+{
+    -fx-text-fill: -qw-text-base-color;
+}
+
+.qtoolbar.controls
+{
+    -fx-alignment: center-left;
+}
+
+.qtoolbar.controls .progress
+{
+    -fx-alignment: center-left;
+    -fx-spacing: 0.25em;
+}
+
+.windowed > .header .controls .progress .progress-bar .bar
+{
+    -fx-pref-height: 2em;
+    -fx-border-width: 0;
+}
+
+.windowed > .header .controls .progress .progress-bar .track
+{
+    -fx-border-width: 1px;
+    -fx-border-color: -qw-border-color;
+    -fx-background-color: transparent;
+}
+
+.windowed > .header .controls .progress .button .iconbox,
+.windowed > .header .controls .progress .button .iconbox .icon
+{
+    -fx-pref-width: 1.333em;
+    -fx-pref-height: 1.333em;
+}
+
+.tab-pane > .tab-header-area > .control-buttons-tab
+{
+    /*-fx-padding: 0 0 1em 0;*/
+}
+
+.tab-pane > .tab-header-area > .control-buttons-tab > .container > .tab-down-button
+{
+    -fx-background-color: transparent;
+    -fx-cursor: hand;
+    -fx-alignment: center;
+    -fx-padding: 0.5em;
+}
+
+.tab-pane > .tab-header-area > .control-buttons-tab > .container > .tab-down-button > .arrow
+{
+    -fx-pref-height: 0.888em;
+    -fx-pref-width: 0.5em;
+    -fx-shape: "M 0,32 V 0 l 24,16 z";
+    -fx-background-color: -qw-icon-color;
+    -fx-rotate: -90;
+}
+
+.tab-pane:top > .tab-header-area > .control-buttons-tab > .container > .tab-down-button > .arrow
+{
+    -fx-rotate: 90;
+}
+
+.tab-pane:bottom > .tab-header-area > .control-buttons-tab > .container > .tab-down-button > .arrow
+{
+    -fx-rotate: -270;
+}
+
+.tab-pane > .tab-header-area > .control-buttons-tab .container
+{
+    -fx-alignment: center;
+}
+
+WordCountTimerButton
+{
+    -fx-alignment: center;
+}
+
+.qtextarea .placeholder
+{
+    -fx-alignment: top-center;
+    -fx-padding: 3px;
+
+}
+
+.qtextarea .placeholder Text
+{
+    -fx-fill: grey;
+}
+
+.tree .cell:hasparent:branch > StackPane .disclosure
+{
+    -fx-padding: 0 0 0 0.25em;
+}
+
+.tree
+{
+    -fx-cell-indent: 1.6em;
+}
+
+.cell.list-cell .iconbox
+{
+    -fx-pref-width: 1.333em;
+    -fx-pref-height: 1.333em;
+    -fx-fill-height: false;
+    -fx-alignment: center;
+}
+
+.cell.list-cell .iconbox .icon
+{
+    -fx-pref-width: 1.333em;
+    -fx-pref-height: 1.333em;
+    -fx-fill-height: false;
+    -fx-alignment: center;
+}
+
+.cell.list-cell .iconbox .icon.online-icon
+{
+    /*-fx-pref-height: 1.333em;*/
+}
+
+.check-box .box
+{
+    -fx-pref-width: 1.75em;
+    -fx-pref-height: 1.75em;
+    -fx-padding: 0.3em;
+    -fx-background-radius: 0;
+    -fx-background-color: #dddddd;
+}
+
+.tree .cell .check-box .box,
+.check-box.select .box
+{
+    -fx-pref-width: 1.25em;
+    -fx-pref-height: 1.25em;
+}
+
+.check-box .box .mark
+{
+    -fx-background-color: transparent;
+    -fx-shape: "M 5.695,8.117 11.941,14.363 26.305,0 32,5.695 11.941,25.754 0,13.812 Z";
+}
+
+.check-box:selected .box .mark
+{
+    -fx-background-color: #4d4d4d;
+}
+
+.slider .thumb
+{
+    -fx-background-color: #4d4d4d;
+    -fx-background-color: -fx-text-base-color;
+    -fx-background-radius: 0;
+    -fx-pref-width: 0.5em;
+    -fx-pref-height: 1.75em;
+    -fx-effect: null;
+}
+
+.slider .track
+{
+    -fx-background-color: #dddddd;
+    -fx-background-radius: 0;
+    -fx-pref-height: 0.5em;
+}
+
+.radio-button .radio
+{
+    -fx-pref-width: 1.75em;
+    -fx-pref-height: 1.75em;
+    -fx-background-color: #dddddd;
+    /*-fx-padding: 0.6em;*/
+    -fx-snap-to-pixel: true;
+}
+/*
+.radio-button .radio .dot
+{
+    -fx-padding: 0.5em;
+    -fx-padding: 0.45em;
+}
+*/
+.radio-button:selected .radio .dot
+{
+    -fx-background-color: #4d4d4d;
+    -fx-padding: 0.2em;
+/*
+    -fx-min-width: 0.5em;
+    -fx-max-width: 0.5em;
+    -fx-pref-width: 0.5em;
+    -fx-min-height: 1em;
+    -fx-max-height: 1em;
+    -fx-pref-height: 1em;
+*/
+}
+
+TilePane
+{
+    -fx-hgap: 0;
+    -fx-vgap: 0;
+}
+
+.button:hover .iconbox .icon
+{
+    -fx-background-color: -qw-icon-hover-color;
+}

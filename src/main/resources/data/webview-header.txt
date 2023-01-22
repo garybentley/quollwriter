@@ -1,0 +1,8 @@
+<html><head><script>function noScroll(){window.scrollTo(0,0);}window.addEventListener('scroll', noScroll);</script><style>body,html{overflow:hidden;padding:0;margin:0;offset-x:hidden;offset-y:hidden}.b{font-weight:700}.i{font-style:italic}.u{text-decoration:underline}a{text-decoration:none;font-weight:400}a:hover{text-decoration:underline}
+
+ul{margin:0;padding:.5em;padding-left:2em}ul.errors{color:red}img.icon{display:inline-block;margin-right:.25em;vertical-align:middle}
+li{list-style-position:outside;margin-left:1em}
+ul{margin:0 0 0 0.5em;padding:0.5em}
+more:hover{text-decoration:underline}
+body:hover{cursor:hand}
+body,p,div{user-select:none;-webkit-user-select:none}

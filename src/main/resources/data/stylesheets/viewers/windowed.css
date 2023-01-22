@@ -1,0 +1,161 @@
+/*
+ * Base level styles, i.e. applicable to all sub-classes of com.quollwriter.ui.fx.viewers.WindowedContent
+ */
+.windowed > .header {
+    -fx-max-width: Infinity;
+    -fx-alignment: center-left;
+    -fx-padding: 0 0 0 0.5em;
+}
+.windowed > .header.title {
+    -fx-border-width: 0 0 1px 0;
+    -fx-border-insets: 0px;
+    -fx-border-color: -qw-component-border-color;
+}
+.windowed > .header.title .title {
+    -fx-font-size: 2.5em;
+    -fx-padding: 0 0.5em 0 0.25em;
+    -fx-max-width: Infinity;
+    -fx-text-fill: -fx-text-base-color;
+}
+.windowed > .header .controls
+{
+    -fx-alignment: center-right;
+}
+.windowed > .header .controls .button {
+    -fx-content-display: graphic-only;
+}
+.windowed > .header .controls .button .iconbox,
+.windowed > .header .controls .menu-button > .label .iconbox,
+.windowed > .header .controls .button .iconbox .icon,
+.windowed > .header .controls .menu-button > .label .iconbox .icon,
+.windowed > .header.title > .iconbox .icon,
+.windowed > .header.title > .iconbox {
+    -fx-alignment: center;
+    -fx-pref-width: 2em;
+    -fx-pref-height: 2em;
+    -fx-min-height: 2em;
+    -fx-min-width: 2em;
+    -fx-max-height: 2em;
+    -fx-max-width: 2em;
+    -fx-fill-height: false;
+}
+/*
+.windowed > .header .controls .button .iconbox .icon
+{
+    -fx-background-color: -qw-icon-color;
+}
+*/
+.windowed > .header .controls .menu-button .iconbox .more-icon.icon {
+    -fx-pref-width: 0.5em;
+    -fx-max-width: 0.5em;
+    -fx-min-width: 0.5em;
+}
+.windowed > .header .controls .button .iconbox .ideaboard-icon {
+    -fx-pref-width: 1.333em;
+    -fx-max-width: 1.333em;
+    -fx-min-width: 1.333em;
+}
+.windowed > .header .controls .menu-button > .label .iconbox .filter-icon {
+    -fx-pref-height: 1.2em;
+    -fx-max-height: 1.2em;
+    -fx-min-height: 1.2em;
+}
+.windowed > .header .controls .button .iconbox .warmup-icon,
+.windowed > .header.title .iconbox .warmup-icon {
+    -fx-pref-width: 1.5em;
+    -fx-max-width: 1.5em;
+    -fx-min-width: 1.5em;
+}
+.windowed > .header .controls .button .iconbox .help-icon {
+    -fx-pref-width: 1.333em;
+    -fx-min-width: 1.333em;
+    -fx-max-width: 1.333em;
+}
+.windowed > .header .controls .menu-button.config .iconbox .icon {
+    -fx-pref-width: 1.333em;
+}
+.windowed > .header .controls .button .iconbox .icon.tryout-icon,
+.windowed > .header .controls .button .iconbox .icon.view-icon {
+    -fx-pref-height: 1.333em;
+    -fx-max-height: 1.333em;
+    -fx-min-height: 1.333em;
+}
+
+.tab-pane { -fx-min-width: 300px; }
+.viewer .divider:hover { -fx-cursor: h-resize; }
+ /*
+  * Notifications area.
+  */
+ .windowed > .notifications > *
+ {
+     -fx-padding: 0.25em 0.25em 0.25em 0.5em;
+     -fx-border-style: solid;
+     -fx-border-width: 0 0 1px 0;
+     -fx-border-color: -qw-component-border-color;
+     -fx-alignment: center-left;
+ }
+
+.windowed > .notifications .controls
+{
+    -fx-padding: 0.5em;
+}
+
+.windowed > .header .controls
+{
+    -fx-padding: 0.25em 0.5em 0.25em 2em;
+    -fx-hgap: 0.25em;
+    -fx-min-width: 5em;
+}
+
+.windowed > .header .controls.configuring
+{
+    -fx-padding: 0.25em 0.5em 0.25em 2em;
+}
+
+.windowed > .header .controls.configuring > *
+{
+    -fx-cursor: closed-hand;
+}
+
+.windowed > .header .controls.configuring .button:dragging,
+.windowed > .header .controls.configuring .menu-button:dragging
+{
+    -fx-border-width: 1px;
+    -fx-border-color: -qw-component-border-color;
+    -fx-background-color: -qw-dragging-bg;
+    -fx-opacity: 0.5;
+
+}
+
+.windowed > .header .controls.configuring .button:dragover,
+.windowed > .header .controls.configuring .menu-button:dragover
+{
+    -fx-border-width: 1px;
+    -fx-border-color: -qw-component-border-color;
+    -fx-background-color: -qw-dragover-bg;
+
+}
+
+.windowed > .header .controls > *
+{
+    -fx-padding: 0.25em;
+}
+
+.windowed > .header .controls > .wordcounttimer
+{
+    -fx-padding: 0;
+}
+
+.windowed > .header .controls .button .iconbox .icon.start-icon
+{
+    -fx-pref-width: 1.332em;
+    -fx-max-width: 1.332em;
+    -fx-min-width: 1.332em;
+}
+
+.windowed > .header .controls .button .iconbox .icon.pause-icon
+{
+    -fx-pref-width: 1.5em;
+    -fx-max-width: 1.5em;
+    -fx-min-width: 1.5em;
+}

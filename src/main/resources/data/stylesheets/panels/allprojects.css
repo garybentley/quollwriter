@@ -1,0 +1,134 @@
+/*
+ * All projects panel, com.quollwriter.ui.fx.panels.ProjectsPanel
+ */
+.projectslist .project .header .controls { visibility: false; }
+.projectslist .project .header .title {
+    -fx-padding: -0.5em 0 0 0.3em;
+    -fx-font-size: 1.7em;
+    -fx-wrap-text: true;
+    -fx-text-fill: -fx-text-base-color;
+    -fx-alignment: top-left;
+    -fx-max-width: 25em;
+    -fx-pref-width: 25em;
+}
+.projectslist .project .header
+{
+    -fx-padding: 0;
+}
+.projectslist .project .info
+{
+    -fx-font-size: 1em;
+    -fx-padding: 0 0 0 0.25em;
+}
+.projectslist .project .header { -fx-alignment: top-left; }
+.projectslist .project .header .iconbox,
+.projectslist .project .header .iconbox .icon
+{
+    -fx-pref-width: 1.666em;
+    -fx-pref-height: 1.666em;
+    -fx-fill-height: false;
+    -fx-alignment: top-center;
+    -fx-min-width: 1.666em;
+}
+/* This is a copy of the .project-icon */
+.normal-icon
+{
+    -fx-shape: "M 27.973,8.047 32,4.016 H 27.973 V 0 H 3.996 C 1.789,0 0,1.789 0,4 v 24 c 0,2.211 1.789,4 3.996,4 H 27.973 V 12.047 h 3.996 z M 23.977,28 H 7.992 V 4 H 23.976 V 28 Z M 11.988,8 h 7.992 v 4.031 h -7.992 z";
+    -fx-background-color: -qw-icon-color;
+}
+.projectslist .project .header .icon.encrypted-icon
+{
+    -fx-pref-width: 1.1em;
+    -fx-min-width: 1.1em;
+}
+.projectslist .project .header .iconbox .error-icon.icon
+{
+    -fx-pref-width: 0.555em;
+    -fx-min-width: 0.555em;
+    -fx-max-width: 0.555em;
+}
+
+.projectslist .scroll-pane .scroll-bar:vertical { -fx-unit-increment: 10em; }
+.scroll-pane {
+    -fx-padding: 0px;
+    -fx-vbar-policy: as-needed;
+    -fx-hbar-policy: as-needed;
+    -fx-fit-to-height: false;
+    -fx-fit-to-width: true;
+}
+.scroll-pane, .options .scroll-pane {
+    -fx-hbar-policy: as-needed;
+    -fx-vbar-policy: as-needed;
+    -fx-pannable: true;
+    -fx-background-insets: 0;
+}
+.scroll-bar {
+    -fx-block-increment: 100;
+    -fx-unit-increment: 100;
+}
+ .projectslist {
+    -fx-hgap: 0.75em;
+    -fx-vgap: 0.75em;
+    -fx-padding: 0.75em;
+    -fx-row-valignment: top;
+    -fx-alignment: top-center;
+    -fx-orientation: horizontal;
+    /* All items in the projects list have the same width (column width), the rule below defines that width */
+    -qw-item-width: 25em;
+}
+ /*
+  * A project box in the projects window.
+  * Setting both max AND min width is needed to ensure the height is calculated.
+  */
+.projectslist .project {
+    -fx-padding: 0.5em;
+    -fx-border-width: 1px;
+    -fx-border-insets: 0px;
+    -fx-border-color: transparent;
+    -fx-pref-width: 25em;
+    -fx-min-width: 25em;
+    -fx-background-color: -qw-bg-color;
+}
+.projectslist .project:hover, .projectslist .project:focused {
+    -fx-border-width: 1px;
+    -fx-border-insets: 0px;
+    -fx-border-color: -qw-border-color;
+    -fx-background-color: -qw-hover-bg;
+    -fx-cursor: hand;
+}
+ .allprojects:bgcolor .projectslist .project, .allprojects:bgimage .projectslist .project { -fx-border-color: -qw-border-color; }
+ .projectslist .project .info {
+    -fx-font-size: 1em;
+    -fx-padding: 0em 0 0 2.1em;
+    -fx-text-fill: -fx-text-base-color;
+}
+
+.projectslist .project:hover .header .title,
+.projectslist .project:hover .info Text,
+.projectslist .project:hover .info .b,
+.projectslist .project:hover .info .i
+{
+    -fx-text-fill: -qw-text-hover-color;
+    -fx-fill: -qw-text-hover-color;
+}
+
+.projectslist .project:hover .header .iconbox .icon
+{
+    -fx-background-color: -qw-text-hover-color;
+}
+
+.projectslist .project:hover .header .iconbox .error-icon.icon
+{
+    -fx-background-color: -qw-error-color;
+}
+
+.projectslist .project .header .iconbox .editor-icon.icon
+{
+    -fx-pref-width: 1.24em;
+    -fx-min-width: 1.24em;
+    -fx-max-width: 1.24em;
+}
+.projectslist .menu .noimage-icon
+{
+    visibility: hidden;
+}

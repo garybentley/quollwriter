@@ -1,0 +1,28 @@
+/*
+ * Styles for com.quollwriter.ui.fx.sidebars.ProblemFinderSideBar
+ */
+.rule {
+    -fx-padding: 0 1em 0.5em 0.5em;
+    -fx-font-style: italic;
+}
+.issue { -fx-graphic: url(/imgs/bullet16.png); }
+.chapter { -fx-graphic: url(/imgs/chapter16.png); }
+.nomatches, .ignored { -fx-padding: 0 1em 0.5em 0.5em; }
+.nomatches .image-view, .ignored .image-view {-fx-image: url(/imgs/warning16.png); }
+.searching {
+    -fx-padding: 0 1em 0.5em 0.5em;
+    -fx-font-style: italic;
+}
+.searching .image-view { -fx-image: url(/imgs/loading24.gif); }
+.searching .text { -fx-padding: 0 0 0 0.25em; }
+.ignored { -fx-cursor: hand; }
+.tree { -fx-cell-indent: 0em; }
+.tree .cell {
+    -fx-cursor: hand;
+    -fx-padding: 0 0 0 0.5em;
+}
+
+.scroll-pane
+{
+    -fx-fit-to-width: false;
+}

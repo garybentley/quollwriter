@@ -1,0 +1,43 @@
+.content
+{
+    -fx-padding: 0;
+    /*-fx-max-height: 10em;*/
+    -fx-pref-width: 18em;
+    -fx-max-width: 18em;
+}
+
+.items .label
+{
+    -fx-cursor: hand;
+    -fx-border-width: 0 0 1px 0;
+    -fx-border-color: -qw-component-border-color;
+    -fx-padding: 0.25em;
+    -fx-font-size: 1em;
+    -fx-content-display: text-only;
+}
+
+.scroll-pane
+{
+    -fx-fit-to-height: false;
+    -fx-hbar-policy: never;
+}
+
+.virtual-flow .increment-button
+{
+    visibility: hidden;
+}
+
+.qpopup.string
+{
+    -fx-effect: null;
+}
+
+.list-view .cell:empty
+{
+    visibility: hidden;
+}
+
+.items .label:focused
+{
+    -fx-background-color: #dddddd;
+}

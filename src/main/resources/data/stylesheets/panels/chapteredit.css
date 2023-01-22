@@ -1,0 +1,152 @@
+/*
+ * Styles relating to the editing of a chapter via com.quollwriter.ui.fx.components.TextEditor
+ * This stylesheet is added to the TextEditor.
+ */
+ .texteditor
+ {
+     -fx-background-color: transparent;
+     -fx-padding: 2px 0 0 0;
+ }
+
+ .texteditor .margin, .margin-bg
+ {
+     -fx-pref-width: 4.5em;
+     -fx-max-width: 4.5em;
+     -fx-min-width: 4.5em;
+     -fx-max-height: Infinity;
+     -fx-pref-height: Infinity;
+     -fx-background-color: #dfdfdf;
+     /*
+      * This indent is from the "left" edge of the margin.  It doesn't take the size of the margin into account nor does it account
+      * for the note ident.  So you can have a margin that is too small to display the item.
+      */
+     -qw-note-item-indent: 0.4em;
+     /*
+      * This indent is from the "left" edge of the margin.  It doesn't take the size of the margin into account nor does it account
+      * for the note ident.  So you can have a margin that is too small to display the item.
+      */
+     -qw-structure-item-indent: 2.7em;
+ }
+
+.root:night .texteditor .margin, .root:night .margin-bg
+{
+    -fx-background-color: #4d4d4d;
+    -fx-border-width: 0 1px 0 0;
+    -fx-border-color: #dfdfdf;
+}
+
+.texteditor .margin .iconbox:dragging
+{
+    -fx-opacity: 0.5;
+    -fx-background-color: transparent;
+    /*-fx-background-color: #4d4d4d;*/
+}
+
+ .texteditor .margin .outlineitem,
+ .texteditor .margin .scene,
+ .texteditor .margin .note,
+ .texteditor .margin .editneedednote,
+ .texteditor .margin .iconbox
+ {
+     -fx-cursor: hand;
+ }
+
+.texteditor .margin .iconbox,
+.texteditor .margin .iconbox .icon
+{
+    -fx-pref-width: 1.333em;
+    -fx-pref-height: 1.333em;
+    -fx-min-width: 1.333em;
+    -fx-min-height: 1.333em;
+    -fx-fill-height: false;
+    -fx-alignment: center;
+}
+
+ .texteditor .margin .editmarker
+ {
+     -fx-pref-width: 3px;
+ }
+/*
+ .texteditor .margin .scene .image-view
+ {
+     -fx-image: url(/imgs/scene16.png);
+ }
+
+ .texteditor .margin .outlineitem .image-view
+ {
+     -fx-image: url(/imgs/outlineitem16.png);
+ }
+
+ .texteditor .margin .editneedednote .image-view
+ {
+     -fx-image: url(/imgs/edit-needed-note16.png);
+ }
+
+ .texteditor .margin .note .image-view
+ {
+     -fx-image: url(/imgs/note16.png);
+ }
+*/
+ .virtualized-scroll-pane .scroll-bar:vertical *.increment-button .increment-arrow,
+ .virtualized-scroll-pane .scroll-bar:vertical *.decrement-button .decrement-arrow,
+ .virtualized-scroll-pane .scroll-bar:horizontal *.increment-button .increment-arrow,
+ .virtualized-scroll-pane .scroll-bar:horizontal *.decrement-button .decrement-arrow
+ {
+     -fx-shape: null;
+     -fx-padding: 0 0.15em;
+     -fx-background-color: transparent;
+     -fx-pref-height: 0;
+     -fx-pref-width: 0;
+ }
+
+ .virtualized-scroll-pane .scroll-bar:vertical
+ {
+     -fx-pref-width: 0.8em;
+ }
+
+ .virtualized-scroll-pane .scroll-bar .decrement-button,
+ .virtualized-scroll-pane .scroll-bar .increment-button
+ {
+     -fx-padding: 0;
+ }
+
+ .styled-text-area .paragraph-box
+ {
+     /*-fx-padding: 0 0 0em 0;*/
+     /*-rtfx-first-line-indent: 0;*/
+     -fx-padding: 0 0 37px 0;
+ }
+
+.styled-text-area .paragraph-box:last-paragraph
+{
+    -fx-padding: 0;
+}
+
+.menu-item .iconbox > .chapter-icon.icon
+{
+    -fx-pref-width: 1em;
+    -fx-max-width: 1em;
+    -fx-min-width: 1em;
+}
+
+.panel.chapter:typewriterscrolling .texteditor .margin
+{
+    visibility: hidden;
+}
+
+.panel.chapter:typewriterscrolling .virtualized-scroll-pane
+{
+    -fx-vbar-policy: never;
+}
+
+.panel.chapter:typewriterscrolling .margin-bg
+{
+    visibility: hidden;
+}
+
+.panel.chapter:typewriterscrolling .texteditor .margin
+{
+    -fx-pref-width: 0;
+    -fx-max-width: 0;
+    -fx-min-width: 0
+}

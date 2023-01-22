@@ -1,0 +1,17 @@
+/*
+ * Styles related to com.quollwriter.ui.fx.components.TextItemManager
+ */
+.header { -fx-padding: 0.25em 0 0 0; }
+.header .title { -fx-padding: 0; }
+.header .icon { visibility: hidden; }
+.current .header .icon {
+    -fx-padding: 0em;
+    visiblity: hidden;
+}
+.current .list-view { -fx-max-height: 10em; }
+.buttons {
+    -fx-alignment: center-left;
+    -fx-padding: 1em 0.5em 1em 0em;
+}
+.description { -fx-padding: 0 0 0.5em 0.25em; }
+.buttons { -fx-padding: 0.5em 0 0.25em 0; }

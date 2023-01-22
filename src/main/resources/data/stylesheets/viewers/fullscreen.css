@@ -1,0 +1,187 @@
+/*
+ * Base level styles for com.quollwriter.ui.fx.viewers.ProjectFullScreenContent
+ */
+
+ .fullscreen > .header
+ {
+     -fx-border-width: 0 1px 1px 1px;
+     -fx-border-color: -qw-border-color;
+     -fx-padding: 0 0em 0 0.5em;
+     -fx-background-color: -qw-bg-color;
+ }
+
+ .fullscreen > .header .title
+ {
+     -fx-font-size: 2.5em;
+     -fx-padding: 0 0.5em 0 0.5em;
+     /*-fx-max-width: Infinity;*/
+     -fx-text-fill: -fx-text-base-color;
+ }
+
+ .fullscreen > .header .clock
+ {
+     -fx-font-size: 2em;
+     -fx-padding: 0 0.5em 0 0;
+ }
+
+/*
+ .fullscreen > .header.chapter .icon
+ {
+     -fx-image: url(/imgs/chapter24.png);
+ }
+
+ .fullscreen > .header.options .icon
+ {
+     -fx-image: url(/imgs/options24.png);
+ }
+
+ .fullscreen > .header.achievements .icon
+ {
+     -fx-image: url(/imgs/achievement24.png);
+ }
+
+ .fullscreen > .header.statistics .icon
+ {
+     -fx-image: url(/imgs/chart24.png);
+ }
+*/
+/*
+ .fullscreen > .header.ideaboard .icon
+ {
+     -fx-image: url(/imgs/idea24.png);
+ }
+*/
+ .fullscreen .information
+ {
+     -fx-padding: 0.5em 0 0.5em 1em;
+     -fx-border-width: 1px 1px 0 1px;
+     -fx-border-color: -qw-border-color;
+     -fx-background-color: -qw-bg-color;
+ }
+
+ .fullscreen .information .label
+ {
+     -fx-font-size: 1.5em;
+     -fx-padding: 0 1em 0 0;
+ }
+
+.fullscreen .information .label .iconbox,
+.fullscreen .information .label .iconbox .icon
+{
+    -fx-pref-width: 1.333em;
+    -fx-pref-height: 1.333em;
+    -fx-max-height: 1.333em;
+    -fx-min-height: 1.333em;
+    -fx-max-width: 1.333em;
+    -fx-min-width: 1.333em;
+    -fx-fill-height: false;
+    -fx-alignment: center;
+}
+.fullscreen .information .label .iconbox .icon.chapter-icon
+{
+    -fx-pref-width: 1em;
+    -fx-max-width: 1em;
+    -fx-min-width: 1em;
+}
+
+ .fullscreen .sidebars
+ {
+     -fx-background-color: -qw-bg-color;
+     -fx-border-color: -qw-border-color;
+     /*-fx-pref-width: 30em;*/
+ }
+
+ .fullscreen .sidebars:left
+ {
+     -fx-border-width: 1px 1px 1px 0;
+ }
+
+ .fullscreen .panel
+ {
+     -fx-border-width: 1px;
+     -fx-border-color: -qw-border-color;
+ }
+ .fullscreen > .header .iconbox,
+ .fullscreen > .header .iconbox .icon {
+     -fx-pref-width: 2em;
+     -fx-pref-height: 2em;
+     -fx-max-height: 2em;
+     -fx-min-height: 2em;
+     -fx-max-width: 2em;
+     -fx-min-width: 2em;
+     -fx-fill-height: false;
+     -fx-alignment: center;
+ }
+ .fullscreen > .header .label.clock {
+     -fx-content-display: text-only;
+ }
+ .fullscreen > .header .iconbox .ideaboard-icon.icon {
+     -fx-pref-width: 1.333em;
+     -fx-max-width: 1.333em;
+     -fx-min-width: 1.333em;
+ }
+ .fullscreen > .header .iconbox .achievements-icon.icon {
+     -fx-pref-width: 1.333em;
+     -fx-max-width: 1.333em;
+     -fx-min-width: 1.333em;
+ }
+ .fullscreen > .header .iconbox .chapter-icon.icon {
+     -fx-pref-width: 1.666em;
+     -fx-max-width: 1.666em;
+     -fx-min-width: 1.666em;
+ }
+ .fullscreen > .header .iconbox .help-icon.icon {
+     -fx-pref-width: 1.333em;
+     -fx-max-width: 1.333em;
+     -fx-min-width: 1.333em;
+ }
+
+.fullscreen .header .controls
+{
+    -fx-alignment: center-right;
+    -fx-padding: 0 0.5em 0 0.5em;
+}
+
+.fullscreen > .header .progress { -fx-alignment: center; -fx-padding: 0.5em; }
+
+.fullscreen > .header .progress-bar {
+    -fx-pref-height: 24px;
+    -fx-pref-width: 15em;
+    -fx-border-width: 1px;
+    -fx-border-color: -qw-component-border-color;
+}
+
+.fullscreen > .header .controls.configuring .button:dragging,
+.fullscreen > .header .controls.configuring .menu-button:dragging
+{
+    -fx-border-width: 1px;
+    -fx-border-color: -qw-component-border-color;
+    -fx-background-color: -qw-dragging-bg;
+    -fx-opacity: 0.5;
+
+}
+
+.fullscreen > .header .controls.configuring .button:dragover,
+.fullscreen > .header .controls.configuring .menu-button:dragover
+{
+    -fx-border-width: 1px;
+    -fx-border-color: -qw-component-border-color;
+    -fx-background-color: -qw-dragover-bg;
+
+}
+
+.fullscreen > .header .controls.configuring
+{
+    -fx-padding: 0.25em 0.5em 0.25em 2em;
+}
+
+.fullscreen > .header .controls.configuring > *
+{
+    -fx-cursor: closed-hand;
+}
+/*
+.fullscreen > .header .controls > *
+{
+    -fx-padding: 0.25em;
+}
+*/

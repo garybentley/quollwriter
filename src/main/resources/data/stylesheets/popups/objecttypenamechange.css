@@ -1,0 +1,43 @@
+/*
+ * Styles for com.quollwriter.ui.fx.popups.ObjectTypeNameChangePopup
+ */
+.items {
+    -fx-hgap: 0.5em;
+    -fx-vgap: 0.5em;
+    -fx-padding: 0.5em 0 0 0;
+}
+/*
+.items .chapter { -fx-image: url(/imgs/chapter16.png); }
+.items .outlineitem { -fx-image: url(/imgs/outlineitem16.png); }
+.items .scene { -fx-image: url(/imgs/scene16.png); }
+.items .note { -fx-image: url(/imgs/note16.png); }
+.items .project { -fx-image: url(/imgs/project16.png); }
+.items .warmup { -fx-image: url(/imgs/warmup16.png); }
+.items .editor { -fx-image: url(/imgs/editor16.png); }
+*/
+.items .label .iconbox,
+.items .label .iconbox .icon {
+    -fx-pref-height: 1.333em;
+    -fx-pref-width: 1.333em;
+    -fx-fill-height: false;
+    -fx-alignment: center;
+}
+
+.items .label .iconbox .chapter-icon.icon {
+    -fx-pref-width: 1em;
+}
+
+.label.title
+{
+    -fx-content-display: text-only;
+}
+
+.label .iconbox .icon.warmup-icon
+{
+    -fx-pref-width: 1em;
+}
+
+.label .iconbox .icon.editor-icon
+{
+    -fx-pref-width: 1em;
+}

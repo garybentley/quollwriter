@@ -1,0 +1,57 @@
+/*
+ * Styles for com.quollwriter.ui.fx.sidebars.AppearsInChaptersSideBar
+ */
+ .appearsinchapters
+ {
+     -fx-min-width: 20em;
+ }
+
+ .header
+ {
+     -fx-padding: 0 0 0 0.5em;
+ }
+
+.appearsinchapters .header .iconbox,
+.appearsinchapters .header .iconbox .icon {
+    -fx-pref-width: 1.333em;
+    -fx-pref-height: 1.333em;
+    -fx-alignment: center;
+    -fx-fill-height: false;
+}
+
+ .description
+ {
+     -fx-padding: 0 0.5em 0.5em 0.5em;
+ }
+
+ .nomatches
+ {
+     -fx-padding: 0 0.5em 0.5em 0.5em;
+     -fx-font-style: italic;
+ }
+
+ .results .cell .label.chapter
+ {
+     -fx-graphic: url(/imgs/chapter16.png);
+ }
+
+ .results .accordion .tree .cell
+ {
+     -fx-cursor: hand;
+     -fx-padding: 0 0 0 0em;
+ }
+
+ .results .cell .snippet
+ {
+     -fx-graphic: url(/imgs/bullet16.png);
+ }
+
+ .content .results
+ {
+     -fx-padding: 0 0.5em 0.5em 0.5em;
+ }
+
+ .content .results .header
+ {
+     visibility: hidden;
+ }

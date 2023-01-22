@@ -1,0 +1,31 @@
+/*
+ * Styles related to com.quollwriter.ui.fx.components.QuollFileField
+ */
+/*
+ .filefind
+ {
+     -fx-spacing: 0.2em;
+     -fx-max-width: 50em;
+ }
+
+ .filefind .button
+ {
+     -fx-padding: 0.3em;
+     -fx-cursor: hand;
+ }
+
+ .filefind .button.find
+ {
+     -fx-graphic: url(/imgs/find16.png);
+ }
+
+ .filefind .button.view
+ {
+     -fx-graphic: url(/imgs/eye16.png);
+ }
+
+ .filefind .button.clear
+ {
+     -fx-graphic: url(/imgs/clear16.png);
+ }
+*/

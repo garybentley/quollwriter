@@ -1,0 +1,734 @@
+<achievements>
+
+<!--
+  <item id="readability3chaptersover90" category="project" type="readability" chapter="true" algorithm="flesch" wordCount="1000" score=">89">
+    <name>Keeping it simple</name>
+    <description>Have 3 or more chapters, each of at least 1000 words, with a Flesch readability greater than 90.</description>
+  </item>
+
+  <item id="readability3chaptersunder30" category="project" type="readability" chapter="true" algorithm="flesch" wordCount="1000" score="&lt;23">
+    <name>The Thinker</name>
+    <description>Have 3 or more chapters, each of at least 1000 words, with a Flesch readability less than 30.</description>
+  </item>
+-->
+
+  <item id="swear50" englishOnly="true" category="project" hidden="true" icon="warning" type="word" chapter="true" allowRepeats="true" count="50" words="fuck,shit,twat,cunt,piss,wank,asswipe,asshole,bollocks,buttfucker,fucker,fuckwit,motherfucker">
+    <name>Language Timothy!</name>
+    <description>Use 50 swear words in a chapter.</description>
+  </item>
+
+  <item id="exclamation5" englishOnly="true" category="project" icon="warning" hidden="true" type="word" chapter="true" allowRepeats="true" count="5" words="!">
+    <name>I'm not crazy!</name>
+    <description>Use ! 5 times or more in a chapter.</description>
+  </item>
+
+  <item id="speechverbs10" englishOnly="true" category="project" icon="chapter" type="word" chapter="true" allowRepeats="false" count="10" words="reported,questioned,read,added,said,asked,replied,shouted,suggested,commented,described,explained,mentioned,offered,warned,wondered,told,requested">
+    <name>Variation on a theme</name>
+    <description>Use 10 different speech verbs in a chapter.</description>
+  </item>
+
+  <item id="firstsentence" category="project" icon="chapter" type="sentence" sentenceCount="1" chapterCount="1">
+    <name>I've started so I'll finish</name>
+    <description>Write the first sentence of the first chapter.</description>
+  </item>
+<!--
+  <item id="longsentence" category="project" hidden="true" type="sentence" wordCount="100">
+    <name>I'm sorry what was that?</name>
+    <description>Have a 100 word sentence in a chapter.</description>
+  </item>
+
+  <item id="multisyllabicwords" category="project" type="sentence" wordCount="10" syllableCount=">1">
+    <name>There can be only more than one</name>
+    <description>Have a 10 words or longer sentence that only contains multi-syllabic words.</description>
+  </item>
+
+  <item id="singlesyllablewords" category="project" type="sentence" wordCount="10" syllableCount="1">
+    <name>One to One</name>
+    <description>Have a 10 words or longer sentence that only contains single syllable words.</description>
+  </item>
+
+* And I'll tell you something else - Use "and" 5 times or more in a sentence with no intermediate punctuation.
+
+-->
+  <item id="chapter5over5000" category="project" hidden="true" icon="chapter" type="wordcount" chapter="true" count="5" wordCount="5000">
+    <name>Chapters are for the weak</name>
+    <description>Have 5 chapters that are 5,000 words or more.</description>
+  </item>
+
+  <item id="chapterover5000" category="project" icon="chapter" type="wordcount" chapter="true" wordCount="5000">
+    <name>Well... a lot happened</name>
+    <description>Have a chapter that is 5,000 words or more.</description>
+  </item>
+
+  <item id="wordcount1000" category="project" icon="chapter" type="wordcount" wordCount="1000">
+    <name>Getting into it</name>
+    <description>You've written 1,000 words.</description>
+  </item>
+
+  <item id="wordcount7500" category="project" icon="chapter" type="wordcount" wordCount="7500">
+    <name>Novellete</name>
+    <description>You've written 7,500 words.</description>
+  </item>
+
+  <item id="wordcount17500" category="project" icon="chapter" type="wordcount" wordCount="17500">
+    <name>Novella</name>
+    <description>You've written 17,500 words.</description>
+  </item>
+
+  <item id="wordcount40000" category="project" icon="chapter" type="wordcount" wordCount="40000">
+    <name>Novel</name>
+    <description>You've written 40,000 words.</description>
+  </item>
+
+  <item id="wordcount50000" hidden="true" category="project" icon="chapter" type="wordcount" wordCount="50000">
+    <name>Ready for NaNoWriMo</name>
+    <description>You've written 50,000 words.</description>
+  </item>
+
+  <item id="wordcount100000" hidden="true" category="project" icon="chapter" type="wordcount" wordCount="100000">
+    <name>Weighty tome</name>
+    <description>You've written 100,000 words.</description>
+  </item>
+
+  <item id="wordcount200000" hidden="true" category="project" icon="chapter" type="wordcount" wordCount="200000">
+    <name>Gonna need a trolley</name>
+    <description>You've written 200,000 words.</description>
+  </item>
+
+  <item id="wordcount560000" hidden="true" category="project" icon="chapter" type="wordcount" wordCount="560000">
+    <name>War and Peace</name>
+    <description>You've written 560,000 words.</description>
+  </item>
+
+  <item id="hourwrite" category="project" type="session" icon="edit" mins="60" currentSession="true" event="chapter.edit">
+    <name>My fingers ache</name>
+    <description>Write for 60 minutes (with only 5 minute breaks).</description>
+  </item>
+
+  <item id="sessionwords1000" category="project" icon="edit" type="session" wordCount="1000" currentSession="true">
+    <name>On a roll</name>
+    <description>Write 1,000 words or more in one session.</description>
+  </item>
+
+  <item id="sessionwords2000" category="project" icon="edit" type="session" wordCount="2000" currentSession="true">
+    <name>Tearing up the keys</name>
+    <description>Write 2,000 words or more in one session.</description>
+  </item>
+
+  <item id="sessionwords5000" category="project" icon="edit"  type="session" wordCount="5000" currentSession="true">
+    <name>Pact with the devil</name>
+    <description>Write 5,000 words or more in one session.</description>
+  </item>
+
+  <item id="session5sessions500words" category="project" icon="edit" type="session" count="5" days="7" wordCount="500" event="project.open,close">
+    <name>Steaming ahead</name>
+    <description>Over the course of 7 days have 5 or more writing sessions where you write 500 words or more.</description>
+  </item>
+
+  <item id="sessionEditChapters3" category="project" icon="edit" type="session" count="3" currentSession="true" event="chapter.edit">
+    <name>A little of this, a little of that</name>
+    <description>Edit 3 chapters in one writing session.</description>
+  </item>
+
+  <item id="noeditdays7" category="project" type="session" icon="edit" days="7" action="noedit" eventName="project.close">
+    <name>Thinking time</name>
+    <description>Don't edit your project for 7 days.</description>
+  </item>
+
+  <item id="noeditdays14" category="project" type="session" icon="edit" days="14" action="noedit" eventName="project.close">
+    <name>Have you forgotten about me?</name>
+    <description>Don't edit your project for 14 days.</description>
+  </item>
+
+  <item id="noeditdays28" category="project" type="session" icon="edit" days="28" action="noedit" eventName="project.close">
+    <name>No one visits me anymore</name>
+    <description>Don't edit your project for 28 days.</description>
+  </item>
+
+  <item id="autosaveon" category="user" icon="save" type="event" event="autosave.on">
+    <name>Save me</name>
+    <description>Turn on auto-save.</description>
+  </item>
+
+  <item id="autosaveoff" category="user" icon="save" type="event" event="autosave.off">
+    <name>I'll save myself thanks</name>
+    <description>Turn off auto-save.</description>
+  </item>
+
+  <item id="movetoolbar" category="user" icon="move" type="event" event="toolbar.move">
+    <name>I did it my way</name>
+    <description>Move the toolbar location.</description>
+  </item>
+
+  <item id="moveprojectdir" category="user" type="event" icon="project" event="project.changedirectory">
+    <name>Move out</name>
+    <description>Change the project directory.</description>
+  </item>
+<!--
+  <item id="deleteproject" category="user" type="event" icon="project" eventName="project" action="delete">
+    <name>I'm better off without you</name>
+    <description>Delete a project.</description>
+  </item>
+-->
+  <item id="renameproject" category="user" type="event" icon="project" event="project.rename">
+    <name>A Book by Any Other Name</name>
+    <description>Rename your project.</description>
+  </item>
+
+  <item id="spellcheckon" category="user" icon="spellchecker" type="event" event="spellcheck.on">
+    <name>I'll be glad to be rid of them</name>
+    <description>Turn on the spellchecker.</description>
+  </item>
+
+  <item id="typewritersoundon" category="user" icon="sound" type="event" event="typewritersound.on">
+    <name>Old School</name>
+    <description>Turn on the typewriter sound and listen to the clackity clack of years gone by.</description>
+  </item>
+
+  <item id="checkwordcounts" category="project" type="event" icon="wordcount" event="wordcounts.show">
+    <name>How am I doing?</name>
+    <description>You checked the word counts, have you written as much as you think?</description>
+  </item>
+
+  <item id="wordcounthistory" category="project" type="event" icon="statistics" event="showchart.per-chapter-word-counts">
+    <name>Historian</name>
+    <description>You checked the word count history, are those lines going up?</description>
+  </item>
+
+  <item id="addscene1" category="project" type="item" icon="scene" objectType="scene" count="1" action="new">
+    <name>Seen it</name>
+    <description>Add a {Scene}.</description>
+  </item>
+
+  <item id="addscene5" category="project" type="item" icon="scene" objectType="scene" count="5" action="new">
+    <name>Bringing order to chaos</name>
+    <description>Add 5 {Scenes}.</description>
+  </item>
+
+  <item id="addplotoutlineitem1" category="project" type="item" icon="outlineitem" objectType="outlineitem" action="new">
+    <name>So that's where it is</name>
+    <description>Add a {Outlineitem}.</description>
+  </item>
+
+  <item id="addplotoutlineitem5" category="project" type="item" icon="outlineitem" objectType="outlineitem" count="5" action="new">
+    <name>It's all becoming clear</name>
+    <description>Add 5 {Outlineitems}.</description>
+  </item>
+
+  <item id="addidea" category="project" type="item" icon="idea" objectType="idea" action="new">
+    <name>The Apple falls</name>
+    <description>Add an {Idea}.</description>
+  </item>
+
+  <item id="addidea5" category="project" type="item" icon="idea" objectType="idea" count="5" action="new">
+    <name>Brain dump</name>
+    <description>Add 5 {Ideas}.</description>
+  </item>
+
+  <item id="addidea10" category="project" type="item" icon="idea" objectType="idea" count="10" action="new">
+    <name>Einstein-a-go-go</name>
+    <description>Add 10 {Ideas}.</description>
+  </item>
+
+  <item id="addidea20" category="project" type="item" icon="idea" objectType="idea" count="20" action="new">
+    <name>So many ideas, so little time</name>
+    <description>Add 20 {Ideas}.</description>
+  </item>
+
+  <item id="addideatype" category="project" type="item" icon="idea" objectType="ideatype" action="new">
+    <name>Call the Patent Office</name>
+    <description>Add a new type of {Idea}.</description>
+  </item>
+
+  <item id="sortideas" category="project" type="event" icon="idea" event="idea.sort">
+    <name>All sorted</name>
+    <description>Sort your ideas.</description>
+  </item>
+
+  <item id="rateideas" category="project" type="event" icon="idea" event="idea.rate">
+    <name>Some are more equal than others</name>
+    <description>Rate your ideas.</description>
+  </item>
+
+  <item id="addlocation" category="project" type="item" icon="location" count="1" asset="true" objectType="location" action="new">
+    <name>Home sweet home</name>
+    <description>Add {Location}.</description>
+  </item>
+
+  <item id="addlocation5" category="project" type="item" icon="location" asset="true" objectType="location" count="5" action="new">
+    <name>Building the world</name>
+    <description>Add 5 {Locations}.</description>
+  </item>
+
+  <item id="addlocation10" category="project" type="item" icon="location" asset="true" objectType="location" count="10" action="new">
+    <name>Gonna need a map</name>
+    <description>Add 10 {Locations}.</description>
+  </item>
+
+  <item id="addlocation20" category="project" type="item" icon="location" asset="true" objectType="location" count="20" action="new">
+    <name>All your base are belong to us</name>
+    <description>Add 20 {Locations}.</description>
+  </item>
+
+  <item id="addcharacter" category="project" type="item" icon="character" asset="true" objectType="character" action="new">
+    <name>The name's Smith, probably</name>
+    <description>Add a {Character}.</description>
+  </item>
+
+  <item id="addcharacter5" category="project" type="item" icon="character" asset="true" objectType="character" count="5" action="new">
+    <name>Quartet plus one</name>
+    <description>Add 5 {Characters}.</description>
+  </item>
+
+  <item id="addcharacter10" category="project" type="item" icon="character" asset="true" objectType="character" count="10" action="new">
+    <name>I'm sorry I've completely forgotten your name</name>
+    <description>Add 10 {Characters}.</description>
+  </item>
+
+  <item id="addobject5" category="project" type="item" icon="object" asset="true" objectType="object" count="5" action="new">
+    <name>Itemized</name>
+    <description>Add 5 {Objects}.</description>
+  </item>
+
+  <item id="addobject10" category="project" type="item" icon="object" asset="true" objectType="object" count="10" action="new">
+    <name>All the things</name>
+    <description>Add 10 {Characters}.</description>
+  </item>
+
+  <item id="manageitemtypes" category="user" type="event" icon="edit" event="itemtypes.show">
+    <name>Spring cleaning</name>
+    <description>Manage the item types.</description>
+  </item>
+
+  <item id="problemfindershow" category="user" type="event" icon="eye" event="problemfinder.show">
+    <name>Things can only get better</name>
+    <description>Use the problem finder.</description>
+  </item>
+
+  <item id="problemfindernewrule" category="user" icon="eye" type="event" event="problemfinder.newrule">
+    <name>I set the rules</name>
+    <description>Add a new rule for the problem finder.</description>
+  </item>
+
+  <item id="problemfindereditrule" category="user" icon="eye" type="event" event="problemfinder.editrule">
+    <name>I prefer it like this</name>
+    <description>Edit an existing rule in the problem finder.</description>
+  </item>
+
+  <item id="problemfinderignore10" category="user" type="event" icon="eye" event="problemfinder.ignore" count="10">
+    <name>They're your rules not mine</name>
+    <description>Ignore 10 problems found by the problem finder.</description>
+  </item>
+
+  <item id="problemfinderunignore" category="user" type="event" icon="eye" event="problemfinder.unignore">
+    <name>On second thoughts...</name>
+    <description>Un-ignore a problem found by the problem finder.</description>
+  </item>
+
+  <item id="changespellchecklanguage" icon="spellchecker" category="user" type="event" event="spellcheck.changelanguage">
+    <name>They talk so funny over there</name>
+    <description>Change the spellcheck language.</description>
+  </item>
+
+  <item id="usehelp" category="user" type="event" icon="help" event="help.show">
+    <name>Help me Obi Wan Kenobi</name>
+    <description>Use the help.</description>
+  </item>
+
+  <item id="submitbugreport" category="user" icon="bug" type="event" event="bugreport.submit">
+    <name>Exterminate!</name>
+    <description>Submit a bug report.</description>
+  </item>
+
+  <item id="showaboutmenu" category="user" icon="help" type="event" event="about.show">
+    <name>See you do care</name>
+    <description>Click on the "About Quoll Writer" menu item.</description>
+  </item>
+
+  <item id="movechapter" category="project" type="event" icon="chapter" event="chapter.move">
+    <name>First we do this, then this</name>
+    <description>Move a chapter.</description>
+  </item>
+
+  <item id="deletechapter" category="project" icon="chapter" type="event" event="chapter.delete">
+    <name>It just wasn't working darling</name>
+    <description>Delete a chapter.</description>
+  </item>
+
+  <item id="export" category="user" type="event" icon="export" event="export">
+    <name>Export Duty</name>
+    <description>Export your {project}.</description>
+  </item>
+
+  <item id="import" category="project" type="event" icon="import" event="import">
+    <name>Something Important</name>
+    <description>Import something into your project.</description>
+  </item>
+
+  <item id="synonymreplace5" category="project" type="event" icon="find" event="synonym.replace" count="5">
+    <name>Keeping it fresh</name>
+    <description>Replace 5 words with synonyms.</description>
+  </item>
+
+  <item id="synonymreplace10" category="project" type="event" icon="find" event="synonym.replace" count="10">
+    <name>New for old</name>
+    <description>Replace 10 words with synonyms.</description>
+  </item>
+
+  <item id="fullscreenmode" category="user" type="event" icon="fullscreen" event="fullscreen.enter">
+    <name>Don't distract me</name>
+    <description>Write in full screen mode.</description>
+  </item>
+
+  <item id="addnote" category="project" type="item" icon="note" objectType="note" action="new">
+    <name>So noted</name>
+    <description>Add a note.</description>
+    <match accessor="editNeeded"
+           value="false" />
+  </item>
+
+  <item id="addnote5" category="project" type="item" icon="note" objectType="note" count="5" action="new">
+    <name>Scribbler</name>
+    <description>Add 5 notes.</description>
+    <match accessor="editNeeded"
+           value="false" />
+  </item>
+
+  <item id="spellcheckreplace" category="user" type="event" icon="spellchecker" event="spellcheck.replace" count="1">
+    <name>Correct me if I'm wrong</name>
+    <description>Change a word via the spellchecker.</description>
+  </item>
+
+  <item id="spellcheckreplace5" category="user" icon="spellchecker" type="event" event="spellcheck.replace" count="5">
+    <name>Butterfingers</name>
+    <description>Change 5 words via the spellchecker.</description>
+  </item>
+
+  <item id="spellcheckreplace20" category="user" type="event" icon="spellchecker" event="spellcheck.replace" count="20">
+    <name>I'll sort it later</name>
+    <description>Change 20 words via the spellchecker.</description>
+  </item>
+
+  <item id="spellcheckreplace50" category="user" type="event" icon="spellchecker" event="spellcheck.replace" count="50">
+    <name>Be gone little red lines</name>
+    <description>Change 50 words via the spellchecker.</description>
+  </item>
+
+  <item id="addchapter5" category="project" icon="chapter" type="item" objectType="chapter" count="5" action="new">
+    <name>Chapter and Verse</name>
+    <description>Create 5 {Chapters}.</description>
+  </item>
+
+  <item id="addchapter10" category="project" icon="chapter" type="item" objectType="chapter" count="10" action="new">
+    <name>Meaty</name>
+    <description>Create 10 {Chapters}.</description>
+  </item>
+
+  <item id="addchapter20" category="project" icon="chapter" type="item" objectType="chapter" count="20" action="new">
+    <name>Bulking up</name>
+    <description>Create 20 {Chapters}.</description>
+  </item>
+
+  <item id="addchapter50" category="project" icon="chapter" type="item" objectType="chapter" count="50" action="new">
+    <name>Look out Tolstoy!</name>
+    <description>Create 50 {Chapters}.</description>
+  </item>
+
+  <item id="addeditneedednote1" category="project" icon="note" type="item" objectType="note" count="1" action="new">
+    <name>Where's my red pen?</name>
+    <description>Create an Edit Needed {Note}.</description>
+    <match accessor="editNeeded"
+           value="true" />
+  </item>
+
+  <item id="addeditneedednote5" category="project" icon="note" type="item" objectType="note" count="5" action="new">
+    <name>I'll fix it next time round</name>
+    <description>Create 5 Edit Needed {Notes}.</description>
+    <match accessor="editNeeded"
+           value="true" />
+  </item>
+
+  <item id="addeditneedednote10" category="project" icon="note" type="item" objectType="note" count="10" action="new">
+    <name>Need a fresh pot of coffee</name>
+    <description>Create 10 Edit Needed {Notes}.</description>
+    <match accessor="editNeeded"
+           value="true" />
+  </item>
+
+  <item id="addtodonote10" category="project" icon="note" type="item" objectType="note" count="10" action="new">
+    <name>So much to do</name>
+    <description>Create 10 "To Do" {Notes}.</description>
+    <match accessor="type"
+           value="To Do" />
+  </item>
+
+  <item id="addresearchitem" category="project" icon="researchitem" type="item" asset="true" objectType="researchitem" action="new">
+    <name>Backed up with facts</name>
+    <description>Create a {Research Item}.</description>
+  </item>
+
+  <item id="addresearchitem5weblinks" category="project" icon="researchitem" type="item" objectType="researchitem" action="new" count="5">
+    <name>I'll check on it later</name>
+    <description>Create {Research Item} with web links.</description>
+    <match accessor="url"
+           value="!null" />
+  </item>
+<!--
+  There is no social accessor in ResearchItem!
+  <item id="addresearchitemsocialweblink" category="project" icon="researchitem" type="item" objectType="researchitem" action="new">
+    <name>The Hive mind has spoken</name>
+    <description>Create a {Research Item} with a social media site link.</description>
+    <match accessor="social"
+           value="true" />
+  </item>
+-->
+  <item id="personaldictionaryaddword" category="user" icon="edit" type="event" event="personaldictionary.addword">
+    <name>I'll be needing that later</name>
+    <description>Add a word to your personal dictionary.</description>
+  </item>
+
+  <item id="managepersonaldictionary" category="user" icon="edit" type="event" event="personaldictionary.show">
+    <name>I'll spell it my way damnit</name>
+    <description>Manage your personal dictionary.</description>
+  </item>
+
+  <item id="showfind" category="user" type="event" icon="find" event="find.show">
+    <name>I know I put it somewhere</name>
+    <description>Use the global find.</description>
+  </item>
+
+  <item id="aliascharacter" category="project" icon="character" type="item" objectType="character" actions="new,edit">
+    <name>They call me Smith</name>
+    <description>Have an alias for a character.</description>
+    <match accessor="aliases"
+           value="!null" />
+  </item>
+
+  <item id="ideaboardbackgroundchange" category="user" icon="idea" type="event" event="ideaboard.changebackground">
+    <name>Seeing my ideas in a new way</name>
+    <description>Change the Idea Board background.</description>
+  </item>
+
+  <item id="usestyle" category="user" icon="bold" type="event" event="chapter.bold,italic,underline">
+    <name>A little salt and pepper</name>
+    <description>Use bold, italic or underline on the text.</description>
+  </item>
+
+  <item id="convertwarmuptoproject" category="user" icon="warmups" type="event" event="warmup.converttoproject">
+    <name>Playtime is over</name>
+    <description>Convert a warm-up to a project.</description>
+  </item>
+
+  <item id="addwarmup5" category="user" icon="warmups" type="event" event="warmup.new" count="5">
+    <name>Warming up</name>
+    <description>Create 5 warm-ups.</description>
+  </item>
+
+  <item id="addownprompt" category="user" icon="warmups" type="event" event="warmup.createownprompt">
+    <name>Ideas Man</name>
+    <description>Write your own warm-up prompt.</description>
+  </item>
+
+  <item id="addownprompt5" category="user" icon="warmups" type="event" event="warmup.createownprompt" count="5">
+    <name>I amuse myself</name>
+    <description>Write 5 of your own warm-up prompts.</description>
+  </item>
+
+  <item id="warmuponstart" category="user" icon="warmups" type="event" event="warmup.warmuponstartup">
+    <name>Flex and stretch</name>
+    <description>Do a warm-up when Quoll Writer starts.</description>
+  </item>
+
+  <item id="warmupwordsreached" category="user" icon="clock" type="event" event="warmup.wordcountreached">
+    <name>Beating the clock</name>
+    <description>Do a warm-up and write the selected number of words before the timer runs out.</description>
+  </item>
+
+  <item id="warmuptimerrestart" category="user" icon="clock" type="event" event="warmup.timerrestart">
+    <name>I'm on a roll</name>
+    <description>Continue the warm-up after the timer runs out/word count is reached.</description>
+  </item>
+
+  <item id="settingschange" category="user" icon="settings" type="event" event="textproperties.changefontcolor,textproperties.changebgcolor,textproperties.changelinespacing,textproperties.changealignment,textproperties.changefontsize,textproperties.changefont,textproperties.changehighlightwritingline,textproperties.changelineindent,textproperties.changetextborder">
+    <name>Setting up</name>
+    <description>Change the colors/settings in normal mode.</description>
+  </item>
+
+  <item id="fullscreentimerstart" category="user" icon="clock" type="event" event="chapter.timerstarted">
+    <name>Stay on target</name>
+    <description>Use the timer in full screen mode.</description>
+  </item>
+
+  <item id="fullscreensettingschange" category="user" icon="fullscreen" type="event" event="fullscreen.changefontcolor,fullscreen.changebgcolor,fullscreen.changelinespacing,fullscreen.changealignment,fullscreen.changefontsize,fullscreen.changefont,fullscreen.changehighlightwritingline,fullscreen.changelineindent,fullscreen.changetextborder">
+    <name>My way or the highway</name>
+    <description>Change the colors/settings for full screen mode.</description>
+  </item>
+
+  <item id="fullscreensbgchange" category="user" icon="fullscreen" type="event" event="fullscreen.changebgopacity,changebordersize">
+    <name>Window of the soul</name>
+    <description>Change the size of the display and/or the background transparency in full screen mode.</description>
+  </item>
+
+  <item id="fullscreensbgimage" category="user" icon="fullscreen" type="event" event="fullscreen.changebgimage">
+    <name>My own private Zen</name>
+    <description>Change the background image in full screen mode.</description>
+  </item>
+
+  <item id="backupnew" category="user" icon="backup" type="event" event="backups.new">
+    <name>I need backup!</name>
+    <description>Create a backup for a {project}.</description>
+  </item>
+
+  <item id="backupsshow" category="user" icon="backup" type="event" event="backups.show">
+    <name>I've got your back</name>
+    <description>View the backups for a {project}.</description>
+  </item>
+
+  <item id="tips5" category="user" type="event" icon="help" currentSession="true" event="tips.show" count="5">
+    <name>Tipster</name>
+    <description>View more than 5 tips.</description>
+  </item>
+
+  <item id="addinvite"
+        category="user"
+        type="editor-message"
+        icon="editors"
+        messageTypes="invite"
+        count="1">
+    <name>It begins!</name>
+    <description>Send an invite to an {editor}.</description>
+  </item>
+
+  <item id="addinvite3"
+        category="user"
+        type="editor-message"
+        icon="editors"
+        messageTypes="invite"
+        count="3">
+    <name>Assembling the team</name>
+    <description>Invite 3 {editors}.</description>
+  </item>
+
+  <item id="addinvite5"
+        category="user"
+        type="editor-message"
+        icon="editors"
+        messageTypes="invite"
+        count="5">
+    <name>Editing Avengers</name>
+    <description>Invite 5 {editors}.</description>
+  </item>
+
+  <item id="acceptinvite"
+        category="user"
+        type="editor-message"
+        icon="editors"
+        messageTypes="invite-response"
+        count="1">
+    <name>Not your buddy, guy!</name>
+    <description>Accept an invite from {a contact}.</description>
+    <match accessor="accepted"
+           value="true" />
+  </item>
+
+  <item id="acceptinvite3"
+        category="user"
+        type="editor-message"
+        icon="editors"
+        messageTypes="invite-response"
+        count="3">
+    <name>I'm not your guys, buddies... no wait...</name>
+    <description>Accept 3 {contact} invites.</description>
+    <match accessor="accepted"
+           value="true" />
+  </item>
+
+  <item id="inviteaccepted"
+        category="user"
+        type="editor-message"
+        icon="editors"
+        messageTypes="invite-response"
+        sentByMe="false"
+        count="1">
+    <name>Not alone in this</name>
+    <description>Receive an invite acceptance from {a contact}.</description>
+    <match accessor="accepted"
+           value="true" />
+  </item>
+
+  <item id="inviteaccepted3"
+        category="user"
+        type="editor-message"
+        icon="editors"
+        messageTypes="invite-response"
+        sentByMe="false"
+        count="3">
+    <name>Team Building</name>
+    <description>Receive invite acceptances from 3 {contacts}.</description>
+    <match accessor="accepted"
+           value="true" />
+  </item>
+
+  <item id="acceptprojectinvite"
+        category="user"
+        type="editor-message"
+        icon="editors"
+        messageTypes="project-new-response">
+    <name>I'm your [wo]man</name>
+    <description>Accept an invite to edit a {project}.</description>
+    <match accessor="accepted"
+           value="true" />
+  </item>
+
+  <item id="acceptprojectinvite3"
+        category="user"
+        type="editor-message"
+        icon="editors"
+        messageTypes="project-new-response"
+        count="3">
+    <name>Team Player</name>
+    <description>Accept 3 invitations to edit a {project}.</description>
+    <match accessor="accepted"
+           value="true" />
+  </item>
+
+  <item id="sendproject"
+        category="user"
+        type="editor-message"
+        icon="project"
+        count="1"
+        messageTypes="project-new">
+    <name>Projecting</name>
+    <description>Send a {project} to {an editor}.</description>
+  </item>
+
+  <item id="sendproject3"
+        category="user"
+        type="editor-message"
+        icon="project"
+        messageTypes="project-new"
+        count="3">
+    <name>Many eyes</name>
+    <description>Send a {project} to 3 {editors}.</description>
+  </item>
+
+  <item id="updateproject"
+        category="user"
+        type="editor-message"
+        icon="editors"
+        count="1"
+        messageTypes="project-update">
+    <name>Wait, what about this version</name>
+    <description>Send a {project} update to {an editor}.</description>
+  </item>
+
+  <item id="projectcomments"
+        category="user"
+        type="editor-message"
+        icon="comment"
+        messageTypes="project-comments">
+    <name>I've got something to say</name>
+    <description>Send some comments about a {project}.</description>
+  </item>
+
+</achievements>

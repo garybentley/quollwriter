@@ -1,0 +1,93 @@
+/*
+ * Used by: com.quollwriter.ui.fx.popups.ColorChooser
+ */
+ .qpopup.colorchooser .scroll-pane
+ {
+     -fx-pref-height: 13em;
+ }
+
+ .qpopup.colorchooser .swatches
+ {
+     -fx-hgap: 0em;
+     -fx-vgap: 0em;
+     -fx-padding: 0 0 0.5em 0.5em;
+ }
+
+ .qpopup.colorchooser .preview
+ {
+     /*-fx-pref-width: 20em;*/
+     -fx-max-width: 50em;
+     -fx-pref-height: 3em;
+     -fx-border-width: 1px;
+     -fx-border-color: -qw-component-border-color;
+ }
+
+ .qpopup.colorchooser :selected .colorswatch
+ {
+     -fx-border-color: -qw-selected-border-color;
+     -fx-effect: -qw-selected-effect;
+ }
+
+ .qpopup.colorchooser :hover .colorswatch
+ {
+     -fx-border-color: -qw-selected-border-color;
+     -fx-effect: -qw-selected-effect;
+ }
+
+ .qpopup.colorchooser .content .header
+ {
+     -fx-padding: 0;
+ }
+
+.qpopup.colorchooser .content .header .iconbox {
+    visibility: false;
+}
+
+ .qpopup.colorchooser .content .header .title
+ {
+     -fx-padding: 0 0 0 0;
+ }
+
+ .qpopup.colorchooser .content .header .icon
+ {
+     visibility: hidden;
+ }
+
+ .qpopup.colorchooser .colorswatch
+ {
+     -fx-max-height: 3.5em;
+     -fx-pref-height: 3.5em;
+     -fx-min-height: 3.5em;
+     -fx-max-width: 3.5em;
+     -fx-pref-width: 3.5em;
+     -fx-min-width: 3.5em;
+     -fx-effect: -qw-no-effect-spacer;
+ }
+
+ .qpopup.colorchooser .form .label
+ {
+     -fx-min-width: 4em;
+ }
+
+ .qpopup.colorchooser .items
+ {
+     -fx-padding: 0;
+ }
+
+ .colorchooser .type
+ {
+     -fx-alignment: center-left;
+     -fx-spacing: 0.5em;
+ }
+
+ .colorchooser .type .spinner
+ {
+     -fx-max-width: 6em;
+ }
+
+ .colorchooser .text-field
+ {
+     -fx-min-width: 7em;
+     -fx-pref-width: 7em;
+     -fx-max-width: 7em;
+ }

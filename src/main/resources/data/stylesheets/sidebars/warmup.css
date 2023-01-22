@@ -1,0 +1,42 @@
+/**
+ * The styles for the warm-ups sidebar, com.quollwriter.ui.fx.sidebars.WarmupsSideBar
+ */
+.sidebar.warmup > .header
+{
+    visibility: hidden;
+}
+
+.content {
+    -fx-min-width: 19.5em;
+    /*-fx-pref-width: 20em;*/
+}
+
+.scroll-pane
+{
+    -fx-fit-to-width: true;
+}
+
+.header .title
+{
+    -fx-font-size: 1.6em;
+}
+
+.prompt
+{
+    -fx-padding: 0 0.5em 0.5em 0.5em;
+}
+
+.prompt .qtextview
+{
+    -fx-padding: 0 0 0 0.5em;
+}
+
+.accordion.warmup .header .title
+{
+    -fx-font-size: 1.3em;
+}
+
+.accordion.warmup
+{
+    -fx-padding: 0 0 0.25em 0.5em;
+}

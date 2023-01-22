@@ -1,0 +1,15 @@
+/**
+ * Styles for the editing a chapter for a contact, class: com.quollwriter.editors.ui.panels.EditorChapterPanel
+ * This component also uses styles from panels/chapteredit.css
+ */
+ .texteditor .margin, .margin-bg
+ {
+     -fx-pref-width: 2.532em;
+     -fx-max-width: 2.532em;
+     -fx-min-width: 2.532em;
+     /*
+      * This indent is from the "left" edge of the margin.  It doesn't take the size of the margin into account nor does it account
+      * for the note ident.  So you can have a margin that is too small to display the item.
+      */
+     -qw-note-item-indent: 0.5em;
+ }
