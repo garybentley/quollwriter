@@ -97,7 +97,7 @@ public abstract class UserConfigurableObjectTypeField extends NamedObject
     private String formName = null;
     private Type type = null;
     private UserConfigurableObjectType userConfigType = null;
-    private Map<String, Object> definition = new HashMap ();
+    private Map<String, Object> definition = new HashMap<> ();
     private String defValue = null;
     private int order = -1;
 
@@ -608,6 +608,14 @@ public abstract class UserConfigurableObjectTypeField extends NamedObject
     {
 
         return this.type;
+
+    }
+
+    @Override
+    public boolean supportsLinks ()
+    {
+
+        return false;
 
     }
 

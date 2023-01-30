@@ -596,6 +596,8 @@ OLD? DBCP1
         // GAH... this is soooo bad...
         if ((!this.supportsLinks ())
             ||
+            (!d.supportsLinks ())
+            ||
             (d instanceof Project)
            )
         {
@@ -2490,6 +2492,7 @@ TODO REmove
     }
 
     public void setProject (Project p)
+                     throws GeneralException
     {
 
         if (this.project != null)
@@ -2503,6 +2506,8 @@ TODO REmove
         p.setProjectDirectory (this.dir);
 
         this.project = p;
+
+        // TODO Remove this.checkAndImportUserObjectFields (null);
 
     }
 
@@ -2541,6 +2546,13 @@ TODO REmove
 
             }
 
+            proj.setProjectDirectory (this.dir);
+
+            this.project = proj;
+
+            // For v3+ we move the user object type fields into each project.
+            // NO!!! this.checkAndImportUserObjectFields (conn);
+
         } catch (Exception e)
         {
 
@@ -2554,14 +2566,189 @@ TODO REmove
 
         }
 
-        proj.setProjectDirectory (this.dir);
-
-        this.project = proj;
-
         return this.project;
 
     }
 
+    // A method for moving the user object type definitions into the local project, introduced in v3.
+    /*
+    TODO REMOVE
+    private void checkAndImportUserObjectFields (Connection conn)
+                                          throws GeneralException
+    {
+
+        boolean close = false;
+
+        try
+        {
+
+            if (conn == null)
+            {
+
+                conn = this.getConnection ();
+                close = true;
+
+            }
+
+            if (this.project.getUserConfigurableObjectType (Chapter.OBJECT_TYPE) == null)
+            {
+
+                // This means we don't have the user config types set up.
+                Map<UserConfigurableObjectType, UserConfigurableObjectType> tmappings = new HashMap<> ();
+
+                // Old (Env) -> New (Proj)
+                Map<UserConfigurableObjectTypeField, UserConfigurableObjectTypeField> fmappings = new HashMap<> ();
+
+                // Get current types/fields.
+                Set<UserConfigurableObjectType> objTypes = Environment.getUserConfigurableObjectTypes ();
+
+                // Create a mapping between type/field.
+                for (UserConfigurableObjectType t : objTypes)
+                {
+
+                    UserConfigurableObjectType nt = new UserConfigurableObjectType ();
+                    nt.setName (t.getName ());
+                    nt.setDescription (t.getDescription ());
+                    nt.setObjectTypeNamePlural (t.getObjectTypeNamePlural ());
+                    nt.setIcon16x16 (t.getIcon16x16 ());
+                    nt.setIcon24x24 (t.getIcon24x24 ());
+                    nt.setLayout (t.getLayout ());
+                    nt.setUserObjectType (t.getUserObjectType ());
+                    nt.setAssetObjectType (t.isAssetObjectType ());
+                    nt.setCreateShortcutKeyStroke (t.getCreateShortcutKeyStroke ());
+                    nt.setIgnoreFieldsState (true);
+
+                    // Create the new type.
+                    this.saveObject (nt,
+                                     conn);
+
+                    tmappings.put (t,
+                                   nt);
+
+                    // Get the fields and create them.
+                    for (UserConfigurableObjectType.FieldsColumn fc : t.getSortableFieldsColumns ())
+                    {
+
+                        List<UserConfigurableObjectTypeField> nfcfields = new ArrayList<> ();
+
+                        // Clone/create fields.
+                        for (UserConfigurableObjectTypeField fft : fc.fields ())
+                        {
+
+                            // Get the field.
+                            UserConfigurableObjectTypeField nft = fmappings.get (fft);
+
+                            if (nft == null)
+                            {
+
+                                // Create the field.
+                                nft = UserConfigurableObjectTypeField.Type.getNewFieldForType (fft.getType ());
+
+                                nft.setFormName (fft.getFormName ());
+                                nft.setUserConfigurableObjectType (nt);
+
+                                Map<String, Object> defs = new HashMap<> ();
+                                defs.putAll (fft.getDefinition ());
+                                nft.setDefinition (defs);
+                                nft.setDefaultValue (fft.getDefaultValue ());
+
+                                nft.setOrder (fft.getOrder ());
+
+                                this.saveObject (nft,
+                                                 conn);
+
+                                fmappings.put (fft,
+                                               nft);
+
+                            }
+
+                            nfcfields.add (nft);
+
+                        }
+
+                        UserConfigurableObjectType.FieldsColumn nfc = nt.addNewColumn (nfcfields);
+                        nfc.setTitle (fc.getTitle ());
+                        nfc.setShowFieldLabels (fc.isShowFieldLabels ());
+
+                    }
+
+                    nt.setIgnoreFieldsState (false);
+
+                    // Save the type again.
+                    this.saveObject (nt,
+                                     conn);
+
+                    Set<Asset> assets = this.project.getAssets (t);
+
+                    for (Asset a : assets)
+                    {
+
+                        // Set the type.
+                        UserConfigurableObjectType at = a.getUserConfigurableObjectType ();
+
+                        UserConfigurableObjectType nat = tmappings.get (at);
+
+                        System.out.println ("ASSET TYPE: " + nat);
+
+                        for (UserConfigurableObjectField f : a.getFields ())
+                        {
+
+                            UserConfigurableObjectTypeField tf = f.getUserConfigurableObjectTypeField ();
+
+                            // Get our new field.
+                            UserConfigurableObjectTypeField nf = fmappings.get (tf);
+
+                            if (nf == null)
+                            {
+
+                                System.out.println ("CANT FIND FOR: " + tf.getKey ());
+
+                            } else {
+
+                                System.out.println ("GOT: " + nf + " ::: " + tf);
+
+                            }
+
+                            // Update the field.
+                            f.setUserConfigurableObjectTypeField (nf);
+
+                        }
+
+                        // Update the type
+                        a.setUserConfigurableObjectType (nat);
+
+                        // Save the asset.
+                        this.saveObject (a,
+                                         conn);
+
+                        // Run this to set up the foreign key
+                        //   ALTER TABLE userobjectfield ADD CONSTRAINT userobjfield_userobjecttypefielddbkey___userobjecttypefield_dbkey_fk FOREIGN KEY(dbkey) REFERENCES userobjecttypefield(dbkey)
+
+
+                    }
+
+                }
+
+            }
+
+        } catch (Exception e) {
+
+            throw new GeneralException ("Unable to update schema for userobjecttype tables/fields.",
+                                        e);
+
+        } finally {
+
+            if (close)
+            {
+
+                this.releaseConnection (conn);
+
+            }
+
+        }
+
+    }
+*/
     public ResultSet executeQuery (String     sql,
                                    List       params,
                                    Connection conn)

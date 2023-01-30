@@ -53,6 +53,8 @@ public class ProjectDataHandler implements DataHandler<Project, NamedObject>
 
             Connection conn = rs.getStatement ().getConnection ();
 
+            rs.close ();
+
             if (pv != null)
             {
 
@@ -114,6 +116,7 @@ public class ProjectDataHandler implements DataHandler<Project, NamedObject>
 
                 }
   */
+
                 this.objectManager.getObjects (Book.class,
                                                p,
                                                conn,

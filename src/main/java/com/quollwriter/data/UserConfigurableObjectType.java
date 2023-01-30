@@ -24,10 +24,9 @@ public class UserConfigurableObjectType extends NamedObject
     public static final String OBJECT_TYPE_NAME = "objectTypeName";
     public static final String OBJECT_TYPE = "userconfigobjtype";
 
-    private String objectTypeNamePlural = null;
     private StringProperty objectTypeNamePluralProp = null;
-    private Image icon24x24 = null;
-    private Image icon16x16 = null;
+    //private Image icon24x24 = null;
+    //private Image icon16x16 = null;
     private ObjectProperty<Image> icon16x16Prop = null;
     private ObjectProperty<Image> icon24x24Prop = null;
     private String layout = null;
@@ -114,6 +113,13 @@ public class UserConfigurableObjectType extends NamedObject
             }
 
         });
+
+    }
+
+    public void setIgnoreFieldsState (boolean v)
+    {
+
+        this.ignoreFieldsStateChanges = v;
 
     }
 
@@ -650,7 +656,7 @@ public class UserConfigurableObjectType extends NamedObject
     public Set<UserConfigurableObjectTypeField> getSortableFields ()
     {
 
-        Set<UserConfigurableObjectTypeField> sfs = new LinkedHashSet ();
+        Set<UserConfigurableObjectTypeField> sfs = new LinkedHashSet<> ();
 
         sfs.add (this.getPrimaryNameField ());
         for (UserConfigurableObjectTypeField f : this.getConfigurableFields ())
@@ -932,10 +938,10 @@ TODO Remove
     public void setIcon24x24 (Image im)
     {
 
-        Image oldim = this.icon24x24;
+        Image oldim = this.icon24x24Prop.getValue ();
 
-        this.icon24x24 = im;
-        this.icon24x24Prop.setValue (this.icon24x24);
+        //this.icon24x24 = im;
+        this.icon24x24Prop.setValue (im);//this.icon24x24);
 
         this.firePropertyChangedEvent (ICON24,
                                        oldim,
@@ -946,7 +952,7 @@ TODO Remove
     public Image getIcon24x24 ()
     {
 
-        return this.icon24x24;
+        return this.icon24x24Prop.getValue ();
 
     }
 
@@ -960,10 +966,10 @@ TODO Remove
     public void setIcon16x16 (Image im)
     {
 
-        Image oldim = this.icon16x16;
+        Image oldim = this.icon16x16Prop.getValue ();
 
-        this.icon16x16 = im;
-        this.icon16x16Prop.setValue (this.icon16x16);
+        //this.icon16x16 = im;
+        this.icon16x16Prop.setValue (im);//this.icon16x16);
 
         this.firePropertyChangedEvent (ICON16,
                                        oldim,
@@ -974,7 +980,7 @@ TODO Remove
     public Image getIcon16x16 ()
     {
 
-        return this.icon16x16;
+        return this.icon16x16Prop.getValue ();
 
     }
 
@@ -1062,7 +1068,7 @@ TODO Remove
         if (this.pluralNameSet)
         {
 
-            return this.objectTypeNamePlural;
+            return this.objectTypeNamePluralProp.getValue ();
 
         }
 
@@ -1082,28 +1088,23 @@ TODO Remove
     public String getActualObjectTypeNamePlural ()
     {
 
-        return this.objectTypeNamePlural;
+        return this.objectTypeNamePluralProp.getValue ();
 
     }
 
     public void setObjectTypeNamePlural (String n)
     {
 
-        String oldName = this.objectTypeNamePlural;
+        String oldName = this.objectTypeNamePluralProp.getValue ();
 
-        if (n != null)
-        {
+        this.pluralNameSet = (n != null);
 
-            this.objectTypeNamePlural = n;
-            this.pluralNameSet = (n != null);
-
-        }
+        this.objectTypeNamePluralProp.setValue (n);
 
         this.firePropertyChangedEvent (OBJECT_TYPE_NAME_PLURAL,
                                        oldName,
                                        n);
 
-        this.objectTypeNamePluralProp.setValue (this.objectTypeNamePlural);
 
     }
 
@@ -1309,6 +1310,14 @@ TODO Remove
             return this.fields;
 
         }
+
+    }
+
+    @Override
+    public boolean supportsLinks ()
+    {
+
+        return false;
 
     }
 

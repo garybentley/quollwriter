@@ -64,7 +64,7 @@ public class UserConfigurableObjectField extends NamedObject
         this.addToStringProperties (props,
                                     "value",
                                     this.value);
-
+/*
         if (this.value != null)
         {
 
@@ -73,7 +73,7 @@ public class UserConfigurableObjectField extends NamedObject
                                         this.value);
 
         }
-
+*/
         this.addToStringProperties (props,
                                     "typeField",
                                     this.field);
@@ -112,6 +112,14 @@ public class UserConfigurableObjectField extends NamedObject
     {
 
         return this.field.getLegacyFieldId ();
+
+    }
+
+    // A very dangerous method to use, don't use it!
+    public void setUserConfigurableObjectTypeField (UserConfigurableObjectTypeField f)
+    {
+
+        this.field = f;
 
     }
 
