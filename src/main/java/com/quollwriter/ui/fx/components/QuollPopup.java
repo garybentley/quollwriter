@@ -40,6 +40,7 @@ public class QuollPopup extends StackPane implements IPropertyBinder
     private PopupsViewer viewer = null;
     private PropertyBinder binder = null;
     private Node content = null;
+    private Boolean hideOnEscape = false;
 
     private QuollPopup (Builder b)
     {
@@ -102,8 +103,7 @@ public class QuollPopup extends StackPane implements IPropertyBinder
         if (b.hideOnEscape)
         {
 
-            // TODO
-            //this.setHideOnEscape (true);
+            this.hideOnEscape = b.hideOnEscape;
 
         }
 
@@ -329,6 +329,13 @@ public class QuollPopup extends StackPane implements IPropertyBinder
             this.show ();
 
         }
+
+    }
+
+    public Boolean isHideOnEscape ()
+    {
+
+        return this.hideOnEscape;
 
     }
 

@@ -1210,7 +1210,6 @@ TODO
                 if(doc != null) {
 
                     TextStyle ts = this.getTextInsertionStyle ();
-                    System.out.println ("SS: " + ts);
                     ReadOnlyStyledDocumentBuilder b = new ReadOnlyStyledDocumentBuilder (getSegOps (),
                                                                                          this.getParagraphInsertionStyle ());
 
@@ -2077,8 +2076,9 @@ System.out.println ("HEREZ: " + cb);
                                                                                 this.getText ().length ()).mapStyles (ss ->
             {
 
-                ss.setSpellingError (false);
-                return ss;
+                TextStyle _s = new TextStyle (ss);
+                _s.setSpellingError (false);
+                return _s;
 
             }));
 
@@ -2107,8 +2107,9 @@ System.out.println ("HEREZ: " + cb);
                                                                                     end).mapStyles (ss ->
                 {
 
-                    ss.setSpellingError (false);
-                    return ss;
+                    TextStyle _s = new TextStyle (ss);
+                    _s.setSpellingError (false);
+                    return _s;
 
                 }));
 

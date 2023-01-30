@@ -1869,9 +1869,6 @@ TODO
 
         NamedObject obj = n.getObject ();
 
-        // Need to get the links, they may not be setup.
-        // TODO Remove this.setLinks (n);
-
         // Remove the tags.
         this.project.removeObject (n);
 

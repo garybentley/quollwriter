@@ -64,7 +64,8 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
         timer,
         onlynovalue,
         onlyerrors,
-        filter
+        filter,
+        hideonescape
     };
 
     public interface HeaderControlButtonIds
@@ -987,6 +988,65 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
     private void initKeyMappings ()
     {
 
+        this.getScene ().addEventHandler (KeyEvent.KEY_RELEASED,
+                                          ev ->
+        {
+
+            if (ev.getCode () == KeyCode.ESCAPE)
+            {
+
+                int s = this.popupPane.getChildren ().size ();
+
+                if (s > 0)
+                {
+
+                    QuollPopup p = null;
+
+                    for (int i = s - 1; i > -1; i--)
+                    {
+
+                        Node n = this.popupPane.getChildren ().get (i);
+
+                        if (n instanceof QuollPopup)
+                        {
+
+                            p = (QuollPopup) n;
+
+                            break;
+
+                        }
+
+                    }
+
+                    if (p != null)
+                    {
+
+                        if (p.isHideOnEscape ())
+                        {
+
+                            p.close ();
+                            return;
+
+                        }
+
+                    }
+
+                }
+
+                this.closeSideBar ();
+/*
+                // Check for sidebars.
+                if (!this.activeSideBars.empty ())
+                {
+
+                    this.activeSideBars.pop ().close ();
+xxx
+                }
+*/
+            }
+
+        });
+
         this.addKeyMapping (CommandId.debug,
                             KeyCode.F12, KeyCombination.SHORTCUT_DOWN, KeyCombination.ALT_DOWN);
         this.addKeyMapping (CommandId.debugmode,
@@ -1025,6 +1085,13 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
                             KeyCode.UP, KeyCombination.SHORTCUT_DOWN);
         this.addKeyMapping (CommandId.movedown,
                             KeyCode.DOWN, KeyCombination.SHORTCUT_DOWN);
+
+    }
+
+    public void handleHideOnEscape (KeyEvent ev)
+    {
+
+
 
     }
 

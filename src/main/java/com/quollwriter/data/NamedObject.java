@@ -24,7 +24,7 @@ public abstract class NamedObject extends DataObject
     public static final String TAG = "tag";
 
     private StringProperty nameProp = null;
-    private String   name = null;
+    //private String   name = null;
     private Date     lastModified = null;
     private StringWithMarkup   description = null;
     private ObjectProperty<StringWithMarkup> descriptionProp = null;
@@ -164,7 +164,7 @@ public abstract class NamedObject extends DataObject
 
         this.addToStringProperties (props,
                                     "name",
-                                    this.name);
+                                    this.nameProp.getValue ());
         this.addToStringProperties (props,
                                     "lastModified",
                                     this.lastModified);
@@ -220,7 +220,7 @@ public abstract class NamedObject extends DataObject
 
         }
 
-        if (this.name.toLowerCase ().indexOf (s) != -1)
+        if (this.getName ().toLowerCase ().indexOf (s) != -1)
         {
 
             return true;
@@ -408,9 +408,9 @@ public abstract class NamedObject extends DataObject
     public Set<String> getAllNames ()
     {
 
-        Set<String> l = new HashSet ();
+        Set<String> l = new HashSet<> ();
 
-        l.add (this.name);
+        l.add (this.getName ());
 
         l.addAll (this.getAliasesAsList ());
 
@@ -694,9 +694,9 @@ public abstract class NamedObject extends DataObject
         }
         */
 
-        String oldName = this.name;
+        String oldName = this.nameProp.getValue ();
 
-        this.name = n;
+        //this.name = n;
 /*
 TODO Remove, isn't working.
         if (this.name == null)
@@ -706,20 +706,20 @@ TODO Remove, isn't working.
 
         }
 */
-        this.nameProp.setValue (this.name);
+        this.nameProp.setValue (n);
 
         this.setLastModified (new Date ());
 
         this.firePropertyChangedEvent (NamedObject.NAME,
                                        oldName,
-                                       this.name);
+                                       this.nameProp.getValue ());
 
     }
 
     public String getName ()
     {
 
-        return this.name;
+        return this.nameProp.getValue ();
 
     }
 
@@ -848,7 +848,7 @@ TODO Remove, isn't working.
         this.addFieldChangeElement (root,
                                     "name",
                                     ((old != null) ? old.getName () : null),
-                                    this.name);
+                                    this.nameProp.getValue ());
 
         this.addFieldChangeElement (root,
                                     "aliases",
@@ -1036,6 +1036,13 @@ TODO Remove, isn't working.
         }
 
         return o.compareTo (n) != 0;
+
+    }
+
+    public boolean supportsLinks ()
+    {
+
+        return true;
 
     }
 

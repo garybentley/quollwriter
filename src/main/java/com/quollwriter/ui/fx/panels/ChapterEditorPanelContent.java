@@ -945,6 +945,13 @@ TODO ? Remove?
 
             Bounds b = this.editor.getBoundsForPosition (caret);
 
+            if (b == null)
+            {
+
+                return;
+
+            }
+
             double half = (vh - b.getHeight ()) / 2;
 
             double diff = half - b.getMinY ();

@@ -423,7 +423,7 @@ TODO
                  () ->
                  {
 
-                     this.runCommand (ProjectViewer.CommandId.togglespellchecking);
+                     this.viewer.runCommand (ProjectViewer.CommandId.togglespellchecking);
 
                  });
 
