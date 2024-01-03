@@ -58,7 +58,19 @@ public class UserConfigurableObjectTypeDataHandler implements DataHandler<UserCo
             String n = rs.getString (ind++);
             t.setName (n);
             t.setObjectTypeName (n);
+/*
+            if (t.getUserObjectType ().equals ("chapter"))
+            {
+                t.setObjectTypeName (null);
+            }
+*/
             t.setObjectTypeNamePlural (rs.getString (ind++));
+            /*
+            if (t.getUserObjectType ().equals ("chapter"))
+            {
+                t.setObjectTypeNamePlural (null);
+            }
+            */
             t.setDescription (new StringWithMarkup (rs.getString (ind++),
                                                     rs.getString (ind++)));
 

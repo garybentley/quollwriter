@@ -2708,6 +2708,14 @@ public class UIUtils
             .item (downloadFiles)
             .build ();
 
+        QuollPopup qp = QuollPopup.formBuilder ()
+            .withViewer (viewer)
+            .title (prefix,title)
+            .styleClassName (StyleClassNames.ADDNEWUILANGSTRINGS)
+            .headerIconClassName (StyleClassNames.EDIT)
+            .form (f)
+            .build ();
+
         f.addEventHandler (Form.FormEvent.CONFIRM_EVENT,
                            ev ->
         {
@@ -2740,6 +2748,8 @@ public class UIUtils
                  lse.createViewer ();
                  lse.init (null);
 
+                 qp.close ();
+
              } catch (Exception e) {
 
                  Environment.logError ("Unable to create language strings editor",
@@ -2752,129 +2762,6 @@ public class UIUtils
 
         });
 
-        QuollPopup.formBuilder ()
-            .withViewer (viewer)
-            .title (prefix,title)
-            //.description (prefix,text)
-            .styleClassName (StyleClassNames.ADDNEWUILANGSTRINGS)
-            .headerIconClassName (StyleClassNames.EDIT)
-            //.confirmButtonLabel (prefix,buttons,create)
-            //.cancelButtonLabel (prefix,buttons,cancel)
-            .form (f)
-            /*
-            .onConfirm (ev ->
-            {
-
-                // TODO Improve this...
-                TextField tf = (TextField) ev.getForm ().lookup ("#text");
-
-                String v = tf.getText ().trim ();
-
-                 UILanguageStrings ls = new UILanguageStrings (UILanguageStringsManager.getDefaultUILanguageStrings ());
-                 ls.setNativeName (v);
-                 ls.setUser (true);
-                 ls.setQuollWriterVersion (Environment.getQuollWriterVersion ());
-
-                 try
-                 {
-
-                     LanguageStringsEditor lse = new LanguageStringsEditor (ls);
-                     lse.createViewer ();
-                     lse.init (null);
-
-                 } catch (Exception e) {
-
-                     Environment.logError ("Unable to create language strings editor",
-                                           e);
-
-                     ComponentUtils.showErrorMessage (viewer,
-                                                      "Unable to create strings editor.");
-
-                 }
-
-            })
-            */
-            /*
-            .validator (v ->
-            {
-
-                if ((v == null)
-                    ||
-                    (v.trim ().length () == 0)
-                   )
-                {
-
-                    // This can be English because if the creator doesn't know English then they can't create a set of strings.
-                    return new SimpleStringProperty ("Please enter the language name");
-
-                }
-
-                return null;
-
-            })
-            */
-            .build ();
-            /*
-            TODO Remove
-        ComponentUtils.createTextEntryPopup (getUILanguageStringProperty (Utils.newList (prefix,title)),
-                                                            StyleClassNames.ADDNEWUILANGSTRINGS,
-                                                            getUILanguageStringProperty (Utils.newList (prefix,text)),
-                                                            null,
-                                                            // Validator.
-                                                            v ->
-                                                            {
-
-                                                                if ((v == null)
-                                                                    ||
-                                                                    (v.trim ().length () == 0)
-                                                                   )
-                                                                {
-
-                                                                    // This can be English because if the creator doesn't know English then they can't create a set of strings.
-                                                                    return new SimpleStringProperty ("Please enter the language name");
-
-                                                                }
-
-                                                                return null;
-
-                                                            },
-                                                            getUILanguageStringProperty (Utils.newList (prefix,buttons,create)),
-                                                            getUILanguageStringProperty (Utils.newList (prefix,buttons,cancel)),
-                                                            // On confirm.
-                                                            ev ->
-                                                            {
-
-                                                                // TODO Improve this...
-                                                                TextField tf = (TextField) ev.getForm ().lookup ("#text");
-
-                                                                String v = tf.getText ().trim ();
-
-                                                                 UILanguageStrings ls = new UILanguageStrings (UILanguageStringsManager.getDefaultUILanguageStrings ());
-                                                                 ls.setNativeName (v);
-                                                                 ls.setUser (true);
-
-                                                                 try
-                                                                 {
-
-                                                                     // TODO new LanguageStringsEditor (ls).init ();
-
-                                                                 } catch (Exception e) {
-
-                                                                     Environment.logError ("Unable to create language strings editor",
-                                                                                           e);
-
-                                                                     ComponentUtils.showErrorMessage (viewer,
-                                                                                                      "Unable to create strings editor.");
-
-                                                                 }
-
-                                                             },
-                                                             // On cancel
-                                                             null,
-                                                             // On close
-                                                             null,
-                                                             viewer);
-*/
     }
 
     public static void showEditUILanguageStringsSelectorPopup (final AbstractViewer viewer)

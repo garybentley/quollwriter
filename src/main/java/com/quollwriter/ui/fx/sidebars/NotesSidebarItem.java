@@ -426,8 +426,6 @@ TODO
         p.bind (b);
         return p;
 
-        //return Environment.getObjectTypeNamePlural (Note.OBJECT_TYPE);
-
     }
 
     @Override

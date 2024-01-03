@@ -221,7 +221,6 @@ public class ObjectTypeNameChangePopup extends PopupContent
         final Map<String, StringProperty> sing = new HashMap<> ();
         final Map<String, StringProperty> plur = new HashMap<> ();
 
-        Set<UserConfigurableObjectType> updateTypes = new HashSet<> ();
         for (String ot : this.singular.keySet ())
         {
 
@@ -229,11 +228,34 @@ public class ObjectTypeNameChangePopup extends PopupContent
 
             String s = f.getText ().trim ();
 
-            if (!s.equals (Environment.getObjectTypeName (ot)))
+            UserConfigurableObjectType type = Environment.getUserConfigurableObjectType (ot);
+
+            if (type != null)
             {
 
-                sing.put (ot,
-                          new SimpleStringProperty (s));
+                type.setObjectTypeName (s);
+
+                try
+                {
+
+                    Environment.updateUserConfigurableObjectType (type);
+
+                } catch (Exception e) {
+
+                    Environment.logError ("Unable to save value for type: " + ot,
+                                          e);
+
+                }
+
+            } else {
+
+                if (!s.equals (Environment.getObjectTypeName (ot)))
+                {
+
+                    sing.put (ot,
+                              new SimpleStringProperty (s));
+
+                }
 
             }
 
@@ -246,11 +268,34 @@ public class ObjectTypeNameChangePopup extends PopupContent
 
             String p = f.getText ().trim ();
 
-            if (!p.equals (Environment.getObjectTypeNamePlural (ot)))
+            UserConfigurableObjectType type = Environment.getUserConfigurableObjectType (ot);
+
+            if (type != null)
             {
 
-                plur.put (ot,
-                          new SimpleStringProperty (p));
+                type.setObjectTypeNamePlural (p);
+
+                try
+                {
+
+                    Environment.updateUserConfigurableObjectType (type);
+
+                } catch (Exception e) {
+
+                    Environment.logError ("Unable to save value for type: " + ot,
+                                          e);
+
+                }
+
+            } else {
+
+                if (!p.equals (Environment.getObjectTypeNamePlural (ot)))
+                {
+
+                    plur.put (ot,
+                              new SimpleStringProperty (p));
+
+                }
 
             }
 

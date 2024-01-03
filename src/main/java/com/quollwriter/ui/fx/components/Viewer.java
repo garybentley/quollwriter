@@ -154,7 +154,7 @@ public class Viewer extends Stage implements Stateful
                 this.setX (x);
 
             }
-
+            
             this.setMaximized (s.getAsBoolean (Constants.WINDOW_MAXIMIZED_PROPERTY_NAME));
 
         }

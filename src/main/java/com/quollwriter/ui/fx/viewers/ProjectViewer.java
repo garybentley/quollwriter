@@ -2932,4 +2932,211 @@ TODO
 
     }
 
+    // NEW STUFF FOR PUTTING ASSET TYPES AND TAGS IN PROJECT, COPIED FROM Environment.
+    public UserConfigurableObjectTypeField getUserConfigurableObjectTypeField (long key)
+                                                                        throws GeneralException
+    {
+
+        return (UserConfigurableObjectTypeField) this.dBMan.getObjectByKey (UserConfigurableObjectTypeField.class,
+                                                                            key,
+                                                                            null,
+                                                                            null,
+                                                                            true);
+
+    }
+
+    public UserConfigurableObjectType getUserConfigurableObjectType (long key)
+                                                              throws GeneralException
+    {
+
+        return (UserConfigurableObjectType) this.dBMan.getObjectByKey (UserConfigurableObjectType.class,
+                                                                       key,
+                                                                       null,
+                                                                       null,
+                                                                       true);
+
+    }
+
+    public boolean hasUserConfigurableObjectType (String userObjType)
+    {
+
+        return this.project.getUserConfigurableObjectType (userObjType) != null;
+
+    }
+
+    public void removeUserConfigurableObjectType (UserConfigurableObjectType type)
+                                           throws GeneralException
+    {
+
+        this.dBMan.deleteObject (type,
+                                 true);
+
+        this.project.removeUserConfigurableObjectType (type);
+
+        // TODO type.removePropertyChangedListener (Environment.userConfigurableObjectTypeNameListener);
+        Environment.updateUserObjectTypeNamesForUserConfigurableObjectType (type);
+
+        // Tell all projects about it.
+        Environment.fireUserProjectEvent (type,
+                                          ProjectEvent.Type.userobjecttype,
+                                          ProjectEvent.Action.delete,
+                                          type);
+
+    }
+
+    public void updateUserConfigurableObjectType (UserConfigurableObjectType type)
+                                           throws GeneralException
+    {
+
+        this.dBMan.saveObject (type);
+
+        if (!this.project.hasUserConfigurableObjectType (type))
+        {
+
+            this.project.addUserConfigurableObjectType (type);
+
+        }
+
+        Environment.updateUserObjectTypeNamesForUserConfigurableObjectType (type);
+
+        // Tell all projects about it.
+        Environment.fireUserProjectEvent (type,
+                                          ProjectEvent.Type.userobjecttype,
+                                          ProjectEvent.Action.changed,
+                                          type);
+
+    }
+
+    public void addUserConfigurableObjectType (UserConfigurableObjectType type)
+                                        throws GeneralException
+    {
+
+        if (type.getKey () == null)
+        {
+
+            this.dBMan.saveObject (type);
+
+        }
+
+        this.project.addUserConfigurableObjectType (type);
+
+        // Need to now update the column/field state and save again since the field keys are now
+        // available.
+        type.updateSortableFieldsState ();
+
+        // Register ourselves as a listener for the name changes.
+        // TODO type.addPropertyChangedListener (Environment.userConfigurableObjectTypeNameListener);
+
+        Environment.updateUserObjectTypeNamesForUserConfigurableObjectType (type);
+
+        // Tell all projects about it.
+        Environment.fireUserProjectEvent (type,
+                                          ProjectEvent.Type.userobjecttype,
+                                          ProjectEvent.Action._new,
+                                          type);
+
+    }
+
+    public void removeUserConfigurableObjectTypeField (UserConfigurableObjectTypeField field)
+                                                throws GeneralException
+    {
+
+        this.dBMan.deleteObject (field,
+                                 true);
+
+        // Tell all projects about it.
+        Environment.fireUserProjectEvent (field,
+                                          ProjectEvent.Type.userobjecttypefield,
+                                          ProjectEvent.Action.delete,
+                                          field);
+
+    }
+
+    public void updateUserConfigurableObjectTypeField (UserConfigurableObjectTypeField field)
+                                                throws GeneralException
+    {
+
+        ProjectEvent.Action ev = ProjectEvent.Action.changed;
+
+        if (field.getKey () == null)
+        {
+
+            ev = ProjectEvent.Action._new;
+
+        }
+
+        this.dBMan.saveObject (field);
+
+        // Tell all projects about it.
+        Environment.fireUserProjectEvent (field,
+                                          ProjectEvent.Type.userobjecttypefield,
+                                          ev,
+                                          field);
+
+        Environment.fireUserProjectEvent (field.getUserConfigurableObjectType (),
+                                          ProjectEvent.Type.userobjecttype,
+                                          ProjectEvent.Action.changed,
+                                          field.getUserConfigurableObjectType ());
+
+    }
+
+    /**
+     * Save a tag, this will either create or update it.
+     *
+     * @param tag The tag.
+     * @throws GeneralException If the tag can't be saved.
+     */
+    public void saveTag (Tag tag)
+                  throws GeneralException
+    {
+
+        ProjectEvent.Action ev = ProjectEvent.Action.changed;
+
+        if (tag.getKey () == null)
+        {
+
+            ev = ProjectEvent.Action._new;
+
+        }
+
+        this.dBMan.saveObject (tag);
+
+        if (ev.equals (ProjectEvent.Action._new))
+        {
+
+            this.project.addTag (tag);
+
+        }
+
+        // Tell all projects about it.
+        Environment.fireUserProjectEvent (tag,
+                                          ProjectEvent.Type.tag,
+                                          ev,
+                                          tag);
+
+    }
+
+    /**
+     * Delete a tag.
+     *
+     * @param tag The tag to delete.
+     * @throws GeneralException If the delete goes wrong.
+     */
+    public void deleteTag (Tag tag)
+                    throws GeneralException
+    {
+
+        this.dBMan.deleteObject (tag,
+                                 true);
+
+        this.project.removeTag (tag);
+
+        // Tell all projects about it.
+        Environment.fireUserProjectEvent (tag,
+                                          ProjectEvent.Type.tag,
+                                          ProjectEvent.Action.delete,
+                                          tag);
+
+    }
+
 }

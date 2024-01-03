@@ -1205,6 +1205,21 @@ TODO Improve
                                                          () ->
                                              {
 
+												 try
+								                 {
+
+								                     Environment.setUILanguage (UILanguageStrings.ENGLISH_ID);
+
+								                 } catch (Exception e) {
+
+								                     Environment.logError ("Unable to set ui language to: " + UILanguageStrings.ENGLISH_ID,
+								                                           e);
+
+								                     ComponentUtils.showErrorMessage (_this,
+								                                                      getUILanguageStringProperty (uilanguage,set,actionerror));
+
+								                 }
+
                                                  this.showMessage ("Strings deleted",
                                                                    "Your strings have been deleted.<br /><br />Thank you for the time and effort you put in to create the strings, it is much appreciated!");
 

@@ -17,6 +17,8 @@ import com.quollwriter.data.comparators.*;
 
 import com.quollwriter.events.*;
 
+import com.quollwriter.ui.fx.ProjectEvent;
+
 import org.dom4j.*;
 import org.dom4j.tree.*;
 
@@ -70,6 +72,9 @@ public class Project extends NamedObject
     private List<ResearchItem> researchItems = new ArrayList ();
     */
     private ObservableSet<IdeaType>     ideaTypes = FXCollections.observableSet (new LinkedHashSet<> ());
+
+    private ObservableSet<UserConfigurableObjectType> userConfigObjTypes = FXCollections.observableSet (new LinkedHashSet<> ());
+    private ObservableSet<Tag> tags = FXCollections.observableSet (new LinkedHashSet<> ());
 
     private ObservableMap<UserConfigurableObjectType, ObservableSet<Asset>> assets = FXCollections.observableMap (new HashMap<> ());
     private String             filePassword = null;
@@ -245,6 +250,51 @@ public class Project extends NamedObject
         this.projectDirectoryProp = new SimpleObjectProperty<> ();
         this.backupDirectoryProp = new SimpleObjectProperty<> ();
         this.chapterCountProp = new SimpleIntegerProperty ();
+
+        this.addSetChangeListener (this.userConfigObjTypes,
+                                   ev ->
+        {
+
+            if (ev.wasAdded ())
+            {
+
+                this.assets.put (ev.getElementAdded (),
+                                 FXCollections.observableSet (new LinkedHashSet<> ()));
+
+            }
+
+            if (ev.wasRemoved ())
+            {
+
+                this.assets.remove (ev.getElementRemoved ());
+
+            }
+
+        });
+
+        this.userConfigObjTypes.stream ()
+            .forEach (t ->
+            {
+
+                this.assets.put (t,
+                                 FXCollections.observableSet (new LinkedHashSet<> ()));
+
+            });
+
+        this.addSetChangeListener (this.tags,
+                                   ev ->
+        {
+
+            Tag t = ev.getElementRemoved ();
+
+            if (t != null)
+            {
+
+                this.taggedObjects.remove (t);
+
+            }
+
+        });
 
         this.addSetChangeListener (Environment.getUserConfigurableObjectTypes (),
                                    ev ->
@@ -1355,7 +1405,7 @@ public class Project extends NamedObject
     public Set<NamedObject> getAllNamedObjectsByName (String n)
     {
 
-        Set<NamedObject> ret = new LinkedHashSet ();
+        Set<NamedObject> ret = new LinkedHashSet<> ();
 
         Set<NamedObject> objs = this.getAllNamedChildObjects ();
 
@@ -2602,6 +2652,158 @@ public class Project extends NamedObject
             objs.remove (n);
 
         }
+
+    }
+
+    // NEW STUFF FOR PUTTING ASSET TYPES AND TAGS IN PROJECT, COPIED FROM Environment.
+    public Set<UserConfigurableObjectType> getAssetUserConfigurableObjectTypes (boolean sortOnName)
+    {
+
+        Set<UserConfigurableObjectType> types = new LinkedHashSet<> ();
+
+        for (UserConfigurableObjectType t : this.userConfigObjTypes)
+        {
+
+            if (t.isAssetObjectType ())
+            {
+
+                types.add (t);
+
+            }
+
+        }
+
+        if (sortOnName)
+        {
+
+            List<UserConfigurableObjectType> stypes = new ArrayList<> (types);
+
+            Collections.sort (stypes,
+                              (o1, o2) -> o1.getObjectTypeName ().compareTo (o2.getObjectTypeName ()));
+
+            types = new LinkedHashSet<> (stypes);
+
+        }
+
+        return types;
+
+    }
+
+    public boolean hasUserConfigurableObjectType (String userObjType)
+    {
+
+        return this.getUserConfigurableObjectType (userObjType) != null;
+
+    }
+
+    public boolean hasUserConfigurableObjectType (UserConfigurableObjectType t)
+    {
+
+        return this.userConfigObjTypes.contains (t);
+
+    }
+
+    public void addUserConfigurableObjectType (UserConfigurableObjectType t)
+    {
+
+        this.userConfigObjTypes.add (t);
+
+    }
+
+    public void removeUserConfigurableObjectType (UserConfigurableObjectType t)
+    {
+
+        this.userConfigObjTypes.remove (t);
+
+    }
+
+    public ObservableSet<UserConfigurableObjectType> getUserConfigurableObjectTypes ()
+    {
+
+        return this.userConfigObjTypes;
+
+    }
+
+    public UserConfigurableObjectType getUserConfigurableObjectType (String userObjType)
+    {
+
+        for (UserConfigurableObjectType t : this.userConfigObjTypes)
+        {
+
+            if ((t.getUserObjectType () != null)
+                &&
+                (t.getUserObjectType ().equals (userObjType))
+               )
+            {
+
+                return t;
+
+            }
+
+        }
+
+        return null;
+
+    }
+
+    /**
+     * Get all the tags.
+     *
+     * @return The tags.
+     */
+    public ObservableSet<Tag> getAllTags ()
+    {
+
+        return this.tags;
+
+    }
+
+    /**
+     * Get a tag by name.
+     *
+     * @return The tag, if found.
+     */
+    public Tag getTagByName (String name)
+    {
+
+        for (Tag t : this.tags)
+        {
+
+            if (t.getName ().equalsIgnoreCase (name))
+            {
+
+                return t;
+
+            }
+
+        }
+
+        return null;
+
+    }
+
+    /**
+     * Get a tag by its key.
+     *
+     * @param key The key.
+     * @return The tag.
+     */
+    public Tag getTagByKey (long key)
+    {
+
+        for (Tag t : this.tags)
+        {
+
+            if (t.getKey () == key)
+            {
+
+                return t;
+
+            }
+
+        }
+
+        return null;
 
     }
 

@@ -1,6 +1,7 @@
 /*
  * Styles for com.quollwriter.ui.fx.popups.AddEditUserConfigurableObjectType
  */
+.image.bigicon,
 .image.bigicon .iconbox,
 .image.bigicon .iconbox .icon
 {
@@ -15,6 +16,7 @@
     -fx-cursor: hand;
 }
 
+.image.smallicon,
 .image.smallicon .iconbox,
 .image.smallicon .iconbox .icon
 {

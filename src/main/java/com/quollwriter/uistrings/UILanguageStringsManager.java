@@ -900,6 +900,15 @@ TODO Remove
 
     }
 
+    public static UILanguageStrings getUILanguageStrings (UILanguageStringsInfo info)
+                                                   throws Exception
+    {
+
+        return UILanguageStringsManager.getUILanguageStrings ((info.user ? "user-" : "") + info.id,
+                                                              info.version);
+
+    }
+
     public static UILanguageStrings getUILanguageStrings (String  id,
                                                           Version ver)
                                                    throws Exception
@@ -1454,6 +1463,7 @@ TODO Remove
                 }
 
             }
+
 //Environment.logMessage ("IDS: " + ids + "\n   " + _reps);
             return String.format (UILanguageStringsManager.getUIString (ids),
                                   _reps.toArray ());

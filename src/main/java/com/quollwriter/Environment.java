@@ -120,8 +120,8 @@ public class Environment
     private static AchievementsManager achievementsManager = null;
 
     private static ObservableSet<UserConfigurableObjectType> userConfigObjTypes = null;
-    private static Map<String, StringProperty> objectTypeNamesSingular = new HashMap<> ();
-    private static Map<String, StringProperty> objectTypeNamesPlural = new HashMap<> ();
+    private static Map<String, StringProperty> objectTypeNamesSingularProps = new HashMap<> ();
+    private static Map<String, StringProperty> objectTypeNamesPluralProps = new HashMap<> ();
 
     private static Map<String, com.quollwriter.ui.UserPropertyHandler> userPropertyHandlers = new HashMap<> ();
     private static ProjectTextProperties projectTextProps = null;
@@ -562,31 +562,73 @@ System.out.println ("FILEPROPS: " + defUserPropsFile);
                )
             {
 
+                UserConfigurableObjectType type = Environment.getUserConfigurableObjectType (ids.get (2));
+
+                if (type != null)
+                {
+
+                    String st = ids.get (1);
+
+                    if (st.equals (LanguageStrings.singular))
+                    {
+
+                        StringProperty s = type.objectTypeNameProperty ();
+
+                        if (s != null)
+                        {
+
+                            return s.getValue ();
+
+                        }
+
+                    }
+
+                    if (st.equals (LanguageStrings.plural))
+                    {
+
+                        StringProperty s = type.objectTypeNamePluralProperty ();
+
+                        if (s != null)
+                        {
+
+                            return s.getValue ();
+
+                        }
+
+                        //return type.objectTypeNamePluralProperty ().getValue ();
+
+                    }
+
+                    return null;
+
+                }
+
                 String st = ids.get (1);
 
-                StringProperty sp = null;
+                StringProperty s = null;
 
                 if (st.equals (LanguageStrings.singular))
                 {
 
-                    sp = Environment.objectTypeNamesSingular.get (ids.get (2));
+                    s = Environment.objectTypeNamesSingularProps.get (ids.get (2));
 
                 }
+
 
                 if (st.equals (LanguageStrings.plural))
                 {
 
-                    sp = Environment.objectTypeNamesPlural.get (ids.get (2));
+                    s = Environment.objectTypeNamesPluralProps.get (ids.get (2));
 
                 }
 
-                if (sp != null)
+                if (s != null)
                 {
 
                     try
                     {
 
-                        return sp.getValue ();
+                        return s.getValue ();
 
                     } catch (Exception e) {
 
@@ -2796,8 +2838,8 @@ TODO NEeded?
                                                 throws IOException
     {
 
-        Environment.objectTypeNamesSingular.clear ();
-        Environment.objectTypeNamesPlural.clear ();
+        Environment.objectTypeNamesSingularProps.clear ();
+        Environment.objectTypeNamesPluralProps.clear ();
 /*
         // Load the default object type names.
         try
@@ -2828,14 +2870,39 @@ TODO NEeded?
         if (chapterType != null)
         {
 
-            Environment.objectTypeNamesPlural.put (Chapter.OBJECT_TYPE,
-                                                   getUILanguageStringProperty (objectnames,plural,Chapter.OBJECT_TYPE));
-            Environment.objectTypeNamesSingular.put (Chapter.OBJECT_TYPE,
-                                                     getUILanguageStringProperty (objectnames,singular,Chapter.OBJECT_TYPE));
+            Environment.objectTypeNamesPluralProps.put (Chapter.OBJECT_TYPE,
+                                                        getUILanguageStringProperty (objectnames,plural,Chapter.OBJECT_TYPE));
+            Environment.objectTypeNamesSingularProps.put (Chapter.OBJECT_TYPE,
+                                                          getUILanguageStringProperty (objectnames,singular,Chapter.OBJECT_TYPE));
 
         }
 
         Environment.objectTypeNameChangedProp.setValue (Environment.objectTypeNameChangedProp.getValue () + 1);
+
+    }
+
+    public static void updateUserObjectTypeNamesForUserConfigurableObjectType (UserConfigurableObjectType type)
+    {
+
+        if (type == null)
+        {
+
+            return;
+
+        }
+
+        String id = type.getObjectTypeId ();
+
+        if (!type.isLegacyObjectType ())
+        {
+
+            Environment.objectTypeNamesSingularProps.put (id,
+                                                          type.objectTypeNameProperty ());
+
+            Environment.objectTypeNamesPluralProps.put (id,
+                                                        type.objectTypeNamePluralProperty ());
+
+        }
 
     }
 
@@ -2920,8 +2987,8 @@ TODO NEeded?
 
                 Environment.loadLegacyObjectTypeNames (DOM4JUtils.stringAsElement (Utils.getFileContentAsString (f)));
 
-                Environment.updateUserObjectTypeNames (Environment.objectTypeNamesSingular,
-                                                       Environment.objectTypeNamesPlural);
+                Environment.updateUserObjectTypeNames (Environment.objectTypeNamesSingularProps,
+                                                       Environment.objectTypeNamesPluralProps);
 
                 Files.deleteIfExists (f);
 
@@ -2936,8 +3003,8 @@ TODO NEeded?
     private static void loadUserConfigurableObjectTypeNames ()
     {
 
-        Map<String, StringProperty> singular = Environment.objectTypeNamesSingular;
-        Map<String, StringProperty> plural = Environment.objectTypeNamesPlural;
+        Map<String, StringProperty> singular = Environment.objectTypeNamesSingularProps;
+        Map<String, StringProperty> plural = Environment.objectTypeNamesPluralProps;
 
         // Load the names from the configurable types.
         for (UserConfigurableObjectType t : Environment.userConfigObjTypes)
@@ -2954,6 +3021,7 @@ TODO NEeded?
             }
 
         }
+
 /*
         // TODO: Fix this, special for now.
         UserConfigurableObjectType chapterType = Environment.getUserConfigurableObjectType (Chapter.OBJECT_TYPE);
@@ -3150,12 +3218,58 @@ xxx
         Map<String, Map<String, StringProperty>> t = new HashMap<> ();
 
         t.put (LanguageStrings.singular,
-               Environment.objectTypeNamesSingular);
+               Environment.objectTypeNamesSingularProps);
         t.put (LanguageStrings.plural,
-               Environment.objectTypeNamesPlural);
+               Environment.objectTypeNamesPluralProps);
 
         Utils.writeStringToFile (UserProperties.getUserObjectTypeNamesPath (),
                                  JSONEncoder.encode (t));
+
+    }
+
+    /**
+     * Get the object manager for the specified project, only valid for projects that are open and thus
+     * have an AbstractProjectViewer available.
+     *
+     * @param p The project.
+     * @returns The object manager for the project.
+     */
+    public static ObjectManager getProjectObjectManager (ProjectInfo p)
+    {
+
+        AbstractProjectViewer pv = Environment.getProjectViewer (p);
+
+        if (pv == null)
+        {
+
+            return null;
+
+        }
+
+        return pv.getObjectManager ();
+
+    }
+
+    /**
+     * Get the object manager for the specified project, only valid for projects that are open and thus
+     * have an AbstractProjectViewer available.
+     *
+     * @param p The project.
+     * @returns The object manager for the project.
+     */
+    public static ObjectManager getProjectObjectManager (Project p)
+    {
+
+        AbstractProjectViewer pv = Environment.getProjectViewer (Environment.getProjectInfo (p));
+
+        if (pv == null)
+        {
+
+            return null;
+
+        }
+
+        return pv.getObjectManager ();
 
     }
 
@@ -4454,9 +4568,9 @@ TODO Remove
 
         String id = type.getObjectTypeId ();
 
-        Environment.objectTypeNamesSingular.remove (id);
+        Environment.objectTypeNamesSingularProps.remove (id);
 
-        Environment.objectTypeNamesPlural.remove (id);
+        Environment.objectTypeNamesPluralProps.remove (id);
 
         // Tell all projects about it.
         Environment.fireUserProjectEvent (type,
@@ -4500,11 +4614,13 @@ TODO Remove
 
         String id = type.getObjectTypeId ();
 
-        Environment.objectTypeNamesSingular.put (id,
-                                                 type.objectTypeNameProperty ());
+        Environment.objectTypeNamesSingularProps.put (id,
+                                                      type.objectTypeNameProperty ());
 
-        Environment.objectTypeNamesPlural.put (id,
-                                               type.objectTypeNamePluralProperty ());
+        Environment.objectTypeNamesPluralProps.put (id,
+                                                    type.objectTypeNamePluralProperty ());
+
+        Environment.objectTypeNameChangedProp.setValue (Environment.objectTypeNameChangedProp.getValue () + 1);
 
         // Tell all projects about it.
         Environment.fireUserProjectEvent (type,
@@ -4539,11 +4655,11 @@ TODO Remove
         if (!type.isLegacyObjectType ())
         {
 
-            Environment.objectTypeNamesSingular.put (id,
-                                                     type.objectTypeNameProperty ());
+            Environment.objectTypeNamesSingularProps.put (id,
+                                                          type.objectTypeNameProperty ());
 
-            Environment.objectTypeNamesPlural.put (id,
-                                                   type.objectTypeNamePluralProperty ());
+            Environment.objectTypeNamesPluralProps.put (id,
+                                                        type.objectTypeNamePluralProperty ());
 
         }
 
@@ -4628,8 +4744,8 @@ TODO: IS THIS NEEDED?
         synchronized (o)
         {
 
-            Environment.objectTypeNamesSingular.putAll (singular);
-            Environment.objectTypeNamesPlural.putAll (plural);
+            Environment.objectTypeNamesSingularProps.putAll (singular);
+            Environment.objectTypeNamesPluralProps.putAll (plural);
 
         }
 
@@ -5116,14 +5232,14 @@ TODO: IS THIS NEEDED?
     public static Map<String, StringProperty> getObjectTypeNamePlurals ()
     {
 
-        return new HashMap<> (Environment.objectTypeNamesPlural);
+        return new HashMap<> (Environment.objectTypeNamesPluralProps);
 
     }
 
     public static Map<String, StringProperty> getObjectTypeNames ()
     {
 
-        return new HashMap<> (Environment.objectTypeNamesSingular);
+        return new HashMap<> (Environment.objectTypeNamesSingularProps);
 
     }
 
@@ -5146,6 +5262,13 @@ TODO: IS THIS NEEDED?
             {
 
                 return Environment.getObjectTypeNamePlural (ut.getUserObjectType ());
+
+            }
+
+            if (ut.objectTypeNamePluralProperty () == null)
+            {
+
+                return getUILanguageStringProperty (objectnames,plural,ut.getUserObjectType ());
 
             }
 
@@ -5183,6 +5306,13 @@ TODO: IS THIS NEEDED?
 
     }
 
+    public static StringProperty getObjectTypeNamePlural_int (String t)
+    {
+
+        return Environment.objectTypeNamesPluralProps.get (t);
+
+    }
+
     public static StringProperty getObjectTypeNamePlural (String t)
     {
 
@@ -5195,7 +5325,26 @@ TODO: IS THIS NEEDED?
 
         t = t.toLowerCase ();
 
-        StringProperty v = Environment.objectTypeNamesPlural.get (t);
+        UserConfigurableObjectType type = Environment.getUserConfigurableObjectType (t);
+
+        if (type != null)
+        {
+
+            if ((type.objectTypeNamePluralProperty () == null)
+                ||
+                (type.objectTypeNamePluralProperty ().getValue () == null)
+               )
+            {
+
+                return getUILanguageStringProperty (objectnames,plural,type.getUserObjectType ());
+
+            }
+
+            return type.objectTypeNamePluralProperty ();
+
+        }
+
+        StringProperty v = Environment.objectTypeNamesPluralProps.get (t);
 
         if (v == null)
         {
@@ -5246,6 +5395,13 @@ TODO: IS THIS NEEDED?
 
             }
 
+            if (p.getValue () == null)
+            {
+
+                return getUILanguageStringProperty (objectnames,singular,ut.getUserConfigurableObjectType ().getUserObjectType ());
+
+            }
+
             return p;
 
         }
@@ -5287,7 +5443,26 @@ TODO: IS THIS NEEDED?
 
         }
 
-        StringProperty v = Environment.objectTypeNamesSingular.get (t);
+        UserConfigurableObjectType type = Environment.getUserConfigurableObjectType (t);
+
+        if (type != null)
+        {
+
+            if ((type.objectTypeNameProperty () == null)
+                ||
+                (type.objectTypeNameProperty ().getValue () == null)
+               )
+            {
+
+                return getUILanguageStringProperty (objectnames,singular,type.getUserObjectType ());
+
+            }
+
+            return type.objectTypeNameProperty ();
+
+        }
+
+        StringProperty v = Environment.objectTypeNamesSingularProps.get (t);
 
         if (v == null)
         {
@@ -5297,6 +5472,13 @@ TODO: IS THIS NEEDED?
         }
 
         return v;
+
+    }
+
+    public static StringProperty getObjectTypeNameSingular_int (String t)
+    {
+
+        return Environment.objectTypeNamesSingularProps.get (t);
 
     }
 

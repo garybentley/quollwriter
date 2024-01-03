@@ -2419,9 +2419,10 @@ TODO Remove, rolled into start section
         uilangSel.valueProperty ().addListener ((pr, oldv, newv) ->
         {
 
-            String uid = newv.id;
+            // TODO Fix this!
+            String uid = (newv.user ? "user-" : "") + newv.id;
 
-            feedbackB.setVisible ((!UILanguageStrings.isEnglish (uid)) && (!uid.startsWith ("user-")));
+            feedbackB.setVisible ((!UILanguageStrings.isEnglish (uid)) && (!newv.user));
 
             if (uid.equals (UserProperties.get (Constants.USER_UI_LANGUAGE_PROPERTY_NAME)))
             {
@@ -2435,7 +2436,7 @@ TODO Remove, rolled into start section
             try
             {
 
-                ls = UILanguageStringsManager.getUILanguageStrings (uid);
+                ls = UILanguageStringsManager.getUILanguageStrings (newv);//uid);
 
             } catch (Exception e) {
 
@@ -2526,7 +2527,7 @@ TODO Remove, rolled into start section
 
                             textProp = getUILanguageStringProperty (Arrays.asList (uilanguage,set,LanguageStrings.item),
                                                                     item.nativeName,
-                                                                    (item.languageName != null ? item.languageName : ""),
+                                                                    (item.languageName != null ? item.languageName : "< >"),
                                                                     Environment.formatNumber (item.percentComplete),
                                                                     item.user ? getUILanguageStringProperty (uilanguage,set,createdbyyou) : "");
                                                                     /*
@@ -2605,7 +2606,14 @@ TODO Remove, rolled into start section
                     .forEach (in ->
                     {
 
-                        if (in.id.equals (sel))
+                        if ((in.id.equals (sel))
+                            ||
+                            // Is it user strings?
+                            ((in.user)
+                             &&
+                             (("user-" + in.id).equals (sel))
+                            )
+                           )
                         {
 
                             uilangSel.getSelectionModel ().select (in);

@@ -19,25 +19,25 @@ DROP VIEW IF EXISTS project_v
 DROP VIEW IF EXISTS chapter_v
     </sql>
   </item>
-  
+
   <item>
     <log>Drop view character_v</log>
     <sql>
-DROP VIEW IF EXISTS character_v    
+DROP VIEW IF EXISTS character_v
     </sql>
   </item>
 
   <item>
     <log>Drop view researchitem_v</log>
     <sql>
-DROP VIEW IF EXISTS researchitem_v    
+DROP VIEW IF EXISTS researchitem_v
     </sql>
   </item>
 
   <item>
     <log>Drop view qobject_v</log>
     <sql>
-DROP VIEW IF EXISTS qobject_v    
+DROP VIEW IF EXISTS qobject_v
     </sql>
   </item>
 
@@ -135,15 +135,42 @@ DROP VIEW IF EXISTS chatmessage_v
   </item>
 
   <!--
+    Drop first.
+  -->
+  <item>
+    <log>Drop view userobjectfield_v</log>
+    <sql>
+DROP VIEW IF EXISTS userobjectfield_v
+    </sql>
+  </item>
+
+  <item>
+    <log>Drop view userobjecttypefield_v</log>
+    <sql>
+DROP VIEW IF EXISTS userobjecttypefield_v
+    </sql>
+  </item>
+
+  <!--
+    Drop first.
+  -->
+  <item>
+    <log>Drop view userobjecttype_v</log>
+    <sql>
+DROP VIEW IF EXISTS userobjecttype_v
+    </sql>
+  </item>
+
+  <!--
     Has to be done last, all other views (nearly) use it.
   -->
   <item>
     <log>Drop view namedobject_v</log>
     <sql>
-DROP VIEW IF EXISTS namedobject_v    
+DROP VIEW IF EXISTS namedobject_v
     </sql>
   </item>
-    
+
   <!--
     Has to be done first, all other views (nearly) use it.
   -->
@@ -156,7 +183,7 @@ DROP VIEW IF EXISTS namedobject_v
     <log>Create project_v view</log>
     <sql file="views/project.v" />
   </item>
-  
+
   <item>
     <log>Create chapter_v view</log>
     <sql file="views/chapter.v" />
@@ -191,7 +218,7 @@ DROP VIEW IF EXISTS namedobject_v
     <log>Create scene_v view</log>
     <sql file="views/scene.v" />
   </item>
-    
+
   <item>
     <log>Create note_v view</log>
     <sql file="views/note.v" />
@@ -226,7 +253,22 @@ DROP VIEW IF EXISTS namedobject_v
     <log>Create asset_v view</log>
     <sql file="views/asset.v" />
   </item>
+<!--
+  <item>
+    <log>Create userobjecttype_v view</log>
+    <sql file="views/userobjecttype.v" />
+  </item>
 
+  <item>
+    <log>Create userobjecttypefield_v view</log>
+    <sql file="views/userobjecttypefield.v" />
+  </item>
+
+  <item>
+    <log>Create tag_v view</log>
+    <sql file="views/tag.v" />
+  </item>
+-->
   <item>
     <log>Create userobjectfield_v view</log>
     <sql file="views/userobjectfield.v" />

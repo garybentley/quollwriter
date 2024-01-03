@@ -2571,11 +2571,21 @@ TODO REmove
     }
 
     // A method for moving the user object type definitions into the local project, introduced in v3.
-    /*
-    TODO REMOVE
+    /* YYY
+    */
     private void checkAndImportUserObjectFields (Connection conn)
                                           throws GeneralException
     {
+
+        // XXX Experimental, would add user config types to a project.
+        // May be needed if types go into a single proejct.
+
+        if (true)
+        {
+
+            return;
+
+        }
 
         boolean close = false;
 
@@ -2721,11 +2731,10 @@ TODO REmove
                         this.saveObject (a,
                                          conn);
 
-                        // Run this to set up the foreign key
-                        //   ALTER TABLE userobjectfield ADD CONSTRAINT userobjfield_userobjecttypefielddbkey___userobjecttypefield_dbkey_fk FOREIGN KEY(dbkey) REFERENCES userobjecttypefield(dbkey)
-
-
                     }
+
+                    // Run this to set up the foreign key
+                    //   ALTER TABLE userobjectfield ADD CONSTRAINT userobjfield_userobjecttypefielddbkey___userobjecttypefield_dbkey_fk FOREIGN KEY(dbkey) REFERENCES userobjecttypefield(dbkey)
 
                 }
 
@@ -2748,7 +2757,7 @@ TODO REmove
         }
 
     }
-*/
+
     public ResultSet executeQuery (String     sql,
                                    List       params,
                                    Connection conn)

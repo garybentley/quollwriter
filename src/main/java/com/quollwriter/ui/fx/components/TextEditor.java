@@ -390,7 +390,38 @@ public class TextEditor extends GenericStyledArea<TextEditor.ParaStyle, TextEdit
         }
 
     }
+/*
+    public static class IndentSegment extends AbstractSegment<Label>
+    {
 
+        public IndentSegment (Object indStr)
+        {
+
+            super ("");
+
+        }
+
+        @Override
+        public Label createNode (TextStyle style)
+        {
+
+            Label l = new Label ("\t");
+
+            l.getStyleClass ().add ("indent");
+            return l;
+
+        }
+
+        @Override
+        public String getText ()
+        {
+
+            return "";
+
+        }
+
+    }
+*/
     public static class TextSegment extends AbstractSegment<TextExt>
     {
     	private final String text;
@@ -399,6 +430,7 @@ public class TextEditor extends GenericStyledArea<TextEditor.ParaStyle, TextEdit
     	{
     		super( text );
     		this.text = text.toString();
+
     	}
 
     	@Override
@@ -733,7 +765,27 @@ TODO
             this.setTextInsertionStyle (this.getStyleOfChar (newv));
 
             this.updateCaretNode ();
+/*
+            if ((newv < this.getLength())
+                &&
+                (getCaretColumn() == 0)
+               )
+            {
 
+                AbstractSegment seg = this.getParagraph (this.getCurrentParagraph ()).getSegments().get (0);
+
+                if ((seg instanceof IndentSegment)
+                    &&
+                    (this.getSelection().getLength () == 0)
+                   )
+                {
+
+                    this.displaceCaret (newv + 1);
+
+                }
+
+            }
+*/
         });
 
         Nodes.addInputMap (this,
@@ -3401,6 +3453,172 @@ System.out.println ("HEREZ: " + cb);
                              this);
 
     }
+/*
+     @Override // Navigating around/over indents
+     public void nextChar( SelectionPolicy policy )
+     {
+         if ( getCaretPosition() < getLength() ) {
+             // offsetByCodePoints throws an IndexOutOfBoundsException unless colPos is adjusted to accommodate any indents, see this.moveTo
+             moveTo( Direction.RIGHT, policy, (paragraphText,colPos) -> Character.offsetByCodePoints( paragraphText, colPos, +1 ) );
+         }
+     }
+
+     @Override // Navigating around/over indents
+     public void previousChar( SelectionPolicy policy )
+     {
+         if ( getCaretPosition() > 0 ) {
+             // offsetByCodePoints throws an IndexOutOfBoundsException unless colPos is adjusted to accommodate any indents, see this.moveTo
+             moveTo( Direction.LEFT, policy, (paragraphText,colPos) -> Character.offsetByCodePoints( paragraphText, colPos, -1 ) );
+         }
+     }
+
+     @Override
+     public void deletePreviousChar()
+     {
+         if ( getCaretPosition() > 0 ) {
+             // offsetByCodePoints throws an IndexOutOfBoundsException unless colPos is adjusted to accommodate any indents, see this.moveTo
+             moveTo( Direction.LEFT, SelectionPolicy.CLEAR, (paragraphText,colPos) -> Character.offsetByCodePoints( paragraphText, colPos, -1 ) );
+             int col = getCaretPosition();
+             deleteText( col, col+1 );
+         }
+     }
+
+     @Override
+     public void deleteNextChar()
+     {
+         if ( getCaretPosition() > 0 ) {
+             // offsetByCodePoints throws an IndexOutOfBoundsException unless colPos is adjusted to accommodate any indents, see this.moveTo
+             moveTo( Direction.LEFT, SelectionPolicy.CLEAR, (paragraphText,colPos) -> Character.offsetByCodePoints( paragraphText, colPos, 1 ) );
+             int col = getCaretPosition();
+             deleteText( col, col );
+         }
+     }
+
+     // Handles Ctrl+Left and Ctrl+Shift+Left
+     private void skipToPrevWord( boolean isShiftDown )
+     {
+         int caretPos = getCaretPosition();
+         if ( caretPos >= 1 )
+         {
+             boolean prevCharIsWhiteSpace = false;
+             if ( indent && getCaretColumn() == 1 ) {
+                 // Check for indent as charAt(0) throws an IndexOutOfBoundsException because Indents aren't represented by a character
+                 AbstractSegment seg = getParagraph( getCurrentParagraph() ).getSegments().get(0);
+                 prevCharIsWhiteSpace = seg instanceof IndentSegment;
+             }
+             if ( ! prevCharIsWhiteSpace ) prevCharIsWhiteSpace = Character.isWhitespace( getText( caretPos-1, caretPos ).charAt(0) );
+             wordBreaksBackwards( prevCharIsWhiteSpace ? 2 : 1, isShiftDown ? SelectionPolicy.ADJUST : SelectionPolicy.CLEAR );
+         }
+     }
+*/
+     /**
+      * Skips n number of word boundaries backwards.
+      */
+      /*
+     @Override // Accommodating Indent
+     public void wordBreaksBackwards( int n, SelectionPolicy selection )
+     {
+         if( getLength() == 0 ) return;
+
+         moveTo( Direction.LEFT, selection, (paragraphText,colPos) ->
+         {
+             BreakIterator wordIterator = BreakIterator.getWordInstance();
+             wordIterator.setText( paragraphText );
+             wordIterator.preceding( colPos );
+             for ( int i = 1; i < n; i++ ) {
+                 wordIterator.previous();
+             }
+             return wordIterator.current();
+         });
+     }
+*/
+     /**
+      * Skips n number of word boundaries forward.
+      */
+      /*
+     @Override // Accommodating Indent
+     public void wordBreaksForwards( int n, SelectionPolicy selection )
+     {
+         if( getLength() == 0 ) return;
+
+         moveTo( Direction.RIGHT, selection, (paragraphText,colPos) ->
+         {
+             BreakIterator wordIterator = BreakIterator.getWordInstance();
+             wordIterator.setText( paragraphText );
+             wordIterator.following( colPos );
+             for ( int i = 1; i < n; i++ ) {
+                 wordIterator.next();
+             }
+             return wordIterator.current();
+         });
+     }
+*/
+     /**
+      * Because Indents are not represented in the text by a character there is a discrepancy
+      * between the caret position and the text position which has to be taken into account.
+      * So this method ADJUSTS the caret position before invoking the supplied function.
+      *
+      * @param dir LEFT for backwards, and RIGHT for forwards
+      * @param selection CLEAR or ADJUST
+      * @param colPosCalculator a function that receives PARAGRAPH text and an ADJUSTED
+      * starting column position as parameters and returns an end column position.
+      */
+      /*
+     private void moveTo( Direction dir, SelectionPolicy selection, BiFunction<String,Integer,Integer> colPosCalculator )
+     {
+         int colPos = getCaretColumn();
+         int pNdx = getCurrentParagraph();
+         Paragraph p = getParagraph( pNdx );
+         int pLen = p.length();
+
+         boolean adjustCol = indent && p.getSegments().get(0) instanceof IndentSegment;
+         if ( adjustCol ) colPos--;
+
+         if ( dir == Direction.LEFT && colPos == 0 && pNdx > 0 ) {
+             p = getParagraph( --pNdx );
+             adjustCol = indent && p.getSegments().get(0) instanceof IndentSegment;
+             colPos = p.getText().length(); // don't simplify !
+         }
+         else if ( dir == Direction.RIGHT && (pLen == 0 || colPos >= pLen-1) && pNdx < getParagraphs().size()-1 )
+         {
+             p = getParagraph( ++pNdx );
+             adjustCol = indent && p.getSegments().get(0) instanceof IndentSegment;
+             colPos = 0;
+         }
+         else colPos = colPosCalculator.apply( p.getText(), colPos );
+
+         if ( adjustCol ) colPos++;
+
+         moveTo( pNdx, colPos, selection );
+     }
+*/
+     @Override
+     public String getText()
+     {
+         var sb = new StringBuilder( getLength() );
+
+         for ( int i = 0; i < this.getParagraphs ().size (); i++)
+         {
+
+             if (i > 0)
+             {
+
+                 sb.append ("\n");
+
+             }
+
+             // TODO s.getData().toString() is a bit naive maybe ?
+             for ( var s : this.getParagraph (i).getSegments() )
+             {
+
+                 sb.append( s.getText () );
+
+             }
+
+         }
+
+         return sb.toString();
+     }
 
     /**
      * @returns A new builder.

@@ -15,6 +15,8 @@ import com.quollwriter.ui.fx.*;
 import static com.quollwriter.LanguageStrings.*;
 import static com.quollwriter.Environment.getUIString;
 
+import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
+
 public class UserConfigurableObjectType extends NamedObject
 {
 
@@ -996,13 +998,16 @@ TODO Remove
 
         String oldName = this.getName ();
 
-        if (n != null)
+        this.singularNameSet = (n != null);
+
+        if (n == null)
         {
 
-            this.setName (n);
-            this.singularNameSet = (n != null);
+            n = getUIString (objectnames,singular,this.userObjectType);
 
         }
+
+        this.setName (n);
 
         this.firePropertyChangedEvent (OBJECT_TYPE_NAME,
                                        oldName,
@@ -1044,7 +1049,7 @@ TODO Remove
 
         }
 
-        return Environment.getObjectTypeName (this.userObjectType);
+        return Environment.getObjectTypeNameSingular_int (this.userObjectType);
 
     }
 
@@ -1072,7 +1077,7 @@ TODO Remove
 
         }
 
-        StringProperty s = Environment.getObjectTypeNamePlural (this.userObjectType);
+        StringProperty s = Environment.getObjectTypeNamePlural_int (this.userObjectType);
 
         if (s != null)
         {
@@ -1099,12 +1104,25 @@ TODO Remove
 
         this.pluralNameSet = (n != null);
 
+        if (n == null)
+        {
+
+            n = getUIString (objectnames,plural,this.userObjectType);
+
+        }
+
         this.objectTypeNamePluralProp.setValue (n);
 
-        this.firePropertyChangedEvent (OBJECT_TYPE_NAME_PLURAL,
-                                       oldName,
-                                       n);
+        // Is there a change?
+        if (Objects.equals (oldName,
+                            n))
+        {
 
+            this.firePropertyChangedEvent (OBJECT_TYPE_NAME_PLURAL,
+                                           oldName,
+                                           n);
+
+        }
 
     }
 
@@ -1118,7 +1136,7 @@ TODO Remove
 
         }
 
-        return Environment.getObjectTypeNamePlural (this);
+        return Environment.getObjectTypeNamePlural_int (this.userObjectType);
 
     }
 
