@@ -4,7 +4,7 @@
     ":version" : 1,
     ":id" : ":English",
     ":qwversion.old" : "2.6.14",
-    ":qwversion" : "3.0.1",
+    ":qwversion" : "3.0.2",
     ":created" : 0,
     ":user" : false,
     ":email" : "gary@quollwriter.com",
@@ -6373,6 +6373,17 @@
                     {
                         "title" : "Version 3",
                         "text" : "So, version 3 is finally here.  Thank you all for your patience, it's been a long road.  There are lots of new features and to mention just a few:<ul><li>Built on JavaFX</li><li>Night mode</li><li>More configurable interface</li><li>Assets are now more flexible and easier to use</li><li>The Options panel has been revamped</li><li>Available for Windows, macOS and Linux</li></ul>I expect there to be some small updates in the coming weeks as I find and fix bugs that I didn't catch in testing, if you find any issues please let me know."
+                    }
+                }
+            },
+            "3.0.2" :
+            {
+                "items" :
+                {
+                    "bugs" :
+                    {
+                        "title" : "Bug Fixes",
+                        "text" : "<ul><li>A few fixes and tweaks here and there.  An issue with the creating and testing a translation has been fixed.  Sorry for the delay on this one!</li></ul>"
                     }
                 }
             }
