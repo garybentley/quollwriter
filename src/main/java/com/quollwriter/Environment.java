@@ -5395,7 +5395,10 @@ TODO: IS THIS NEEDED?
 
             }
 
-            if (p.getValue () == null)
+            if ((p == null)
+                ||
+                (p.getValue () == null)
+               )
             {
 
                 return getUILanguageStringProperty (objectnames,singular,ut.getUserConfigurableObjectType ().getUserObjectType ());
@@ -6120,6 +6123,14 @@ TODO: IS THIS NEEDED?
 
         if (url == null)
         {
+
+            // Ignore this image, from older version.
+            if (name.endsWith ("1-skyline.jpg"))
+            {
+
+                return null;
+
+            }
 
             // Can't find image, log the problem but keep going.
             Environment.logError ("Unable to find/load image: " +
