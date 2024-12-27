@@ -1099,6 +1099,8 @@ TODO Remove
 
             }
 
+            fs.close ();
+
         } catch (Exception e) {
 
             throw new GeneralException ("Unable to write dir to file: " +
