@@ -270,7 +270,7 @@
     <description>Add 20 {Locations}.</description>
   </item>
 
-  <item id="addcharacter" category="project" type="item" icon="character" asset="true" objectType="character" action="new">
+  <item id="addcharacter" category="project" type="item" icon="character" asset="true" objectType="character" count="1" action="new">
     <name>The name's Smith, probably</name>
     <description>Add a {Character}.</description>
   </item>
@@ -462,7 +462,7 @@
            value="To Do" />
   </item>
 
-  <item id="addresearchitem" category="project" icon="researchitem" type="item" asset="true" objectType="researchitem" action="new">
+  <item id="addresearchitem" category="project" icon="researchitem" type="item" asset="true" count="1" objectType="researchitem" action="new">
     <name>Backed up with facts</name>
     <description>Create a {Research Item}.</description>
   </item>
