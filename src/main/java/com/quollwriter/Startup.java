@@ -104,6 +104,8 @@ public class Startup extends Application
                                   () ->
                 {
 
+                    boolean showError = false;
+
                     try
                     {
 
@@ -133,8 +135,6 @@ public class Startup extends Application
 
                         }
 
-                        boolean showError = false;
-
                         if (UserProperties.getAsBoolean (Constants.SHOW_LANDING_ON_START_PROPERY_NAME))
                         {
 
@@ -159,6 +159,9 @@ public class Startup extends Application
                             } catch (Exception e)
                             {
 
+                                Environment.logError ("Unable to open last edited project: " +
+                                                      e);
+
                                 showError = true;
 
                             }
@@ -176,6 +179,13 @@ public class Startup extends Application
                         }
 
                     } catch (Exception e) {
+
+                        if (showError)
+                        {
+
+                            Environment.showAllProjectsViewer ();
+
+                        }
 
                         Environment.logError ("Unable to start up: " +
                                               e);

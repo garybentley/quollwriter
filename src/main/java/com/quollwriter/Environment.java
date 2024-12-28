@@ -2544,6 +2544,18 @@ TODO NEeded?
         Environment.startupCompleteProp.setValue (true);
         Environment.startupProgressProp.setValue (1);
 
+        if (Environment.getOpenViewers ().size () == 0)
+        {
+
+            UIUtils.runLater (() ->
+            {
+
+                Environment.showAllProjectsViewerIfNoOpenProjects ();
+
+            });
+
+        }
+
     }
 
     public static void incrStartupProgress ()
