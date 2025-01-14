@@ -1332,34 +1332,9 @@ xxx
 
             Bounds b = this.getLayoutBounds ();
             this.editMarker.setVisible (true);
-            Bounds pb = null;
-
-            if (this.chapter.getEditPosition () > -1)
-            {
-
-                pb = this.editor.getBoundsForPosition (this.chapter.getEditPosition ());
-
-            }
-
-            double h = b.getHeight ();
-
-            if (pb != null)
-            {
-
-                pb = this.screenToLocal (pb);
-
-                if (pb == null)
-                {
-
-                    return;
-
-                }
-
-                h = pb.getMaxY ();
-
-            }
 
             double w = this.editMarker.prefWidth (-1);
+
             this.editMarker.setPrefHeight (thisb.getHeight ());
             this.editMarker.autosize ();
             this.editMarker.relocate (b.getMaxX () - w,
