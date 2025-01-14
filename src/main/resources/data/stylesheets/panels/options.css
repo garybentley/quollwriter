@@ -241,3 +241,10 @@
 {
     -fx-background-color: -qw-icon-color;
 }
+
+.nightmodebgcolor .spinner
+{
+    visibility: hidden;
+    -fx-max-width: 10em;
+    -fx-pref-width: 10em;
+}

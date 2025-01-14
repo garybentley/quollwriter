@@ -669,18 +669,19 @@ System.out.println ("FILEPROPS: " + defUserPropsFile);
 
         };
 */
-
+/*
         // This inits the tags.
-        Environment.getAllTags ();
+        // yyy move to objectmanager
+        Environment.getAllTagsX ();
 
         // Init our legacy object types, if needed.
-        Environment.projectInfoManager.initLegacyObjectTypes ();
+        // No longer needed. Environment.projectInfoManager.initLegacyObjectTypes ();
 
         Environment.tags = FXCollections.observableSet (new LinkedHashSet<Tag> ((List<Tag>) Environment.projectInfoManager.getObjects (Tag.class,
                                                                                            null,
                                                                                            null,
                                                                                            true)));
-
+*/
         // The user session needs the properties.
         Environment.userSession = new UserSession ();
 
@@ -759,6 +760,7 @@ TODO
 
         }
 
+        // TODO Check to see if can remove
         Environment.schedule (() ->
         {
 
@@ -1828,15 +1830,10 @@ TODO
         dBMan.saveObject (p,
                           null);
 
+        dBMan.getProject ();
+
         dBMan.closeConnectionPool ();
 
-        ProjectInfo pi = new ProjectInfo (p);
-
-/*
-TODO NEeded?
-        Environment.fireProjectInfoChangedEvent (pi,
-                                                 ProjectInfoChangedEvent.ADDED);
-*/
         return p;
 
     }
@@ -1901,15 +1898,20 @@ TODO NEeded?
 
         p.setEncrypted (p.getFilePassword () != null);
 
+        boolean enc = p.isEncrypted ();
+
         // Create a file that indicates that the directory can be deleted.
         Utils.createQuollWriterDirFile (projDir);
 
         p.setProjectDirectory (projDir.toFile ());
 
-        dBMan.setProject (p);
-
         dBMan.saveObject (p,
                           null);
+
+        p = dBMan.getProject ();
+        p.setEncrypted (enc);
+
+        p.setProjectDirectory (projDir.toFile ());
 
         ProjectInfo pi = new ProjectInfo (p);
 
@@ -4473,7 +4475,7 @@ TODO Remove
         return Environment.getUserPath (Constants.USER_OBJECT_TYPE_ICON_FILES_DIR).resolve (objType);
 
     }
-
+/*
     public static Set<UserConfigurableObjectType> getAssetUserConfigurableObjectTypes (boolean sortOnName)
     {
 
@@ -4506,7 +4508,8 @@ TODO Remove
         return types;
 
     }
-
+*/
+/*
     public static UserConfigurableObjectTypeField getUserConfigurableObjectTypeField (long key)
                                                                                throws GeneralException
     {
@@ -4518,7 +4521,8 @@ TODO Remove
                                                                                                 true);
 
     }
-
+*/
+/*
     public static UserConfigurableObjectType getUserConfigurableObjectType (long key)
                                                                      throws GeneralException
     {
@@ -4530,14 +4534,16 @@ TODO Remove
                                                                                            true);
 
     }
-
+*/
+/*
+Remove
     public static boolean hasUserConfigurableObjectType (String userObjType)
     {
 
         return Environment.getUserConfigurableObjectType (userObjType) != null;
 
     }
-
+*/
     public static ObservableSet<UserConfigurableObjectType> getUserConfigurableObjectTypes ()
     {
 
@@ -4566,7 +4572,7 @@ TODO Remove
         return null;
 
     }
-
+/*
     public static void removeUserConfigurableObjectType (UserConfigurableObjectType type)
                                                   throws GeneralException
     {
@@ -4591,8 +4597,9 @@ TODO Remove
                                           type);
 
     }
-
+*/
     // TODO Remove
+    /*
     public static void updateUserConfigurableObjectTypeFieldOrdering (UserConfigurableObjectType type)
                                                                throws GeneralException
     {
@@ -4608,7 +4615,8 @@ TODO Remove
                                           type);
 
     }
-
+*/
+/*
     public static void updateUserConfigurableObjectType (UserConfigurableObjectType type)
                                                   throws GeneralException
     {
@@ -4641,6 +4649,7 @@ TODO Remove
                                           type);
 
     }
+*/
 
     public static void addUserConfigurableObjectType (UserConfigurableObjectType type)
                                                throws GeneralException
@@ -4683,6 +4692,7 @@ TODO Remove
 
     }
 
+/*
     public static void removeUserConfigurableObjectTypeField (UserConfigurableObjectTypeField field)
                                                        throws GeneralException
     {
@@ -4697,7 +4707,8 @@ TODO Remove
                                           field);
 
     }
-
+*/
+/*
     public static void updateUserConfigurableObjectTypeField (UserConfigurableObjectTypeField field)
                                                        throws GeneralException
     {
@@ -4725,7 +4736,7 @@ TODO Remove
                                           field.getUserConfigurableObjectType ());
 
     }
-
+*/
     public static void updateUserObjectTypeNames (Map<String, StringProperty> singular,
                                                   Map<String, StringProperty> plural)
                                            throws Exception
@@ -5903,9 +5914,10 @@ TODO: IS THIS NEEDED?
                                           parms);
 
     }
-
-    public static Book createTestBook ()
-                                       throws Exception
+/*
+REMOVE
+    public static Book createTestBook (Project p)
+                                throws Exception
     {
 
         Element root = DOM4JUtils.stringAsElement (Utils.getResourceFileAsString (Constants.TEST_BOOK_FILE));
@@ -5913,7 +5925,7 @@ TODO: IS THIS NEEDED?
         String name = DOM4JUtils.attributeValue (root,
                                                    XMLConstants.name);
 
-        Book b = new Book ();
+        Book b = new Book (p);
 
         b.setName (name);
 
@@ -5937,7 +5949,7 @@ TODO: IS THIS NEEDED?
         return b;
 
     }
-
+*/
     public static Set<Image> getWindowIcons ()
     {
 

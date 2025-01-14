@@ -510,5 +510,6 @@ public final class StyleClassNames
     public static final String LEAF = "leaf";
     public static final String BRANCH = "branch";
     public static final String HASPARENT = "hasparent";
+    public static final String NIGHTMODEBGCOLOR = "nightmodebgcolor";
 
 }

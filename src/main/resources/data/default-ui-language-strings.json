@@ -934,6 +934,25 @@
                         "finish" : "${buttons.finish}"
                     }
                 }
+            },
+            "importtypes" :
+            {
+                "popup" :
+                {
+                    "title" : "Import ${objectnames.singular.asset} types into your ${objectnames.singular.project}",
+                    "text" : "Import the definition of an ${objectname.singular.asset} into your ${objectnames.singular.project}.  Note: this won't import the ${objectnames.plural.asset} themselves.",
+                    "projectslist" :
+                    {
+                        "tooltip" : "Select a ${objectnames.singular.project} to import from",
+                        "error" : "Unable to get all ${objectnames.plural.project}."
+                    },
+                    "selectitems" :
+                    {
+                        "title" : "Select the types to import",
+                        "text" : "Note: imported types with duplicate names will have a number appended to the name, for example <b>${objectnames.singular.character} [2]</b>."
+                    },
+                    "actionerror" : "Unable to import selected types."
+                }
             }
         },
         "layout" :
@@ -5471,7 +5490,13 @@
                 {
                     "newasset" : "Adding new ${objectnames.plural.asset}",
                     "existing" : "Existing ${objectnames.plural.asset}",
-                    "newtype" : "New types of ${objectnames.plural.asset}"
+                    "newtype" : "New types of ${objectnames.plural.asset}",
+                    "importtypes" : "Import types of ${objectnames.plural.asset}"
+                },
+                "importtypes" :
+                {
+                    "text" : "Add the definitions of ${objectnames.plural.asset} stored in another ${objectnames.singular.project} into this ${objectnames.singular.project}",
+                    "label" : "Import ${objectnames.singular.asset} Types"
                 },
                 "newasset" :
                 {
@@ -5598,6 +5623,7 @@
                 "feedback" : "Send feedback",
                 "autonightmode" : "Automatically turn on Night Mode",
                 "permanentnightmode" : "Enable Night Mode permanently",
+                "nightmodebgcolor" : "How dark should the background be?",
                 "interfacelayout" :
                 {
                     "text" : "How should the interface be laid out? (Click on the image below to change)",
@@ -8960,6 +8986,10 @@
             "openproject" :
             {
                 "actionerror" : "Unable to show the ${objectnames.plural.project} window.",
+                "errors" :
+                {
+                    "projectalreadyopen" : "Sorry, the ${objectnames.singular.project} appears to already be open in {QW}.  Please close all other instances of {QW} first before trying to open the ${objectnames.singular.project}."
+                },
                 "enterpasswordpopup" :
                 {
                     "title" : "Enter password",

@@ -358,7 +358,14 @@ TODO Remove, rolled into start section
         if (Section.Id.assets == id)
         {
 
-            return this.createAssetsSection (viewer);
+            if (!(viewer instanceof AbstractProjectViewer))
+            {
+
+                throw new IllegalArgumentException ("Can only show assets when the AbstractProjectViewer is provided.");
+
+            }
+
+            return this.createAssetsSection ((AbstractProjectViewer) viewer);
 
         }
 
@@ -379,7 +386,14 @@ TODO Remove, rolled into start section
         if (Section.Id.editing == id)
         {
 
-            return this.createEditingSection (viewer);
+            if (!(viewer instanceof AbstractProjectViewer))
+            {
+
+                throw new IllegalArgumentException ("Can only show assets when the AbstractProjectViewer is provided.");
+
+            }
+
+            return this.createEditingSection ((AbstractProjectViewer) viewer);
 
         }
 
@@ -872,7 +886,7 @@ TODO Remove, rolled into start section
 
     }
 
-    private Section createEditingSection (AbstractViewer viewer)
+    private Section createEditingSection (AbstractProjectViewer viewer)
     {
 
         //final Properties props = Environment.getDefaultProperties (Project.OBJECT_TYPE);
@@ -1496,7 +1510,7 @@ TODO Remove, rolled into start section
 
                 }
 
-                new ChangeProjectItemPreviewDisplayPopup (this.viewer).show ();
+                new ChangeProjectItemPreviewDisplayPopup (viewer).show ();
 
             })
             .build ();
@@ -2197,7 +2211,7 @@ TODO Remove, rolled into start section
 
     }
 
-    private Section createAssetsSection (AbstractViewer viewer)
+    private Section createAssetsSection (AbstractProjectViewer viewer)
     {
 
         String addAsset = UserProperties.get (Constants.ADD_ASSETS_PROPERTY_NAME);
@@ -2250,7 +2264,7 @@ TODO Remove, rolled into start section
 
         ObservableList<UserConfigurableObjectType> types = FXCollections.observableList (new ArrayList<> ());
 
-        this.propertyBinder.addSetChangeListener (Environment.getUserConfigurableObjectTypes (),
+        this.propertyBinder.addSetChangeListener (viewer.getProject ().getUserConfigurableObjectTypes (),
                                                   ch ->
         {
 
@@ -2275,7 +2289,7 @@ TODO Remove, rolled into start section
 
         });
 
-        for (UserConfigurableObjectType t : Environment.getAssetUserConfigurableObjectTypes (true))
+        for (UserConfigurableObjectType t : viewer.getProject ().getAssetUserConfigurableObjectTypes (true))
         {
 
             types.add (t);
@@ -2329,7 +2343,7 @@ TODO Remove, rolled into start section
             .onAction (ev ->
             {
 
-                this.viewer.showEditUserConfigurableType (editTypes.getSelectionModel ().getSelectedItem ());
+                viewer.showEditUserConfigurableType (editTypes.getSelectionModel ().getSelectedItem ());
 
             })
             .build ();
@@ -2339,7 +2353,7 @@ TODO Remove, rolled into start section
             .onAction (ev ->
             {
 
-                this.viewer.showDeleteUserConfigurableType (editTypes.getSelectionModel ().getSelectedItem ());
+                viewer.showDeleteUserConfigurableType (editTypes.getSelectionModel ().getSelectedItem ());
 
             })
             .build ();
@@ -2361,15 +2375,25 @@ TODO Remove, rolled into start section
                        b)
             .subtitle (getUILanguageStringProperty (options,assets,labels,subtitles,newtype))
             .mainItem (QuollButton.builder ()
-                .label (options,assets,labels,addtype)
-                .onAction (ev ->
-                {
+                        .label (options,assets,labels,addtype)
+                        .onAction (ev ->
+                        {
 
-                    // TODO
-                    this.viewer.showAddNewUserConfigurableType ();
+                            viewer.showAddNewUserConfigurableType ();
 
-                })
-                .build ())
+                        })
+                        .build ())
+             .subtitle (getUILanguageStringProperty (options,assets,labels,subtitles,importtypes))
+             .mainItem (getUILanguageStringProperty (options,assets,labels,importtypes,text),
+                        QuollButton.builder ()
+                            .label (options,assets,labels,importtypes,label)
+                            .onAction (ev ->
+                            {
+
+                                viewer.showImportUserConfigurableTypes ();
+
+                            })
+                            .build ())
             .build ();
 
         return s;
@@ -2787,6 +2811,21 @@ TODO Remove, rolled into start section
 
         });
 
+        NumberSelector nightModeBGColor = NumberSelector.builder ()
+            .styleClassName (StyleClassNames.NIGHTMODEBGCOLOR)
+            .min (0)
+            .max (150)
+            .initialValue ((int) (UserProperties.nightModeBGColorProperty ().getValue ().getRed () * 255))
+            .onValueChanged ((oldv, newv) ->
+            {
+
+                // Get as hex, repeat for r, g, b to get grey value.
+                UserProperties.setNightModeBGColor (UIUtils.hexToColor (UIUtils.rgbToHex (newv.intValue (),
+                                                                                          newv.intValue (),
+                                                                                          newv.intValue ())));
+            })
+            .build ();
+
         QuollCheckBox permNightMode = QuollCheckBox.builder ()
             .label (options,lookandsound,labels,permanentnightmode)
             .selected (UserProperties.permanentNightModeEnabledProperty ().getValue ())
@@ -2891,6 +2930,8 @@ TODO Remove, rolled into start section
             .mainItem (permNightMode)
             .mainItem (autoNightMode)
             .subItem (timeRange)
+            .mainItem (getUILanguageStringProperty (options,lookandsound,labels,nightmodebgcolor),
+                       nightModeBGColor)
             .subtitle (getUILanguageStringProperty (options,lookandsound,labels,subtitles,projectswindow))
             .mainItem (QuollCheckBox.builder ()
                 .label (options,lookandsound,labels,keepprojectswindowsopen)
