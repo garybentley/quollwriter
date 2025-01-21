@@ -54,9 +54,9 @@
     -fx-max-height: 5em;
 }
 .column .fields .list-view {
-    -fx-min-height: 7em;
+    -fx-min-height: 5em;
     -fx-pref-height: 7em;
-    -fx-max-height: 7em;
+    -fx-max-height: 10em;
     -fx-border-width: 1px;
     -fx-border-color: -qw-component-border-color;
 }
@@ -580,4 +580,14 @@
     -fx-max-width: 10em;
     -fx-max-height: 10em;
     -fx-fill-height: false;
+}
+
+.field.objectname .edit .full
+{
+    -fx-padding: 0 0.5em 0.25em 0.25em;
+}
+
+.column .fields .field.list .list-view
+{
+    -fx-background-color: transparent;
 }
