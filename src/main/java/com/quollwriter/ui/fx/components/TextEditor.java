@@ -1261,7 +1261,9 @@ TODO
                 }
                 if(doc != null) {
 
-                    TextStyle ts = this.getTextInsertionStyle ();
+                    TextStyle ts = this.getStyleAtPosition (this.getCaretPosition ());
+
+                    //TextStyle ts = this.getTextInsertionStyle ();
                     ReadOnlyStyledDocumentBuilder b = new ReadOnlyStyledDocumentBuilder (getSegOps (),
                                                                                          this.getParagraphInsertionStyle ());
 
@@ -1286,11 +1288,7 @@ TODO
 
                                             }
 
-                                            TextStyle s = new TextStyle (ss);
-                                            ss.setFontSize (ts.getFontSize ());
-                                            ss.setFontFamily (ts.getFontFamily ());
-                                            ss.setTextColor (ts.getTextColor ());
-                                            return ss;
+                                            return ts;
 
                                         }));
 
