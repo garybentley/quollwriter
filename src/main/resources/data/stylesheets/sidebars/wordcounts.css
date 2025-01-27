@@ -4,13 +4,18 @@
  /*
 .header .icon { -fx-image: url(/imgs/wordcount16.png); }
 */
+.sidebar.wordcounts {
+    -fx-min-width: 15em;
+    -fx-pref-width: 20em;
+}
+
 .accordion { -fx-padding: 0 0.5em 0.5em 0.5em; }
 .accordion .header {
     -fx-border-width: 0 0 1px 0;
     -fx-border-color: -qw-component-border-color;
     -fx-padding: 0 0 0.25em 0;
 }
-.scroll-pane { -fx-fit-to-width: false; }
+.scroll-pane { -fx-fit-to-width: true; }
 .accordion .content { -fx-padding: 0.5em 0 0.5em 0.5em; }
 /*
 .accordion.selected .header .icon { -fx-image: url(/imgs/edit16.png); }
