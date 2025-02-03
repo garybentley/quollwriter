@@ -7,8 +7,6 @@ import com.quollwriter.*;
 
 import com.quollwriter.data.*;
 
-import com.quollwriter.ui.*;
-
 import com.quollwriter.ui.fx.components.*;
 
 public interface DocumentExporter
@@ -20,9 +18,7 @@ public interface DocumentExporter
 
     public String getStartStage ();
 
-    public WizardStep getStage (String stage);
-
-    com.quollwriter.ui.fx.components.Wizard.Step getStage2 (String stage);
+    Wizard.Step getStage (String stage);
 
     public String getNextStage (String currStage);
 

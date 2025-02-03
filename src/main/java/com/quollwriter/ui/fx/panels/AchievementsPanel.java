@@ -18,6 +18,7 @@ import com.quollwriter.ui.fx.viewers.*;
 import com.quollwriter.ui.fx.components.*;
 import com.quollwriter.ui.fx.panels.*;
 import com.quollwriter.ui.fx.*;
+import com.quollwriter.data.*;
 import com.quollwriter.*;
 import com.quollwriter.achievements.*;
 import com.quollwriter.achievements.rules.*;
@@ -154,6 +155,17 @@ TODO?
 
         content.getChildren ().addAll (h, desc, hide, sp);
 
+        Project _proj = null;
+
+        if (this.viewer instanceof AbstractProjectViewer)
+        {
+
+            _proj = ((AbstractProjectViewer) this.viewer).getProject ();
+
+        }
+
+        Project proj = _proj;
+
         VBox genItems = new VBox ();
 
         userRules.stream ()
@@ -162,7 +174,8 @@ TODO?
 
                 genItems.getChildren ().add (new AchievementView (r,
                                                                   userAchievedIds.contains (r.getId ()),
-                                                                  this.getBinder ()));
+                                                                  this.getBinder (),
+                                                                  proj));
 
             });
 
@@ -213,7 +226,8 @@ TODO?
 
                 projItems.getChildren ().add (new AchievementView (r,
                                                                    projAchievedIds.contains (r.getId ()),
-                                                                   this.getBinder ()));
+                                                                   this.getBinder (),
+                                                                   proj));
 
             }
 
@@ -231,57 +245,16 @@ TODO?
             man.projectAchievedProperty (pv),
             UILanguageStringsManager.uilangProperty ()));
 
-            AccordionItem proj = AccordionItem.builder ()
+            AccordionItem projAchies = AccordionItem.builder ()
                 .styleClassName (StyleClassNames.PROJECT)
                 .title (ptitleProp)
                 .openContent (projItems)
                 .build ();
 
-            all.getChildren ().add (proj);
+            all.getChildren ().add (projAchies);
 
         }
 
-/*
-      this.headers.put ("user",
-                        gen.getHeader ());
-
-      main.add (gen);
-
-      if (this.viewer instanceof AbstractProjectViewer)
-      {
-
-          final JComponent projBox = _this.getAchievementsBox (projRules,
-                                                               achieved.get ("project"),
-                                                               "project");
-
-          gen.setBorder (UIUtils.createPadding (0, 5, 0, 0));
-          AccordionItem proj = new AccordionItem (String.format (getUIString (achievementspanel,sectiontitles,project),
-                                                                 Environment.formatNumber (achieved.get ("project").size ()),
-                                                                 Environment.formatNumber (projRules.size ())))
-                                                  //Environment.replaceObjectNames ("{Project} - " + achieved.get ("project").size () + " / " + projRules.size ()))
-          {
-
-              @Override
-              public JComponent getContent ()
-              {
-
-                  return projBox;
-
-              }
-
-          };
-
-          proj.init ();
-
-          this.headers.put ("project",
-                            proj.getHeader ());
-
-          proj.setBorder (UIUtils.createPadding (0, 5, 0, 0));
-
-          main.add (proj);
-
-      }
-*/
     }
 
     public void achievementReached (AchievementReachedEvent ev)
@@ -289,104 +262,6 @@ TODO?
 
         AchievementRule ar = ev.getRule ();
 
-/*
-        String t = ar.getCategory ();
-
-        Header h = this.headers.get (t);
-
-        if (h == null)
-        {
-
-            return;
-
-        }
-
-        AchievementsManager man = Environment.getAchievementsManager ();
-
-        Map<String, Set<String>> achieved = man.getAchievedAchievementIds (this.viewer);
-
-        Box b = this.boxes.get (t);
-
-        if (t.equals ("user"))
-        {
-
-            Set<AchievementRule> userRules = man.getUserRules ();
-
-            h.setTitle (String.format (getUIString (achievementspanel,sectiontitles,user),
-                                       Environment.formatNumber (achieved.get (t).size ()),
-                                       Environment.formatNumber (userRules.size ())));
-                        //"General - " + achieved.get (t).size () + " / " + userRules.size ());
-
-            for (int i = 0; i < b.getComponentCount (); i++)
-            {
-
-                Component c = b.getComponent (i);
-
-                if (c instanceof AchievementBox)
-                {
-
-                    AchievementBox ab = (AchievementBox) c;
-
-                    if (ab.getRule ().getId ().equals (ar.getId ()))
-                    {
-
-                        ab.setAchieved (true);
-
-                        ab.setVisible (true);
-
-                        b.remove (ab);
-
-                        b.add (ab,
-                               0);
-
-                    }
-
-                }
-
-            }
-
-        }
-
-        if (t.equals ("project"))
-        {
-
-            Set<AchievementRule> projRules = man.getPerProjectRules ();
-
-            h.setTitle (String.format (getUIString (achievementspanel,sectiontitles,project),
-                                       Environment.formatNumber (achieved.get (t).size ()),
-                                       Environment.formatNumber (projRules.size ())));
-            //"Project - " + achieved.get (t).size () + " / " + projRules.size ());
-
-            for (int i = 0; i < b.getComponentCount (); i++)
-            {
-
-                Component c = b.getComponent (i);
-
-                if (c instanceof AchievementBox)
-                {
-
-                    AchievementBox ab = (AchievementBox) c;
-
-                    if (ab.getRule ().getId ().equals (ar.getId ()))
-                    {
-
-                        ab.setAchieved (true);
-
-                        ab.setVisible (true);
-
-                        b.remove (ab);
-
-                        b.add (ab,
-                               0);
-
-                    }
-
-                }
-
-            }
-
-        }
-*/
     }
 
     @Override

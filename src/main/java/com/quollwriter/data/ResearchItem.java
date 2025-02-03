@@ -14,10 +14,10 @@ public class ResearchItem extends LegacyAsset
 
     private String url = null;
 
-    public ResearchItem ()
+    public ResearchItem (UserConfigurableObjectType objType)
     {
 
-        super (ResearchItem.OBJECT_TYPE);
+        super (objType);
 
     }
 

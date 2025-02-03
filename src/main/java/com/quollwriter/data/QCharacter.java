@@ -10,10 +10,10 @@ public class QCharacter extends LegacyAsset
 
     public static final String OBJECT_TYPE = "character";
 
-    public QCharacter()
+    public QCharacter(UserConfigurableObjectType objType)
     {
 
-        super (QCharacter.OBJECT_TYPE);
+        super (objType);
 
     }
 

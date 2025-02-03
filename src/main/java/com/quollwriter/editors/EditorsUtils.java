@@ -2,10 +2,6 @@ package com.quollwriter.editors;
 
 import java.io.*;
 
-import java.awt.event.*;
-import java.awt.Component;
-import java.awt.Dimension;
-
 import java.awt.image.*;
 import javax.imageio.*;
 
@@ -25,9 +21,6 @@ import org.bouncycastle.openpgp.operator.bc.*;
 
 import com.quollwriter.*;
 import com.quollwriter.ui.fx.*;
-import com.quollwriter.ui.events.*;
-import com.quollwriter.ui.components.QPopup;
-import com.quollwriter.ui.components.ActionAdapter;
 import com.quollwriter.editors.ui.*;
 import com.quollwriter.data.editors.*;
 

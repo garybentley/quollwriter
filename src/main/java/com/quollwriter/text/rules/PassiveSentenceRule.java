@@ -2,15 +2,11 @@ package com.quollwriter.text.rules;
 
 import java.util.*;
 
-import javax.swing.*;
-
 import com.quollwriter.*;
 
 import com.quollwriter.synonyms.*;
 
 import com.quollwriter.text.*;
-
-import com.quollwriter.ui.forms.*;
 
 import org.dom4j.*;
 
@@ -35,8 +31,6 @@ public class PassiveSentenceRule extends AbstractSentenceRule
     private Set<String> beWords = new HashSet<> ();
     private Set<String> irregularForms = new HashSet<> ();
     private boolean ignoreInDialogue = false;
-
-    private CheckboxFormItem ignoreDialogueF = null;
 
     private QuollCheckBox ignoreDialogueF2 = null;
 
@@ -369,28 +363,7 @@ public class PassiveSentenceRule extends AbstractSentenceRule
     }
 
     @Override
-    public Set<FormItem> getFormItems ()
-    {
-
-        Set<FormItem> items = new LinkedHashSet ();
-
-        List<String> pref = Arrays.asList (LanguageStrings.problemfinder,LanguageStrings.config,LanguageStrings.rules,LanguageStrings.passivesentence,LanguageStrings.labels);
-
-        this.ignoreDialogueF = new CheckboxFormItem (null,
-                                                     Environment.getUIString (pref,
-                                                                              LanguageStrings.ignoreindialogue));
-                                                     //"Ignore in dialogue");
-
-        this.ignoreDialogueF.setSelected (this.ignoreInDialogue);
-
-        items.add (this.ignoreDialogueF);
-
-        return items;
-
-    }
-
-    @Override
-    public Set<Form.Item> getFormItems2 ()
+    public Set<Form.Item> getFormItems ()
     {
 
         Set<Form.Item> items = new LinkedHashSet<> ();
@@ -409,26 +382,10 @@ public class PassiveSentenceRule extends AbstractSentenceRule
     }
 
     @Override
-    public String getFormError ()
-    {
-
-        return null;
-
-    }
-
-    @Override
-    public void updateFromForm2 ()
-    {
-
-        this.ignoreInDialogue = this.ignoreDialogueF2.isSelected ();
-
-    }
-
-    @Override
     public void updateFromForm ()
     {
 
-        this.ignoreInDialogue = this.ignoreDialogueF.isSelected ();
+        this.ignoreInDialogue = this.ignoreDialogueF2.isSelected ();
 
     }
 

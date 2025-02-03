@@ -18,6 +18,7 @@ public abstract class AbstractProjectMessage extends EditorMessage
     protected ProjectVersion projVer = null;
     //protected String versionName = null;
     //protected String versionId = null;
+    private Project project = null;
 
     public AbstractProjectMessage ()
     {
@@ -56,6 +57,7 @@ public abstract class AbstractProjectMessage extends EditorMessage
 
         }
 
+        this.project = project;
         this.setEditor (editor);
         this.setForProjectName (project.getName ());
         this.setForProjectId (project.getId ());
@@ -312,7 +314,8 @@ public abstract class AbstractProjectMessage extends EditorMessage
 
                 Map cm = (Map) chs.get (i);
 
-                Chapter c = TypeEncoder.decodeToChapter (cm);
+                Chapter c = TypeEncoder.decodeToChapter (cm,
+                                                         this.project);
 
                 chaps.add (c);
 
@@ -390,7 +393,8 @@ public abstract class AbstractProjectMessage extends EditorMessage
 
             Map cm = (Map) co;
 
-            Chapter c = TypeEncoder.decodeToChapter (cm);
+            Chapter c = TypeEncoder.decodeToChapter (cm,
+                                                     this.project);
 
             chapsS.add (c);
 
@@ -496,7 +500,8 @@ public abstract class AbstractProjectMessage extends EditorMessage
 
             Map cm = (Map) co;
 
-            Chapter c = TypeEncoder.decodeToChapter (cm);
+            Chapter c = TypeEncoder.decodeToChapter (cm,
+                                                     this.project);
 
             wc += TextUtilities.getWordCount (c.getChapterText ());
 

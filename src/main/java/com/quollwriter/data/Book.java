@@ -32,15 +32,15 @@ public class Book extends NamedObject
     // TODO Change to use a set.
     private ObservableList<Chapter> chapters = FXCollections.observableList (new ArrayList<> ());
     private ChapterSorter sort = null;
-
+/*
     public Book()
     {
 
         super (Book.OBJECT_TYPE);
 
     }
-
-    public Book(Project p)
+*/
+    public Book (Project p)
     {
 
         super (Book.OBJECT_TYPE);
@@ -49,8 +49,8 @@ public class Book extends NamedObject
 
     }
 
-    public Book(Project p,
-                String  name)
+    public Book (Project p,
+                 String  name)
     {
 
         this (p);
@@ -97,7 +97,7 @@ public class Book extends NamedObject
     public Set<NamedObject> getAllNamedChildObjects ()
     {
 
-        Set<NamedObject> ret = new TreeSet (NamedObjectSorter.getInstance ());
+        Set<NamedObject> ret = new TreeSet (new NamedObjectSorter (this.getProject ()));
 
         for (Chapter c : this.chapters)
         {

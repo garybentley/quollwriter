@@ -27,7 +27,7 @@ public class ChangeProjectItemPreviewDisplayPopup extends PopupContent
 
     public static final String POPUP_ID = "projectitempreview";
 
-    public ChangeProjectItemPreviewDisplayPopup (AbstractViewer viewer)
+    public ChangeProjectItemPreviewDisplayPopup (AbstractProjectViewer viewer)
     {
 
         super (viewer);
@@ -54,7 +54,7 @@ public class ChangeProjectItemPreviewDisplayPopup extends PopupContent
             .title (getUILanguageStringProperty (project,sidebar,chapters,preview,edit,LanguageStrings.popup,examplechapter,title))
             .build ());
 
-        final Chapter _bogus = new Chapter ();
+        final Chapter _bogus = new Chapter (viewer.getProject ().getBook (0));
         _bogus.setKey (1L);
         _bogus.setDescription (new StringWithMarkup (getUILanguageStringProperty (project,sidebar,chapters,preview,edit,LanguageStrings.popup,examplechapter,description).getValue ()));
         //"This chapter will be really, really good once I actually start to write it."));
@@ -76,7 +76,7 @@ public class ChangeProjectItemPreviewDisplayPopup extends PopupContent
            public Set<Word> getSpellingErrors (Chapter c)
            {
 
-               Set<Word> ret = new HashSet ();
+               Set<Word> ret = new HashSet<> ();
                return ret;
 
            }
@@ -84,7 +84,7 @@ public class ChangeProjectItemPreviewDisplayPopup extends PopupContent
            public Set<Issue> getProblems (Chapter c)
            {
 
-               Set<Issue> ret = new HashSet ();
+               Set<Issue> ret = new HashSet<> ();
                return ret;
 
            }

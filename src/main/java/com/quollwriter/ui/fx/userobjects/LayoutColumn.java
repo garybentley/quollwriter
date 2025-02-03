@@ -649,7 +649,9 @@ public class LayoutColumn extends VBox
             try
             {
 
-                Environment.updateUserConfigurableObjectTypeField (field);
+                this.viewer.saveObject (field,
+                                        true);
+                //Environment.updateUserConfigurableObjectTypeField (field);
 
             } catch (Exception e) {
 
@@ -676,6 +678,27 @@ public class LayoutColumn extends VBox
             } else {
 
                 this.fieldsColumn.fields ().add (field);
+
+            }
+
+            try
+            {
+
+                this.viewer.saveObject (type,
+                                        true);
+                //Environment.updateUserConfigurableObjectTypeField (field);
+
+            } catch (Exception e) {
+
+                Environment.logError ("Unable to update user config object type: " +
+                                      type,
+                                      e);
+
+                ComponentUtils.showErrorMessage (this.viewer,
+                                                 getUILanguageStringProperty (userobjects,LanguageStrings.fields,add,actionerror));
+                                          //"Unable to create the field.");
+
+                return;
 
             }
 

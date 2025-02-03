@@ -36,7 +36,6 @@ import com.quollwriter.Utils;
 import com.quollwriter.ui.fx.*;
 import com.quollwriter.ui.fx.viewers.*;
 import com.quollwriter.ui.fx.components.*;
-import com.quollwriter.ui.fx.swing.*;
 import com.quollwriter.ui.fx.popups.*;
 import com.quollwriter.text.TextIterator;
 import com.quollwriter.text.Word;

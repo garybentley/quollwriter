@@ -34,7 +34,7 @@ public class CharacterDataHandler implements DataHandler<QCharacter, Project>
 
             int ind = 1;
 
-            QCharacter c = new QCharacter ();
+            QCharacter c = new QCharacter (p.getUserConfigurableObjectType (QCharacter.OBJECT_TYPE));
 
             long key = rs.getLong (ind++);
 

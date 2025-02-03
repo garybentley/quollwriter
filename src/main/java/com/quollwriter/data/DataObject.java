@@ -265,8 +265,6 @@ public abstract class DataObject implements IPropertyBinder
 
         }
 
-        Object o = new Object ();
-
         Set<PropertyChangedListener> ls = new HashSet<> ();
 
         // Get a copy of the current valid listeners.
@@ -511,6 +509,8 @@ public abstract class DataObject implements IPropertyBinder
                       throws IOException
     {
 
+        String oldV = this.getProperty (name);
+
         StringProperty p = new StringProperty (name,
                                                value);
 
@@ -518,6 +518,10 @@ public abstract class DataObject implements IPropertyBinder
 
         this.props.setProperty (name,
                                 p);
+
+        this.firePropertyChangedEvent (name,
+                                       oldV,
+                                       value);
 
     }
 

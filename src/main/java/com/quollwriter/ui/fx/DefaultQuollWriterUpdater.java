@@ -592,52 +592,6 @@ public class DefaultQuollWriterUpdater implements QuollWriterUpdater
         Environment.getOpenViewers ().stream ()
             .forEach (pv -> pv.close (null));
 
-        // TODO Environment.doForOpenViewers -> close ()
-/*
-TODO
-        Map<ProjectInfo, AbstractProjectViewer> open = Environment.getOpenProjects ();
-
-        // Get the first, close it.
-        if (open.size () > 0)
-        {
-
-            AbstractProjectViewer pv = open.values ().iterator ().next ();
-
-            pv.setState (java.awt.Frame.NORMAL);
-            pv.toFront ();
-
-            pv.close (false,
-                      new ActionListener ()
-                      {
-
-                          @Override
-                          public void actionPerformed (ActionEvent ev)
-                          {
-
-                              _this.closeDown ();
-
-                          }
-
-                      });
-
-            return;
-
-        } else {
-
-            if (Environment.getAllProjectsViewer () != null)
-            {
-
-                Environment.getAllProjectsViewer ().close (null);
-
-            } else {
-
-                Environment.closeDown ();
-
-            }
-
-        }
-*/
-
     }
 
 }

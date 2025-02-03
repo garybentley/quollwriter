@@ -47,7 +47,6 @@ import com.quollwriter.ui.fx.*;
 import com.quollwriter.ui.fx.viewers.*;
 import com.quollwriter.ui.fx.components.*;
 import com.quollwriter.events.ProjectInfoChangedEvent;
-import com.quollwriter.ui.fx.swing.QTextEditor;
 import com.quollwriter.editors.ui.*;
 
 import static com.quollwriter.LanguageStrings.*;
@@ -57,11 +56,6 @@ public class Environment
 {
 
     public static PrintStream out = null;
-/*
-    private static Logger generalLog = null;
-    private static Logger errorLog = null;
-    private static Logger sqlLog = null;
-*/
 
     private static boolean closeDownAllowed = true;
 
@@ -123,7 +117,6 @@ public class Environment
     private static Map<String, StringProperty> objectTypeNamesSingularProps = new HashMap<> ();
     private static Map<String, StringProperty> objectTypeNamesPluralProps = new HashMap<> ();
 
-    private static Map<String, com.quollwriter.ui.UserPropertyHandler> userPropertyHandlers = new HashMap<> ();
     private static ProjectTextProperties projectTextProps = null;
     private static FullScreenTextProperties fullScreenTextProps = null;
     private static DoubleProperty objectTypeNameChangedProp = null;
@@ -284,34 +277,9 @@ public class Environment
         LogManager.getLogManager ().readConfiguration (configFile);
 
         Environment.logger = Logger.getLogger ("logger");
-/*
-        File f = Environment.getErrorLogFile ();
 
-        f.delete ();
-
-        Environment.errorLog = Logger.getLogger ("error");
-
-        Environment.errorLog.addHandler (errorHandler);
-
-        Environment.errorLog = new Logger ();
-        Environment.errorLog.initLogFile (f);
-
-        f = Environment.getGeneralLogFile ();
-
-        f.delete ();
-
-        Environment.generalLog = new Logger ();
-        Environment.generalLog.initLogFile (f);
-
-        f = Environment.getSQLLogFile ();
-
-        f.delete ();
-*/
         Environment.sqlLog = Logger.getLogger ("sql-logger");
-/*
-        Environment.sqlLog = new Logger ();
-        Environment.sqlLog.initLogFile (f);
-*/
+
         Environment.incrStartupProgress ();
 
         Environment.isWindows = System.getProperty ("os.name").startsWith ("Windows");
@@ -321,8 +289,7 @@ public class Environment
         Environment.isLinux = System.getProperty ("os.name").startsWith ("Linux");
 
         System.setProperty ("prism.lcdtext", "false");
-        //System.setProperty("prism.lcdtext", "true");
-                //System.setProperty("prism.text", "t2k");
+
         // TODO Handle night mode.
         Environment.nightModeProp = new SimpleBooleanProperty (false);
 
@@ -551,6 +518,8 @@ System.out.println ("FILEPROPS: " + defUserPropsFile);
         }
 
         // Add a set of user overrides for the object type names.
+        /*
+        NO LONGER NEEDED
         UILanguageStringsManager.setUserStringProvider (ids ->
         {
 
@@ -644,7 +613,7 @@ System.out.println ("FILEPROPS: " + defUserPropsFile);
             return null;
 
         });
-
+*/
         // Add a property listener for name changes to user config object types.
         /*
         TODO
@@ -669,6 +638,7 @@ System.out.println ("FILEPROPS: " + defUserPropsFile);
 
         };
 */
+
 /*
         // This inits the tags.
         // yyy move to objectmanager
@@ -676,12 +646,12 @@ System.out.println ("FILEPROPS: " + defUserPropsFile);
 
         // Init our legacy object types, if needed.
         // No longer needed. Environment.projectInfoManager.initLegacyObjectTypes ();
-
+*/
         Environment.tags = FXCollections.observableSet (new LinkedHashSet<Tag> ((List<Tag>) Environment.projectInfoManager.getObjects (Tag.class,
                                                                                            null,
                                                                                            null,
                                                                                            true)));
-*/
+
         // The user session needs the properties.
         Environment.userSession = new UserSession ();
 
@@ -704,23 +674,6 @@ System.out.println ("FILEPROPS: " + defUserPropsFile);
         Environment.fullScreenTextProps = new FullScreenTextProperties ();
 
         Environment.incrStartupProgress ();
-/*
-TODO
-        Environment.userPropertyHandlers.put (Constants.NOTE_TYPES_PROPERTY_NAME,
-                                              new UserPropertyHandler (Constants.NOTE_TYPES_PROPERTY_NAME,
-                                                                       null,
-                                                                       notetypes,defaulttypes));
-        Environment.userPropertyHandlers.put (Constants.PROJECT_STATUSES_PROPERTY_NAME,
-                                              new UserPropertyHandler (Constants.PROJECT_STATUSES_PROPERTY_NAME,
-                                                                       null,
-                                                                       allprojects,defaultstatuses));
-        Environment.userPropertyHandlers.put (Constants.TAGS_PROPERTY_NAME,
-                                              new UserPropertyHandler (Constants.TAGS_PROPERTY_NAME,
-                                                                       null,
-                                                                       // Prevents the compiler whining...
-                                                                       (String[]) null));
-*/
-        // Init our properties.
 
         try
         {
@@ -1924,21 +1877,6 @@ TODO
 
     }
 
-    @Deprecated
-    public static void deleteProject (Project        p,
-                                      java.awt.event.ActionListener onDelete)
-    {
-
-        Environment.deleteProject (p,
-                                   () ->
-                                   {
-
-                                       com.quollwriter.ui.UIUtils.doLater (onDelete);
-
-                                   });
-
-    }
-
     public static void deleteProject (Project  p,
                                       Runnable onDelete)
     {
@@ -1958,21 +1896,6 @@ TODO
 
     }
 
-    @Deprecated
-    public static void deleteProject (final ProjectInfo pr,
-                                      final java.awt.event.ActionListener onDelete)
-    {
-
-        Environment.deleteProject (pr,
-                                   () ->
-                                   {
-
-                                       com.quollwriter.ui.UIUtils.doLater (onDelete);
-
-                                   });
-
-    }
-
     public static void deleteProject (final ProjectInfo pr,
                                       final Runnable    onDelete)
     {
@@ -1986,26 +1909,6 @@ TODO
             public void run ()
             {
 
-                // There is probably now (because of h2) a "projectdb.lobs.db" directory.
-                // Add a can delete file to it.
-                /*
-                 TODO Is this still needed?
-                try
-                {
-
-                    // TODO Change to use a path.
-                    Utils.createQuollWriterDirFile (new File (pr.getProjectDirectory ().getPath () + "/projectdb.lobs.db"));
-
-                } catch (Exception e)
-                {
-
-                    // Ignore for now.
-                    Environment.logError ("Unable to add can delete dir file to: " +
-                                          pr.getProjectDirectory ().getPath () + "/projectdb.lobs.db",
-                                          e);
-
-                }
-*/
                 // Remove the project from the list.
                 try
                 {
@@ -3114,39 +3017,6 @@ xxx
                                                plural);
 
     }
-/*
-    public static File getGeneralLogFile ()
-                                   throws IOException
-    {
-
-        return Environment.getLogDir ().resolve (Constants.GENERAL_LOG_NAME).toFile ();
-
-    }
-
-    public static File getSQLLogFile ()
-                               throws IOException
-    {
-
-        return Environment.getLogDir ().resolve (Constants.SQL_LOG_NAME).toFile ();
-
-    }
-
-    public static File getErrorLogFile ()
-                                 throws IOException
-    {
-
-        return Environment.getLogDir ().resolve (Constants.ERROR_LOG_NAME).toFile ();
-
-    }
-
-    public static Path getErrorLogPath ()
-                                 throws IOException
-    {
-
-        return Environment.getLogDir ().resolve (Constants.ERROR_LOG_NAME);
-
-    }
-*/
 
     public static Path getLogPath ()
     {
@@ -3511,10 +3381,7 @@ xxx
             {
 
                 Environment.openProjects.remove (_p);
-/*
-                pv.getViewer ().removeEventHandler (Viewer.ViewerEvent.CLOSE_EVENT,
-                                                    this);
-*/
+
             }
 
         };
@@ -3644,15 +3511,6 @@ xxx
         }
 
         return prov;
-
-    }
-
-    // TODO Remove this add instead add a listener for the close event on the viewer.
-    public static void unregisterViewer (AbstractViewer v,
-                                         Runnable       afterUnregister)
-    {
-
-        // TODO Remove
 
     }
 
@@ -4001,7 +3859,6 @@ xxx
 
             return getUILanguageStringProperty (Utils.newList (prefix,projectdirnotexist),
                                                 p.getProjectDirectory ());
-            //return "Cannot find {project} directory <b>" + p.getProjectDirectory () + "</b>.";
 
         }
 
@@ -4010,7 +3867,6 @@ xxx
 
             return getUILanguageStringProperty (Utils.newList (prefix,projectdirisfile),
                                                 p.getProjectDirectory ());
-            //return "Path to {project} <b>" + p.getProjectDirectory () + "</b> is a file, but a directory is expected.";
 
         }
 
@@ -4019,7 +3875,6 @@ xxx
 
             return getUILanguageStringProperty (Utils.newList (prefix,invalidprojectdir),
                                                 p.getProjectDirectory ());
-            //return "{Project} directory <b>" + p.getProjectDirectory () + "</b> doesn't appear to be a valid Quoll Writer {project}.";
 
         }
 
@@ -4140,14 +3995,7 @@ xxx
     {
 
         return UILanguageStringsManager.getUIString (Utils.newList (prefix, id));
-/*
-TODO Remove
-        List<String> ids = new ArrayList (prefix);
 
-        ids.add (id);
-
-        return Environment.getUIString (ids);
-*/
     }
 
     @Deprecated
@@ -4156,39 +4004,8 @@ TODO Remove
     {
 
         return UILanguageStringsManager.getUIString (Utils.newList (prefix, ids));
-/*
-TODO Remove
-        List<String> _ids = new ArrayList (prefix);
-
-        for (String s : ids)
-        {
-
-            _ids.add (s);
-
-        }
-
-        return Environment.getUIString (_ids);
-*/
-    }
-
-/*
-TODO Remove
-    private static String getUIString (List<String> ids)
-    {
-
-        String s = Environment.uiLanguageStrings.getString (ids);
-
-        if (s == null)
-        {
-
-            s = BaseStrings.toId (ids);
-
-        }
-
-        return s;
 
     }
-*/
 
     public static void logDebugMessage (String m)
     {
@@ -4208,7 +4025,7 @@ TODO Remove
         if (Environment.isDebugModeEnabled ())
         {
 
-            //System.out.println (m);
+            System.out.println (m);
 
         }
 
@@ -4254,21 +4071,6 @@ TODO Remove
         {
 
             Map details = new HashMap ();
-    /*
-            try
-            {
-
-                details.put ("errorLog",
-                             IOUtils.getFile (Environment.getErrorLogFile ()));
-                details.put ("generalLog",
-                             IOUtils.getFile (Environment.getGeneralLogFile ()));
-
-            } catch (Exception e) {
-
-                // NOt much we can do here!
-
-            }
-    */
             details.put ("reason",
                          m);
 
@@ -4301,23 +4103,6 @@ TODO Remove
     {
 
         Environment.doOnShutdown.add (r);
-
-    }
-
-    @Deprecated
-    public static void sendMessageToSupport (final String              type,
-                                             final Map<String, Object> info,
-                                             final java.awt.event.ActionListener      onComplete)
-    {
-
-        Environment.sendMessageToSupport (type,
-                                          info,
-                                          () ->
-                                          {
-
-                                              com.quollwriter.ui.fx.swing.SwingUIUtils.doLater (onComplete);
-
-                                          });
 
     }
 
@@ -4598,24 +4383,6 @@ Remove
 
     }
 */
-    // TODO Remove
-    /*
-    public static void updateUserConfigurableObjectTypeFieldOrdering (UserConfigurableObjectType type)
-                                                               throws GeneralException
-    {
-
-        UserConfigurableObjectTypeDataHandler dh = (UserConfigurableObjectTypeDataHandler) Environment.projectInfoManager.getHandler (type.getClass ());
-
-        // TODO Remove dh.updateFieldOrdering (type);
-
-        // Tell all projects about it.
-        Environment.fireUserProjectEvent (type,
-                                          ProjectEvent.Type.userobjecttype,
-                                          ProjectEvent.Action.changed,
-                                          type);
-
-    }
-*/
 /*
     public static void updateUserConfigurableObjectType (UserConfigurableObjectType type)
                                                   throws GeneralException
@@ -4650,7 +4417,7 @@ Remove
 
     }
 */
-
+/*
     public static void addUserConfigurableObjectType (UserConfigurableObjectType type)
                                                throws GeneralException
     {
@@ -4691,7 +4458,7 @@ Remove
                                           type);
 
     }
-
+*/
 /*
     public static void removeUserConfigurableObjectTypeField (UserConfigurableObjectTypeField field)
                                                        throws GeneralException
@@ -4741,27 +4508,7 @@ Remove
                                                   Map<String, StringProperty> plural)
                                            throws Exception
     {
-/*
-TODO: IS THIS NEEDED?
-        UserConfigurableObjectType type = Environment.getUserConfigurableObjectType (Chapter.OBJECT_TYPE);
 
-        // TODO: Fix this nonsense...
-        if (singular.containsKey (Chapter.OBJECT_TYPE))
-        {
-
-            type.setObjectTypeName (singular.get (Chapter.OBJECT_TYPE).getValue ());
-
-        }
-
-        if (plural.containsKey (Chapter.OBJECT_TYPE))
-        {
-
-            type.setObjectTypeNamePlural (plural.get (Chapter.OBJECT_TYPE).getValue ());
-
-        }
-
-        Environment.updateUserConfigurableObjectType (type);
-*/
         Object o = new Object ();
 
         synchronized (o)
@@ -4785,6 +4532,7 @@ TODO: IS THIS NEEDED?
      * @param tag The tag.
      * @throws GeneralException If the tag can't be saved.
      */
+     /*
     public static void saveTag (Tag tag)
                          throws GeneralException
     {
@@ -4814,13 +4562,14 @@ TODO: IS THIS NEEDED?
                                           tag);
 
     }
-
+*/
     /**
      * Delete a tag.
      *
      * @param tag The tag to delete.
      * @throws GeneralException If the delete goes wrong.
      */
+/*
     public static void deleteTag (Tag tag)
                            throws GeneralException
     {
@@ -4837,13 +4586,14 @@ TODO: IS THIS NEEDED?
                                           tag);
 
     }
-
+*/
     /**
      * Get a tag by its key.
      *
      * @param key The key.
      * @return The tag.
      */
+/*
     public static Tag getTagByKey (long key)
     {
 
@@ -4864,12 +4614,13 @@ TODO: IS THIS NEEDED?
         return null;
 
     }
-
+*/
     /**
      * Get a tag by name.
      *
      * @return The tag, if found.
      */
+/*
     public static Tag getTagByName (String name)
     {
 
@@ -4890,7 +4641,7 @@ TODO: IS THIS NEEDED?
         return null;
 
     }
-
+*/
     /**
      * Get all the tags.
      *
@@ -5378,8 +5129,6 @@ TODO: IS THIS NEEDED?
 
         return v;
 
-        //return Environment.objectTypeNamesPlural.get (t);
-
     }
 
     public static Version getQuollWriterVersion ()
@@ -5646,14 +5395,6 @@ TODO: IS THIS NEEDED?
 
     }
 
-    // TODO Move to UserPropertyHandler, have it register and store them there.
-    public static com.quollwriter.ui.UserPropertyHandler getUserPropertyHandler (String userProp)
-    {
-
-        return Environment.userPropertyHandlers.get (userProp);
-
-    }
-
     public static String getJSONFileAsString (String url)
                                        throws Exception
     {
@@ -5914,42 +5655,7 @@ TODO: IS THIS NEEDED?
                                           parms);
 
     }
-/*
-REMOVE
-    public static Book createTestBook (Project p)
-                                throws Exception
-    {
 
-        Element root = DOM4JUtils.stringAsElement (Utils.getResourceFileAsString (Constants.TEST_BOOK_FILE));
-
-        String name = DOM4JUtils.attributeValue (root,
-                                                   XMLConstants.name);
-
-        Book b = new Book (p);
-
-        b.setName (name);
-
-        for (Element el : root.elements (Chapter.OBJECT_TYPE))
-        {
-
-            name = DOM4JUtils.attributeValue (el,
-                                              XMLConstants.name);
-
-            Chapter ch = new Chapter ();
-            ch.setName (name);
-
-            String text = el.getTextTrim ();
-
-            ch.setText (new StringWithMarkup (text));
-
-            b.addChapter (ch);
-
-        }
-
-        return b;
-
-    }
-*/
     public static Set<Image> getWindowIcons ()
     {
 
@@ -5964,251 +5670,6 @@ REMOVE
         }
 
         return Environment.windowIcons;
-
-    }
-
-    @Deprecated
-    public static int getIconPixelWidthForType (int type)
-    {
-
-        return 0;
-
-    }
-
-    @Deprecated
-    public static javax.swing.ImageIcon getObjectIcon (String ot,
-                                           int    iconType)
-    {
-
-        return null;
-
-    }
-
-    @Deprecated
-    public static javax.swing.ImageIcon getObjectIcon (DataObject d,
-                                           int        iconType)
-    {
-
-        return null;
-
-    }
-
-    @Deprecated
-    public static String getButtonLabel (String l)
-    {
-
-        return l;
-
-    }
-
-    @Deprecated
-    public static String getButtonLabel (String l,
-                                         String t)
-    {
-
-        return l;
-
-    }
-
-    @Deprecated
-    public static String replaceObjectNames (String t)
-    {
-
-        return t;
-
-    }
-
-    @Deprecated
-    public static java.awt.Image getTransparentImage ()
-    {
-
-        return null;
-
-    }
-
-    @Deprecated
-    public static java.awt.image.BufferedImage getNoEditorAvatarImage ()
-    {
-
-        return null;
-
-    }
-
-    @Deprecated
-    public static javax.swing.ImageIcon getTypingIcon ()
-    {
-
-        return null;
-
-    }
-
-    @Deprecated
-    public static javax.swing.ImageIcon getLoadingIcon ()
-    {
-
-        return null;
-
-    }
-
-    @Deprecated
-    public static URL getIconURL (String  name,
-                                  int     type)
-    {
-
-        return null;
-
-    }
-
-    @Deprecated
-    public static javax.swing.ImageIcon getIcon (String name, int type)
-    {
-
-        return null;
-
-    }
-
-    @Deprecated
-    public static java.awt.image.BufferedImage getImage (String fileName)
-    {
-
-        return null;
-
-    }
-
-    @Deprecated
-    public static javax.swing.ImageIcon getAchievementIcon ()
-    {
-
-        return null;
-
-    }
-
-    @Deprecated
-    public static javax.swing.ImageIcon getWindowIcon ()
-    {
-
-        return null;
-
-    }
-
-    @Deprecated
-    public static String getWindowNameSuffix ()
-    {
-
-        return null;
-
-    }
-
-    @Deprecated
-    public static Set<com.quollwriter.ui.BackgroundImage> getBackgroundImages ()
-                                                            throws Exception
-    {
-
-        Set<com.quollwriter.ui.BackgroundImage> ret = new LinkedHashSet<> ();
-
-        Set<String> bgImages = Utils.getResourceListing (Constants.BACKGROUND_THUMB_IMGS_DIR);
-
-        for (String s : bgImages)
-        {
-
-            ret.add (new com.quollwriter.ui.BackgroundImage (s));
-
-        }
-
-        return ret;
-
-    }
-
-    @Deprecated
-    public static java.awt.Image getBackgroundImage (String name)
-    {
-
-        // TODO Remove Image im = Environment.backgroundImages.get (name);
-
-        java.awt.Image im = null;
-
-        if (im != null)
-        {
-
-            return im;
-
-        }
-
-        if (name == null)
-        {
-
-            return null;
-
-        }
-
-        name = Constants.BACKGROUND_IMGS_DIR + name;
-
-        URL url = Environment.class.getResource (name);
-
-        if (url == null)
-        {
-
-            // Ignore this image, from older version.
-            if (name.endsWith ("1-skyline.jpg"))
-            {
-
-                return null;
-
-            }
-
-            // Can't find image, log the problem but keep going.
-            Environment.logError ("Unable to find/load image: " +
-                                  name +
-                                  ", check images jar to ensure file is present.",
-
-                                  // Gives a stack trace
-                                  new Exception ());
-
-            return null;
-
-        }
-
-        im = new javax.swing.ImageIcon (url).getImage ();
-/*
-TODO
-        Environment.backgroundImages.put (name,
-                                          im);
-*/
-        return im;
-
-    }
-
-    @Deprecated
-    public static java.awt.Image getBackgroundThumbImage (String name)
-    {
-
-        if (name == null)
-        {
-
-            return null;
-
-        }
-
-        name = Constants.BACKGROUND_THUMB_IMGS_DIR + name;
-
-        URL url = Environment.class.getResource (name);
-
-        if (url == null)
-        {
-
-            // Can't find image, log the problem but keep going.
-            Environment.logError ("Unable to find/load image: " +
-                                  name +
-                                  ", check images jar to ensure file is present.",
-
-                                  // Gives a stack trace
-                                  new Exception ());
-
-            return null;
-
-        }
-
-        return new javax.swing.ImageIcon (url).getImage ();
 
     }
 
@@ -6524,77 +5985,6 @@ TODO
         ret.add (enStrs.getInfo ());
 
         return ret;
-
-    }
-
-    public static KeyCombination getActionKeyCombination (String action)
-    {
-
-        if (action.equals (QTextEditor.BOLD_ACTION_NAME))
-        {
-
-            return new KeyCodeCombination (KeyCode.B,
-                                           KeyCombination.SHORTCUT_DOWN);
-
-        }
-
-        if (action.equals (QTextEditor.ITALIC_ACTION_NAME))
-        {
-
-            return new KeyCodeCombination (KeyCode.I,
-                                           KeyCombination.SHORTCUT_DOWN);
-
-        }
-
-        if (action.equals (QTextEditor.UNDERLINE_ACTION_NAME))
-        {
-
-            return new KeyCodeCombination (KeyCode.U,
-                                           KeyCombination.SHORTCUT_DOWN);
-
-        }
-
-        if (action.equals (QTextEditor.CUT_ACTION_NAME))
-        {
-
-            return new KeyCodeCombination (KeyCode.X,
-                                           KeyCombination.SHORTCUT_DOWN);
-
-        }
-
-        if (action.equals (QTextEditor.COPY_ACTION_NAME))
-        {
-
-            return new KeyCodeCombination (KeyCode.C,
-                                           KeyCombination.SHORTCUT_DOWN);
-
-        }
-
-        if (action.equals (QTextEditor.PASTE_ACTION_NAME))
-        {
-
-            return new KeyCodeCombination (KeyCode.V,
-                                           KeyCombination.SHORTCUT_DOWN);
-
-        }
-
-        if (action.equals (QTextEditor.UNDO_ACTION_NAME))
-        {
-
-            return new KeyCodeCombination (KeyCode.Z,
-                                           KeyCombination.SHORTCUT_DOWN);
-
-        }
-
-        if (action.equals (QTextEditor.REDO_ACTION_NAME))
-        {
-
-            return new KeyCodeCombination (KeyCode.Y,
-                                           KeyCombination.SHORTCUT_DOWN);
-
-        }
-
-        throw new IllegalArgumentException ("Action: " + action + " is not supported.");
 
     }
 

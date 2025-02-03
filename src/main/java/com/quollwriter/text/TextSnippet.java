@@ -4,7 +4,6 @@ import java.text.*;
 import java.util.*;
 
 import com.quollwriter.*;
-import com.quollwriter.ui.components.*;
 
 public class TextSnippet implements TextBlock<Sentence, TextBlock, Word>
 {

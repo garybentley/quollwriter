@@ -1,8 +1,5 @@
 package com.quollwriter.exporter;
 
-import java.awt.Color;
-import java.awt.event.*;
-
 import java.io.*;
 import java.nio.file.*;
 
@@ -10,27 +7,18 @@ import java.text.*;
 
 import java.util.*;
 
-import javax.swing.*;
-import javax.swing.border.*;
-import javax.swing.tree.*;
-
-import com.jgoodies.forms.builder.*;
-import com.jgoodies.forms.factories.*;
-import com.jgoodies.forms.layout.*;
-
 import com.quollwriter.*;
 
 import com.quollwriter.data.*;
 import com.quollwriter.data.comparators.*;
 
-import com.quollwriter.ui.*;
-import com.quollwriter.ui.userobjects.*;
-import com.quollwriter.ui.renderers.*;
 import com.quollwriter.text.*;
 
 import javafx.beans.property.*;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import com.quollwriter.ui.fx.*;
+import com.quollwriter.ui.fx.userobjects.*;
 import com.quollwriter.ui.fx.components.*;
 
 import org.docx4j.jaxb.*;
@@ -55,8 +43,6 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
     public static final String SUBTITLE = "Subtitle";
 
     protected ExportSettings settings = null;
-    private JComboBox        exportOthersType = null;
-    private JComboBox        exportChaptersType = null;
 
     private QuollChoiceBox exportChaptersType2 = null;
     private QuollChoiceBox exportOthersType2 = null;
@@ -70,97 +56,8 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
 
     }
 
-    public WizardStep getStage (String stage)
-    {
-
-        final MSWordDocXDocumentExporter _this = this;
-
-        WizardStep ws = new WizardStep ();
-
-        if (stage.equals ("select-items"))
-        {
-
-            ws.title = getUIString (exportproject,stages,selectitems,title);
-            //"Select the items you wish to export";
-
-            ws.helpText = getUIString (exportproject,stages,selectitems,text);
-            //"Select the items you wish to export, if you select any {chapters} then any associated {notes} and {outlineitems} will also be exported.";
-
-            this.initItemsTree (null);
-
-            JScrollPane sp = new JScrollPane (this.itemsTree);
-
-            sp.setOpaque (false);
-            sp.getViewport ().setOpaque (false);
-            sp.setAlignmentX (JComponent.LEFT_ALIGNMENT);
-            sp.setBorder (new LineBorder (new Color (127,
-                                                     127,
-                                                     127),
-                                          1));
-
-            ws.panel = sp;
-
-        }
-
-        if (stage.equals ("how-to-save"))
-        {
-
-            ws.title = getUIString (exportproject,stages,howtosave,title);
-            //"How should the selected items be saved";
-            ws.helpText = getUIString (exportproject,stages,howtosave,text);
-            //"The items can be saved in either a single file or in one file per type of item.  Any {notes} and {outlineitems} will be saved in separate files.";
-
-            FormLayout fl = new FormLayout ("10px, right:p, 6px, p, fill:10px",
-                                            "p, 6px, p");
-
-            PanelBuilder builder = new PanelBuilder (fl);
-
-            CellConstraints cc = new CellConstraints ();
-
-            Vector exportChaptersTypes = new Vector ();
-            exportChaptersTypes.add (getUIString (exportproject,stages,howtosave,types,singlefile));
-            //"Single file");
-            exportChaptersTypes.add (getUIString (exportproject,stages,howtosave,types,onefileperchapter));
-            //"One file per " + Environment.getObjectTypeName (Chapter.OBJECT_TYPE));
-
-            this.exportChaptersType = new JComboBox (exportChaptersTypes);
-            this.exportChaptersType.setOpaque (false);
-
-            builder.addLabel (getUIString (exportproject,stages,howtosave,labels,chapters),
-                              //Environment.getObjectTypeNamePlural (Chapter.OBJECT_TYPE),
-                              cc.xy (2,
-                                     1));
-            builder.add (this.exportChaptersType,
-                         cc.xy (4,
-                                1));
-
-            Vector exportOthersTypes = new Vector ();
-            exportOthersTypes.add (getUIString (exportproject,stages,howtosave,types,singlefile));
-                                   //"Single file");
-            exportOthersTypes.add (getUIString (exportproject,stages,howtosave,types,onefileperitemtype));
-                                   //"One file per type of item");
-
-            this.exportOthersType = new JComboBox (exportOthersTypes);
-            this.exportOthersType.setOpaque (false);
-
-            builder.addLabel (getUIString (exportproject,stages,howtosave,labels,otheritems),
-                              //"Other items",
-                              cc.xy (2,
-                                     3));
-            builder.add (this.exportOthersType,
-                         cc.xy (4,
-                                3));
-
-            ws.panel = builder.getPanel ();
-
-        }
-
-        return ws;
-
-    }
-
     @Override
-    public com.quollwriter.ui.fx.components.Wizard.Step getStage2 (String stage)
+    public Wizard.Step getStage (String stage)
     {
 
         final MSWordDocXDocumentExporter _this = this;
@@ -1288,7 +1185,7 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
                 {
 
                     Collections.sort (objs,
-                                      NamedObjectSorter.getInstance ());
+                                      new NamedObjectSorter (itemsToExport));
 
                     for (NamedObject n : objs)
                     {
@@ -1311,7 +1208,7 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
             if (settings.otherExportType == ExportSettings.INDIVIDUAL_FILE)
             {
 
-                Set<UserConfigurableObjectType> assetTypes = Environment.getAssetUserConfigurableObjectTypes (true);
+                Set<UserConfigurableObjectType> assetTypes = p.getAssetUserConfigurableObjectTypes (true);
 
                 for (UserConfigurableObjectType t : assetTypes)
                 {
@@ -1366,7 +1263,7 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
                                          title);
 
             Collections.sort (objs,
-                              NamedObjectSorter.getInstance ());
+                              new NamedObjectSorter (p));
 
             for (NamedObject n : objs)
             {
@@ -1677,7 +1574,7 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
                 throws Exception
     {
 
-        byte[] bytes = UIUtils.getImageBytes (UIUtils.getScaledImage (file,
+        byte[] bytes = UIUtils.getImageBytes (UIUtils.getScaledImage (UIUtils.getImage (file.toPath ()),
                                                                       250));
 
         BinaryPartAbstractImage imagePart = BinaryPartAbstractImage.createImagePart (mp, bytes);

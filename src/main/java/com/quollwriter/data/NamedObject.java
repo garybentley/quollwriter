@@ -552,7 +552,7 @@ public abstract class NamedObject extends DataObject
     public Set<NamedObject> getOtherObjectsInLinks ()
     {
 
-        Set<NamedObject> s = new TreeSet (NamedObjectSorter.getInstance ());
+        Set<NamedObject> s = new TreeSet (new NamedObjectSorter (this.getProject ()));
 
         Iterator<Link> it = this.links.iterator ();
 
@@ -988,7 +988,7 @@ TODO Remove, isn't working.
             try
             {
 
-                Tag t = Environment.getTagByKey (Long.parseLong (k));
+                Tag t = this.getProject ().getTagByKey (Long.parseLong (k));
 
                 if (t != null)
                 {

@@ -26,6 +26,8 @@ import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageSt
 public class ImageSelector extends QuollImageView
 {
 
+    private static File lastDirSelected = null;
+
     private Path origFile = null;
     private ObjectProperty<Path> fileProp = new SimpleObjectProperty<> ();
     private AbstractViewer viewer = null;
@@ -83,7 +85,6 @@ public class ImageSelector extends QuollImageView
                         {
 
                             this.setImage ((Path) null);
-                            //_this.fileProp.setValue (null);
 
                         } catch (Exception e) {
 
@@ -210,8 +211,25 @@ public class ImageSelector extends QuollImageView
 
             } else {
 
-                // TODO Set default dir?
-                fc.setInitialDirectory (Environment.getUserQuollWriterDirPath ().toFile ());
+                if (ImageSelector.lastDirSelected != null)
+                {
+
+                    if ((ImageSelector.lastDirSelected.exists ())
+                        &&
+                        (ImageSelector.lastDirSelected.isDirectory ())
+                       )
+                    {
+
+                        fc.setInitialDirectory (ImageSelector.lastDirSelected);
+    
+                    }
+
+                } else {
+
+                    fc.setInitialDirectory (Environment.getUserQuollWriterDirPath ().toFile ());
+
+                }
+
             }
 
             File sel = fc.showOpenDialog (this.viewer.getViewer ());
@@ -223,6 +241,8 @@ public class ImageSelector extends QuollImageView
                 {
 
                     this.setImage (sel.toPath ());
+
+                    ImageSelector.lastDirSelected = sel.getParentFile ();
 
                 } catch (Exception e) {
 

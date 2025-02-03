@@ -9,7 +9,6 @@ import com.quollwriter.*;
 import com.quollwriter.data.*;
 import com.quollwriter.text.*;
 
-import com.quollwriter.ui.forms.*;
 import com.quollwriter.ui.fx.components.Form;
 import com.quollwriter.ui.fx.components.*;
 
@@ -33,9 +32,6 @@ public class ParagraphReadabilityRule extends AbstractParagraphRule
     private int fleschKincaid = 0;
     private int fleschReading = 0;
     private int gunningFog = 0;
-    private javax.swing.JSpinner gfF = null;
-    private javax.swing.JSpinner fkF = null;
-    private javax.swing.JSpinner frF = null;
 
     private Spinner<Integer> gfF2 = null;
     private Spinner<Integer> fkF2 = null;
@@ -225,7 +221,7 @@ public class ParagraphReadabilityRule extends AbstractParagraphRule
     }
 
     @Override
-    public Set<Form.Item> getFormItems2 ()
+    public Set<Form.Item> getFormItems ()
     {
 
         List<String> pref = Arrays.asList (problemfinder,config,rules,paragraphreadability,labels);
@@ -255,92 +251,7 @@ public class ParagraphReadabilityRule extends AbstractParagraphRule
     }
 
     @Override
-    public Set<com.quollwriter.ui.forms.FormItem> getFormItems ()
-    {
-
-        List<String> pref = new ArrayList<> ();
-        pref.add (LanguageStrings.problemfinder);
-        pref.add (LanguageStrings.config);
-        pref.add (LanguageStrings.rules);
-        pref.add (LanguageStrings.paragraphreadability);
-        pref.add (LanguageStrings.labels);
-
-        Set<com.quollwriter.ui.forms.FormItem> items = new LinkedHashSet ();
-
-        this.fkF = new javax.swing.JSpinner (new javax.swing.SpinnerNumberModel (this.fleschKincaid,
-                                                         0,
-                                                         30,
-                                                         1));
-
-        javax.swing.Box b = new javax.swing.Box (javax.swing.BoxLayout.X_AXIS);
-        b.add (this.fkF);
-        b.add (javax.swing.Box.createHorizontalGlue ());
-
-        this.fkF.setMaximumSize (this.fkF.getPreferredSize ());
-
-        items.add (new com.quollwriter.ui.forms.AnyFormItem (Environment.getUIString (pref,
-                                                             LanguageStrings.fk),
-                                    //"Flesch Kincaid Grade level",
-                                    b));
-
-        this.frF = new javax.swing.JSpinner (new javax.swing.SpinnerNumberModel (this.fleschReading,
-                                                         0,
-                                                         30,
-                                                         1));
-
-        b = new javax.swing.Box (javax.swing.BoxLayout.X_AXIS);
-
-        b.add (this.frF);
-        b.add (javax.swing.Box.createHorizontalGlue ());
-
-        this.frF.setMaximumSize (this.frF.getPreferredSize ());
-
-        items.add (new com.quollwriter.ui.forms.AnyFormItem (Environment.getUIString (pref,
-                                                             LanguageStrings.fr),
-                                    //"Flesch Reading ease level",
-                                    b));
-
-        this.gfF = new javax.swing.JSpinner (new javax.swing.SpinnerNumberModel (this.gunningFog,
-                                                         0,
-                                                         30,
-                                                         1));
-
-        b = new javax.swing.Box (javax.swing.BoxLayout.X_AXIS);
-
-        b.add (this.gfF);
-        b.add (javax.swing.Box.createHorizontalGlue ());
-
-        this.gfF.setMaximumSize (this.gfF.getPreferredSize ());
-
-        items.add (new com.quollwriter.ui.forms.AnyFormItem (Environment.getUIString (pref,
-                                                             LanguageStrings.gf),
-                                    //"Gunning Fog index",
-                                    b));
-
-        return items;
-
-    }
-
-    @Override
-    public String getFormError ()
-    {
-
-        return null;
-
-    }
-
-    @Override
     public void updateFromForm ()
-    {
-
-        this.fleschKincaid = ((javax.swing.SpinnerNumberModel) this.fkF.getModel ()).getNumber ().intValue ();
-        this.fleschReading = ((javax.swing.SpinnerNumberModel) this.frF.getModel ()).getNumber ().intValue ();
-        this.gunningFog = ((javax.swing.SpinnerNumberModel) this.gfF.getModel ()).getNumber ().intValue ();
-
-    }
-
-    @Override
-    public void updateFromForm2 ()
     {
 
         this.fleschKincaid = this.fkF2.getValue ();

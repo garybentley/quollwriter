@@ -317,6 +317,52 @@ CREATE TABLE userobjectfield
     </sql>
   </item>
 
+  <!--
+    Added in v3.1.0
+  -->
+  <item>
+    <log>Add the user object type table</log>
+    <sql>
+  CREATE TABLE userobjecttype
+  (
+    dbkey BIGINT NOT NULL,
+    userobjtype CLOB,
+    pluralname CLOB,
+    icon24x24 BLOB,
+    icon16x16 BLOB,
+    layout VARCHAR(255),
+    createshortcutkey VARCHAR(255),
+    assetobjtype BOOLEAN DEFAULT FALSE,
+    PRIMARY KEY (dbkey)
+  )
+    </sql>
+  </item>
+
+  <item>
+    <log>Add the user object type field table</log>
+    <sql>
+  CREATE TABLE userobjecttypefield
+  (
+    dbkey BIGINT NOT NULL,
+    userobjecttypedbkey BIGINT NOT NULL,
+    type CLOB,
+    definition CLOB,
+    PRIMARY KEY (dbkey)
+  )
+    </sql>
+  </item>
+
+  <item>
+    <log>Add the tag table</log>
+    <sql>
+CREATE TABLE tag
+(
+    dbkey BIGINT NOT NULL,
+    PRIMARY KEY (dbkey)
+)
+    </sql>
+  </item>
+
   <item>
     <log>Create foreign key constraint for asset(dbkey)/namedobject(dbkey).</log>
     <sql>
@@ -328,6 +374,13 @@ ALTER TABLE asset ADD CONSTRAINT asset_dbkey___namedobject_dbkey_fk FOREIGN KEY(
     <log>Create foreign key constraint for userobjectfield(dbkey)/namedobject(dbkey).</log>
     <sql>
 ALTER TABLE userobjectfield ADD CONSTRAINT userobjfield_dbkey___namedobject_dbkey_fk FOREIGN KEY(dbkey) REFERENCES namedobject(dbkey)
+    </sql>
+  </item>
+
+  <item>
+    <log>Create foreign key constraint for userobjectfield(userobjecttypefielddbkey)/userobjecttypefield(dbkey).</log>
+    <sql>
+ALTER TABLE userobjectfield ADD CONSTRAINT userobjfield_userobjecttypefieldbkey___userobjecttypefield_dbkey_fk FOREIGN KEY(userobjecttypefielddbkey) REFERENCES userobjecttypefield(dbkey)
     </sql>
   </item>
 
@@ -573,53 +626,6 @@ ALTER TABLE note ADD CONSTRAINT note_objectdbkeyversion_dataobject_dbkeyversion_
     </sql>
   </item>
 
-  <!--
-    Added in v3.1.0
-  -->
-  <!--
-  <item>
-    <log>Add the user object type table</log>
-    <sql>
-  CREATE TABLE userobjecttype
-  (
-    dbkey BIGINT NOT NULL,
-    userobjtype CLOB,
-    pluralname CLOB,
-    icon24x24 BLOB,
-    icon16x16 BLOB,
-    layout VARCHAR(255),
-    createshortcutkey VARCHAR(255),
-    assetobjtype BOOLEAN DEFAULT FALSE,
-    PRIMARY KEY (dbkey)
-  )
-    </sql>
-  </item>
-
-  <item>
-    <log>Add the user object type field table</log>
-    <sql>
-  CREATE TABLE userobjecttypefield
-  (
-    dbkey BIGINT NOT NULL,
-    userobjecttypedbkey BIGINT NOT NULL,
-    type CLOB,
-    definition CLOB,
-    PRIMARY KEY (dbkey)
-  )
-    </sql>
-  </item>
-
-  <item>
-    <log>Add the tag table</log>
-    <sql>
-CREATE TABLE tag
-(
-    dbkey BIGINT NOT NULL,
-    PRIMARY KEY (dbkey)
-)
-    </sql>
-  </item>
-
   <item>
     <log>Create foreign key constraint for tag(dbkey)/namedobject(dbkey).</log>
     <sql>
@@ -654,5 +660,5 @@ ALTER TABLE userobjecttypefield ADD CONSTRAINT userobjtypefield_dbkey___namedobj
 ALTER TABLE userobjectfield ADD CONSTRAINT userobjfield_userobjecttypefielddbkey___userobjecttypefield_dbkey_fk FOREIGN KEY(userobjecttypefielddbkey) REFERENCES userobjecttypefield(dbkey)
     </sql>
   </item>
--->
+
 </update-script>

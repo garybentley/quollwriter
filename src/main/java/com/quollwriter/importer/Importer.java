@@ -10,14 +10,11 @@ import com.quollwriter.*;
 
 import com.quollwriter.data.*;
 
-import com.quollwriter.ui.components.*;
-
-
 public class Importer
 {
 
-    private static Map<String, Class>  handlers = new HashMap ();
-    private static Map<String, String> initDocs = new HashMap ();
+    private static Map<String, Class>  handlers = new HashMap<> ();
+    private static Map<String, String> initDocs = new HashMap<> ();
 
     static
     {
@@ -48,6 +45,12 @@ public class Importer
 
     public static void init ()
     {
+
+        if (true)
+        {
+            // Is this still needed?
+            return;
+        }
 
         // Create a new instance of each handler.
         Iterator<String> iter = Importer.handlers.keySet ().iterator ();
@@ -124,48 +127,43 @@ public class Importer
 
             final DocumentImporter di = (DocumentImporter) c.getDeclaredConstructor ().newInstance ();
 
-            Thread t = new Thread (new Runner ()
-                {
+            Thread t = new Thread (() ->
+            {
 
-                    public void run ()
+                    try
                     {
 
-                        try
+                        Project p = di.convert (in,
+                                                ext);
+
+                        in.close ();
+
+                        if (p.getName () == null)
                         {
 
-                            Project p = di.convert (in,
-                                                    ext);
+                            // Use the file name.
+                            String fn = url.getFile ().substring (url.getPath ().lastIndexOf ("/") + 1,
+                                                                  url.getFile ().length () - Constants.DOCX_FILE_EXTENSION.length ());
 
-                            in.close ();
+                            fn = URLDecoder.decode (fn);
 
-                            if (p.getName () == null)
-                            {
-
-                                // Use the file name.
-                                String fn = url.getFile ().substring (url.getPath ().lastIndexOf ("/") + 1,
-                                                                      url.getFile ().length () - Constants.DOCX_FILE_EXTENSION.length ());
-
-                                fn = URLDecoder.decode (fn);
-
-                                p.setName (fn);
-                                p.getBooks ().get (0).setName (fn);
-
-                            }
-
-                            callback.projectCreated (p,
-                                                     u);
-
-                        } catch (Exception e)
-                        {
-
-                            callback.exceptionOccurred (new GeneralException ("Unable to import project for uri: " +
-                                                                              u +
-                                                                              " using instance: " +
-                                                                              di.getClass ().getName (),
-                                                                              e),
-                                                        u);
+                            p.setName (fn);
+                            p.getBooks ().get (0).setName (fn);
 
                         }
+
+                        callback.projectCreated (p,
+                                                 u);
+
+                    } catch (Exception e)
+                    {
+
+                        callback.exceptionOccurred (new GeneralException ("Unable to import project for uri: " +
+                                                                          u +
+                                                                          " using instance: " +
+                                                                          di.getClass ().getName (),
+                                                                          e),
+                                                    u);
 
                     }
 

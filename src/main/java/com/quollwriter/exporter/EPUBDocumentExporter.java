@@ -1,8 +1,5 @@
 package com.quollwriter.exporter;
 
-import java.awt.Color;
-import java.awt.event.*;
-
 import java.io.*;
 import java.nio.file.*;
 
@@ -10,14 +7,6 @@ import java.text.*;
 
 import java.util.*;
 import java.util.zip.*;
-
-import javax.swing.*;
-import javax.swing.border.*;
-import javax.swing.tree.*;
-
-import com.jgoodies.forms.builder.*;
-import com.jgoodies.forms.factories.*;
-import com.jgoodies.forms.layout.*;
 
 import nl.siegmann.epublib.epub.*;
 import nl.siegmann.epublib.domain.Author;
@@ -28,9 +17,8 @@ import com.quollwriter.*;
 import com.quollwriter.data.*;
 import com.quollwriter.data.comparators.*;
 
-import com.quollwriter.ui.*;
-import com.quollwriter.ui.userobjects.*;
-import com.quollwriter.ui.renderers.*;
+import com.quollwriter.ui.fx.*;
+import com.quollwriter.ui.fx.userobjects.*;
 import com.quollwriter.text.*;
 
 import com.quollwriter.ui.fx.components.*;
@@ -47,8 +35,8 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
     // private ExportSettings settings = null;
     private ZipOutputStream zout = null;
 
-    private JTextField author = null;
-    private JTextField id = null;
+    //private JTextField author = null;
+    //private JTextField id = null;
 
     private QuollTextField author2 = null;
     private QuollTextField id2 = null;
@@ -65,91 +53,8 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
 
     }
 
-    public WizardStep getStage (String stage)
-    {
-
-        final EPUBDocumentExporter _this = this;
-
-        WizardStep ws = new WizardStep ();
-
-        if (stage.equals ("select-items"))
-        {
-
-            ws.title = getUIString (exportproject,stages,selectitems,title);
-            //"Select the items you wish to export";
-
-            ws.helpText = getUIString (exportproject,stages,selectitems,text);
-
-            //ws.title = "Select the items you wish to export";
-
-            //ws.helpText = "Select the items you wish to export, if you select any {chapters} then any associated {notes} and {outlineitems} will also be exported.  {Locations}, {characters}, {objects} and {researchitems} will be added as appendices.";
-
-            this.initItemsTree (null);
-
-            JScrollPane sp = new JScrollPane (this.itemsTree);
-
-            sp.setOpaque (false);
-            sp.getViewport ().setOpaque (false);
-            sp.setAlignmentX (JComponent.LEFT_ALIGNMENT);
-            sp.setBorder (new LineBorder (new Color (127,
-                                                     127,
-                                                     127),
-                                          1));
-
-            ws.panel = sp;
-
-        }
-
-        if (DETAILS_STAGE.equals (stage))
-        {
-
-            ws.title = getUIString (exportproject,stages,bookdetails,title);
-            //"Enter the details about the book";
-            ws.helpText = getUIString (exportproject,stages,bookdetails,text);
-            //"You should provide either the ISBN of your book or a unique url for the book as the ID.";
-
-            FormLayout fl = new FormLayout ("10px, right:p, 6px, 200px, fill:10px",
-                                            "p, 6px, p");
-
-            PanelBuilder builder = new PanelBuilder (fl);
-
-            CellConstraints cc = new CellConstraints ();
-
-            this.author = UIUtils.createTextField ();
-
-            builder.addLabel (getUIString (exportproject,stages,bookdetails,labels,authorname),
-            //"Author Name",
-                              cc.xy (2,
-                                     1));
-            builder.add (this.author,
-                         cc.xy (4,
-                                1));
-
-            this.author.setText (this.proj.getProperty (Constants.AUTHOR_NAME_PROPERTY_NAME));
-
-            builder.addLabel (getUIString (exportproject,stages,bookdetails,labels, LanguageStrings.id),
-                            //"ID (ISBN/URL)",
-                              cc.xy (2,
-                                     3));
-
-            this.id = UIUtils.createTextField ();
-
-            builder.add (this.id,
-                         cc.xy (4,
-                                3));
-
-            this.id.setText (this.proj.getProperty (Constants.BOOK_ID_PROPERTY_NAME));
-
-            ws.panel = builder.getPanel ();
-
-        }
-
-        return ws;
-
-    }
-
     @Override
-    public com.quollwriter.ui.fx.components.Wizard.Step getStage2 (String stage)
+    public Wizard.Step getStage (String stage)
     {
 
         final EPUBDocumentExporter _this = this;
@@ -199,46 +104,14 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
         }
 
         return DETAILS_STAGE;
-/*
-        if (currStage == null)
-        {
 
-            return "select-items";
-
-        }
-
-        if (currStage.equals ("select-items"))
-        {
-
-            return "details";
-
-        }
-
-        return null;
-*/
     }
 
     public String getPreviousStage (String currStage)
     {
 
         return null;
-/*
-        if (currStage == null)
-        {
 
-            return null;
-
-        }
-
-        if (currStage.equals ("details"))
-        {
-
-            return "select-items";
-
-        }
-
-        return null;
-*/
     }
 
     private void addEntry (String name,
@@ -400,7 +273,7 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
             // TODO Make a constant/property...
             String appendixTemp = Utils.getResourceFileAsString ("/data/export/epub/appendix-template.xml");
 
-            Set<UserConfigurableObjectType> assetTypes = Environment.getAssetUserConfigurableObjectTypes (true);
+            Set<UserConfigurableObjectType> assetTypes = itemsToExport.getAssetUserConfigurableObjectTypes (true);
 
             // Capital A.
             //int apxChar = 65;
@@ -448,76 +321,7 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
                                                cid + ".html"));
 
             }
-/*
-            // Get the locations.
-            List<Location> locs = p.getLocations ();
 
-            if (locs.size () > 0)
-            {
-
-                String cid = "appendix-b-locations";
-
-                String title = "Appendix B - Locations";
-
-                String t = StringUtils.replaceString (appendixTemp,
-                                                      "[[TITLE]]",
-                                                      title);
-                t = StringUtils.replaceString (t,
-                                               "[[CONTENT]]",
-                                               this.getAssetsPage (locs));
-
-                book.addSection (title,
-                                 new Resource (new ByteArrayInputStream (t.getBytes ()),
-                                               cid + ".html"));
-
-            }
-
-            // Get the objects.
-            List<QObject> objs = p.getQObjects ();
-
-            if (objs.size () > 0)
-            {
-
-                String cid = "appendix-c-items";
-
-                String title = "Appendix C - Items";
-
-                String t = StringUtils.replaceString (appendixTemp,
-                                                      "[[TITLE]]",
-                                                      title);
-                t = StringUtils.replaceString (t,
-                                               "[[CONTENT]]",
-                                               this.getAssetsPage (objs));
-
-                book.addSection (title,
-                                 new Resource (new ByteArrayInputStream (t.getBytes ()),
-                                               cid + ".html"));
-
-            }
-
-            // Get the research items.
-            List<ResearchItem> res = p.getResearchItems ();
-
-            if (res.size () > 0)
-            {
-
-                String cid = "appendix-d-research";
-
-                String title = "Appendix D - Research";
-
-                String t = StringUtils.replaceString (appendixTemp,
-                                                      "[[TITLE]]",
-                                                      title);
-                t = StringUtils.replaceString (t,
-                                               "[[CONTENT]]",
-                                               this.getAssetsPage (res));
-
-                book.addSection (title,
-                                 new Resource (new ByteArrayInputStream (t.getBytes ()),
-                                               cid + ".html"));
-
-            }
-               */
             // Create EpubWriter
             EpubWriter epubWriter = new EpubWriter ();
 
@@ -561,7 +365,19 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
 
                 }
 
-                Object val = h.getFieldValue ();
+                Object val = null;
+
+                try
+                {
+
+                    val = h.getFieldValue ();
+
+                } catch (Exception e) {
+
+                    Environment.logError ("Unable to get field value: " + h,
+                                          e);
+
+                }
 
                 if ((val == null)
                     ||
@@ -592,7 +408,7 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
                     try
                     {
 
-                        epubBook.getResources ().add (new Resource (new ByteArrayInputStream (UIUtils.getImageBytes (UIUtils.getImage (f))),
+                        epubBook.getResources ().add (new Resource (new ByteArrayInputStream (UIUtils.getImageBytes (UIUtils.getImage (f.toPath ()))),
                                                                     f.getName ()));
 
                     } catch (Exception e) {

@@ -358,12 +358,7 @@ public class AddEditNotePopup extends PopupContent<ProjectViewer>
             {
 
                 // Add a newline to the end of the chapter.
-/*
-                editor.insertText (this.item.getPosition (),
-                                   "\n");
-*/
-                //this.item.setTextPosition2 (editor.createTextPosition (this.item.getPosition () - 1));
-
+                // TODO?
             } catch (Exception e) {
 
                 Environment.logError ("Unable to insert newline at end of chapter",
@@ -416,31 +411,7 @@ public class AddEditNotePopup extends PopupContent<ProjectViewer>
             return false;
 
         }
-/*
-        if (this.item.isEditNeeded ())
-        {
 
-            try
-            {
-
-                this.item.setTextPosition2 (editor.createTextPosition (this.item.getPosition ()));
-
-                if (this.item.getEndPosition () > -1)
-                {
-
-                    this.item.setEndTextPosition2 (editor.createTextPosition (this.item.getEndPosition ()));
-
-                }
-
-            } catch (Exception e) {
-
-                Environment.logError ("Unable to set text position",
-                                      e);
-
-            }
-
-        }
-*/
         if (this.item.getChapter () != null)
         {
 

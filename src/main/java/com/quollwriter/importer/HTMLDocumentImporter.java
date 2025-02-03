@@ -141,7 +141,7 @@ public class HTMLDocumentImporter implements DocumentImporter
                 {
 
                     // Create a character.
-                    this.n = new QCharacter ();
+                    this.n = new QCharacter (this.p.getUserConfigurableObjectType (QCharacter.OBJECT_TYPE));
 
                     name = text.substring (Environment.getObjectTypeName (QCharacter.OBJECT_TYPE).getValue ().toLowerCase ().length () + 1).trim ();
                 }
@@ -150,7 +150,7 @@ public class HTMLDocumentImporter implements DocumentImporter
                 {
 
                     // Create a character.
-                    this.n = new Location ();
+                    this.n = new Location (this.p.getUserConfigurableObjectType (Location.OBJECT_TYPE));
 
                     name = text.substring (Environment.getObjectTypeName (Location.OBJECT_TYPE).getValue ().toLowerCase ().length () + 1).trim ();
                 }
@@ -159,7 +159,7 @@ public class HTMLDocumentImporter implements DocumentImporter
                 {
 
                     // Create a character.
-                    this.n = new ResearchItem ();
+                    this.n = new ResearchItem (this.p.getUserConfigurableObjectType (ResearchItem.OBJECT_TYPE));
 
                     name = text.substring (Environment.getObjectTypeName (ResearchItem.OBJECT_TYPE).getValue ().toLowerCase ().length () + 1).trim ();
                 }
@@ -168,7 +168,7 @@ public class HTMLDocumentImporter implements DocumentImporter
                 {
 
                     // Create a character.
-                    this.n = new QObject ();
+                    this.n = new QObject (this.p.getUserConfigurableObjectType (QObject.OBJECT_TYPE));
 
                     name = text.substring (Environment.getObjectTypeName (QObject.OBJECT_TYPE).getValue ().toLowerCase ().length () + 1).trim ();
 

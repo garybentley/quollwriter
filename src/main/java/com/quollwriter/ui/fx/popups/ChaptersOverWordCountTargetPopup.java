@@ -132,7 +132,8 @@ public class ChaptersOverWordCountTargetPopup extends PopupContent<AbstractProje
 
         }
 
-        content.getChildren ().add (gp);
+        ScrollPane sp = new ScrollPane (gp);
+        content.getChildren ().add (sp);
 
         content.getChildren ().add (QuollButtonBar.builder ()
             .button (QuollButton.builder ()

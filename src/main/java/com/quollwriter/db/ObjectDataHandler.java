@@ -34,7 +34,7 @@ public class ObjectDataHandler implements DataHandler<QObject, Project>
 
             long key = rs.getLong (ind++);
 
-            QObject l = new QObject ();
+            QObject l = new QObject (proj.getUserConfigurableObjectType (QObject.OBJECT_TYPE));
             l.setKey (key);
 
             // Load the object fields.

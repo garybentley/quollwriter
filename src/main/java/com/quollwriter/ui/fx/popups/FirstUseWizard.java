@@ -1667,7 +1667,7 @@ System.out.println ("HERE2");
 
         }
 
-        Set<UserConfigurableObjectType> assetTypes = Environment.getAssetUserConfigurableObjectTypes (true);
+        Set<UserConfigurableObjectType> assetTypes = p.getAssetUserConfigurableObjectTypes (true);
 
         for (UserConfigurableObjectType t : assetTypes)
         {
@@ -1676,6 +1676,7 @@ System.out.println ("HERE2");
 
             this.addAssetsToTree (root,
                                   t,
+                                  p,
                                   as);
 
         }
@@ -1686,6 +1687,7 @@ System.out.println ("HERE2");
 
     private void addAssetsToTree (TreeItem<NamedObject>      root,
                                   UserConfigurableObjectType type,
+                                  Project                    p,
                                   Set<Asset>                 assets)
     {
 
@@ -1706,7 +1708,7 @@ System.out.println ("HERE2");
         List<Asset> lassets = new ArrayList<> (assets);
 
         Collections.sort (lassets,
-                          NamedObjectSorter.getInstance ());
+                          new NamedObjectSorter (p));
 
         for (Asset a : lassets)
         {

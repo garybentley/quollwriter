@@ -3,8 +3,6 @@ package com.quollwriter.db;
 import java.io.*;
 import java.util.*;
 import java.sql.*;
-//import javax.imageio.*;
-//import java.awt.image.*;
 import javafx.scene.image.*;
 
 import org.bouncycastle.bcpg.*;
@@ -15,7 +13,6 @@ import org.bouncycastle.crypto.params.*;
 import org.bouncycastle.openpgp.operator.bc.*;
 
 import com.quollwriter.*;
-import com.quollwriter.ui.*;
 import com.quollwriter.db.*;
 import com.quollwriter.data.*;
 import com.quollwriter.data.editors.*;
@@ -27,7 +24,7 @@ public class ProjectInfoObjectManager extends ObjectManager
     public static final String USER_PROPERTIES_OBJTYPE = "user-properties";
 
     // Key is the object type string, maps to a user config object type.
-    private Map<String, UserConfigurableObjectType> userConfigObjTypes = new HashMap<> ();
+    //private Map<String, UserConfigurableObjectType> userConfigObjTypes = new HashMap<> ();
 
     public ProjectInfoObjectManager ()
     {
@@ -504,6 +501,7 @@ public class ProjectInfoObjectManager extends ObjectManager
      *
      * It will create each object and the minimum required fields.
      */
+    @Deprecated
     public void initLegacyObjectTypes ()
                                 throws Exception
     {
@@ -608,7 +606,7 @@ public class ProjectInfoObjectManager extends ObjectManager
         Set<UserConfigurableObjectTypeField> fields = new LinkedHashSet<> ();
 
         // Create the chapter type.
-        UserConfigurableObjectType chapterType = new UserConfigurableObjectType ();
+        UserConfigurableObjectType chapterType = new UserConfigurableObjectType (null);
 
         //chapterType.setObjectTypeName (Environment.getObjectTypeName (Chapter.OBJECT_TYPE));
         //chapterType.setObjectTypeNamePlural (Environment.getObjectTypeNamePlural (Chapter.OBJECT_TYPE));
@@ -669,10 +667,10 @@ public class ProjectInfoObjectManager extends ObjectManager
 
         chapterType.setConfigurableFields (Arrays.asList (descF, planF, goalsF));
 
-        Environment.addUserConfigurableObjectType (chapterType);
+        //Environment.addUserConfigurableObjectType (chapterType);
 
         // Now characters.
-        UserConfigurableObjectType characterType = new UserConfigurableObjectType ();
+        UserConfigurableObjectType characterType = new UserConfigurableObjectType (null);
 
         //characterType.setObjectTypeName (Environment.getObjectTypeName (QCharacter.OBJECT_TYPE));
         //characterType.setObjectTypeNamePlural (Environment.getObjectTypeNamePlural (QCharacter.OBJECT_TYPE));
@@ -733,10 +731,10 @@ public class ProjectInfoObjectManager extends ObjectManager
 
         characterType.setConfigurableFields (Arrays.asList (nameF, aliasesF, cdescF));
 
-        Environment.addUserConfigurableObjectType (characterType);
+        //Environment.addUserConfigurableObjectType (characterType);
 
         // Now locations.
-        UserConfigurableObjectType locType = new UserConfigurableObjectType ();
+        UserConfigurableObjectType locType = new UserConfigurableObjectType (null);
 
         //locType.setObjectTypeName (Environment.getObjectTypeName (Location.OBJECT_TYPE));
         //locType.setObjectTypeNamePlural (Environment.getObjectTypeNamePlural (Location.OBJECT_TYPE));
@@ -783,10 +781,10 @@ public class ProjectInfoObjectManager extends ObjectManager
 
         locType.setConfigurableFields (Arrays.asList (nameF, cdescF));
 
-        Environment.addUserConfigurableObjectType (locType);
+        //Environment.addUserConfigurableObjectType (locType);
 
         // Now qobjects.
-        UserConfigurableObjectType qobjType = new UserConfigurableObjectType ();
+        UserConfigurableObjectType qobjType = new UserConfigurableObjectType (null);
 
         //qobjType.setObjectTypeName (Environment.getObjectTypeName (QObject.OBJECT_TYPE));
         //qobjType.setObjectTypeNamePlural (Environment.getObjectTypeNamePlural (QObject.OBJECT_TYPE));
@@ -874,10 +872,10 @@ public class ProjectInfoObjectManager extends ObjectManager
 
         qobjType.setConfigurableFields (Arrays.asList (nameF, typeF, cdescF));
 
-        Environment.addUserConfigurableObjectType (qobjType);
+        //Environment.addUserConfigurableObjectType (qobjType);
 
         // Research items
-        UserConfigurableObjectType riType = new UserConfigurableObjectType ();
+        UserConfigurableObjectType riType = new UserConfigurableObjectType (null);
 
         //riType.setObjectTypeName (Environment.getObjectTypeName (ResearchItem.OBJECT_TYPE));
         //riType.setObjectTypeNamePlural (Environment.getObjectTypeNamePlural (ResearchItem.OBJECT_TYPE));
@@ -935,7 +933,7 @@ public class ProjectInfoObjectManager extends ObjectManager
 
         riType.setConfigurableFields (Arrays.asList (nameF, webF, cdescF));
 
-        Environment.addUserConfigurableObjectType (riType);
+        //Environment.addUserConfigurableObjectType (riType);
 
     }
 

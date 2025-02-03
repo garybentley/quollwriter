@@ -7,7 +7,6 @@ import javafx.beans.property.*;
 import com.quollwriter.*;
 import com.quollwriter.text.*;
 import com.quollwriter.data.*;
-import com.quollwriter.ui.components.ImagePanel;
 import com.quollwriter.editors.messages.*;
 import com.quollwriter.editors.*;
 import com.quollwriter.data.editors.*;

@@ -2,7 +2,6 @@ package com.quollwriter;
 
 import java.util.*;
 
-import javax.swing.*;
 import javax.swing.text.*;
 
 import javafx.scene.control.IndexRange;
@@ -593,7 +592,7 @@ public class Markup
         }
 
     }
-
+/*
     public void apply (com.quollwriter.ui.components.QTextEditor ed)
     {
 
@@ -638,7 +637,8 @@ public class Markup
         }
 
     }
-
+*/
+/*
     public void apply (com.quollwriter.ui.fx.swing.QTextEditor ed)
     {
 
@@ -683,6 +683,7 @@ public class Markup
         }
 
     }
+*/
 /*
     public Iterator iterator ()
     {

@@ -13,7 +13,7 @@ public abstract class LegacyAsset extends Asset
     public static final String DESCRIPTION_LEGACY_FIELD_ID = "description";
     public static final String ALIASES_LEGACY_FIELD_ID = "aliases";
 
-    public static Map<String, Class> supportedLegacyTypes = new LinkedHashMap ();
+    public static Map<String, Class> supportedLegacyTypes = new LinkedHashMap<> ();
 
     static
     {
@@ -31,10 +31,10 @@ public abstract class LegacyAsset extends Asset
 
     }
 
-    public LegacyAsset (String objType)
+    public LegacyAsset (UserConfigurableObjectType objType)
     {
 
-        super (Environment.getUserConfigurableObjectType (objType));
+        super (objType);
 
     }
 

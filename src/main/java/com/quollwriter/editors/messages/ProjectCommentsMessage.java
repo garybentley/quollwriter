@@ -20,6 +20,7 @@ public class ProjectCommentsMessage extends EditorMessage implements PropertyCha
     private String generalComment = null;
     private ProjectVersion projVer = null;
     private Map<String, Date> commentsDealtWith = new HashMap<> ();
+    private Project project = null;
 
     public ProjectCommentsMessage ()
     {
@@ -57,6 +58,7 @@ public class ProjectCommentsMessage extends EditorMessage implements PropertyCha
 
         }
 
+        this.project = project;
         this.projVer = pv;
 
         this.setEditor (editor);
@@ -322,7 +324,8 @@ public class ProjectCommentsMessage extends EditorMessage implements PropertyCha
 
             Map cm = (Map) co;
 
-            Note n = TypeEncoder.decodeToNote (cm);
+            Note n = TypeEncoder.decodeToNote (cm,
+                                               this.project);
 
             n.addPropertyChangedListener (this);
 
@@ -426,7 +429,8 @@ public class ProjectCommentsMessage extends EditorMessage implements PropertyCha
 
                 Map cm = (Map) cms.get (i);
 
-                Note n = TypeEncoder.decodeToNote (cm);
+                Note n = TypeEncoder.decodeToNote (cm,
+                                                   this.project);
 
                 comms.add (n);
 

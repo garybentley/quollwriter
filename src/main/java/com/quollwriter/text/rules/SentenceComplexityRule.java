@@ -31,8 +31,6 @@ public class SentenceComplexityRule extends AbstractSentenceRule
 
     private float      ratio = 0;
     private int wordCount = 0;
-    private javax.swing.JSpinner ratioF = null;
-    private javax.swing.JSpinner wordCountF = null;
 
     private Spinner<Double> ratioF2 = null;
     private Spinner<Integer> wordCountF2 = null;
@@ -172,56 +170,7 @@ public class SentenceComplexityRule extends AbstractSentenceRule
     }
 
     @Override
-    public Set<com.quollwriter.ui.forms.FormItem> getFormItems ()
-    {
-
-        List<String> pref = new ArrayList<> ();
-        pref.add (LanguageStrings.problemfinder);
-        pref.add (LanguageStrings.config);
-        pref.add (LanguageStrings.rules);
-        pref.add (LanguageStrings.sentencecomplexity);
-        pref.add (LanguageStrings.labels);
-
-        Set<com.quollwriter.ui.forms.FormItem> items = new LinkedHashSet<> ();
-
-        this.ratioF = new javax.swing.JSpinner (new javax.swing.SpinnerNumberModel (this.ratio,
-                                                            0.1f,
-                                                            3.0f,
-                                                            0.1));
-
-        javax.swing.Box b = new javax.swing.Box (javax.swing.BoxLayout.X_AXIS);
-        b.add (this.ratioF);
-        b.add (javax.swing.Box.createHorizontalGlue ());
-
-        this.ratioF.setMaximumSize (this.ratioF.getPreferredSize ());
-
-        items.add (new com.quollwriter.ui.forms.AnyFormItem (Environment.getUIString (pref,
-                                                             LanguageStrings.ratio),
-                                    b));
-
-        this.wordCountF = new javax.swing.JSpinner (new javax.swing.SpinnerNumberModel (this.wordCount,
-                                                            1,
-                                                            500,
-                                                            1));
-
-        b = new javax.swing.Box (javax.swing.BoxLayout.X_AXIS);
-
-        b.add (this.wordCountF);
-        b.add (javax.swing.Box.createHorizontalGlue ());
-
-        this.wordCountF.setMaximumSize (this.wordCountF.getPreferredSize ());
-
-        items.add (new com.quollwriter.ui.forms.AnyFormItem (Environment.getUIString (pref,
-                                                             LanguageStrings.sentencelength),
-                                    //"Sentence length (words)",
-                                    b));
-
-        return items;
-
-    }
-
-    @Override
-    public Set<Form.Item> getFormItems2 ()
+    public Set<Form.Item> getFormItems ()
     {
 
         List<String> pref = Arrays.asList (problemfinder,config,rules,sentencecomplexity,labels);
@@ -243,23 +192,8 @@ public class SentenceComplexityRule extends AbstractSentenceRule
 
     }
 
-    public String getFormError ()
-    {
-
-        return null;
-
-    }
-
-    public void updateFromForm ()
-    {
-
-        this.ratio = ((javax.swing.SpinnerNumberModel) this.ratioF.getModel ()).getNumber ().floatValue ();
-        this.wordCount = ((javax.swing.SpinnerNumberModel) this.wordCountF.getModel ()).getNumber ().intValue ();
-
-    }
-
     @Override
-    public void updateFromForm2 ()
+    public void updateFromForm ()
     {
 
         this.ratio = this.ratioF2.getValue ().floatValue ();

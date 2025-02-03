@@ -260,10 +260,29 @@ public class SortableColumnsPanel extends SplitPane implements Stateful
 
                     }
 
-                    ((Region) this.getItems ().get (i)).setMinWidth (widths.get (i).doubleValue () - 1);
-                    ((Region) this.getItems ().get (i)).setPrefWidth (widths.get (i).doubleValue () - 1);
+                    ((Region) this.getItems ().get (i)).setMinWidth (widths.get (i).doubleValue ());
+                    ((Region) this.getItems ().get (i)).setPrefWidth (widths.get (i).doubleValue ());
 
                 }
+
+                UIUtils.forceRunLater (() ->
+                {
+
+                    for (int i = 0; i < widths.size (); i++)
+                    {
+
+                        if (i >= this.getItems ().size ())
+                        {
+
+                            continue;
+
+                        }
+
+                        ((Region) this.getItems ().get (i)).setMinWidth (-1);
+
+                    }
+
+                });
 
             }
 
@@ -287,8 +306,8 @@ public class SortableColumnsPanel extends SplitPane implements Stateful
 
                 }
 
-                ((Region) this.getItems ().get (i)).setMinWidth (widths.get (i).doubleValue () - 1);
-                ((Region) this.getItems ().get (i)).setPrefWidth (widths.get (i).doubleValue () - 1);
+                ((Region) this.getItems ().get (i)).setMinWidth (widths.get (i).doubleValue ());
+                ((Region) this.getItems ().get (i)).setPrefWidth (widths.get (i).doubleValue ());
 
             }
 
@@ -354,6 +373,20 @@ public class SortableColumnsPanel extends SplitPane implements Stateful
         {
 
             this.object.getUserConfigurableObjectType ().getSortableFieldsColumns ().remove (col);
+
+            try
+            {
+
+                viewer.saveObject (this.object.getUserConfigurableObjectType (),
+                                   true);
+
+            } catch (Exception e) {
+
+                Environment.logError ("Unable to save user config type: " + this.object.getUserConfigurableObjectType (),
+                                      e);
+
+            }
+            
             return;
 
         }
@@ -424,6 +457,20 @@ public class SortableColumnsPanel extends SplitPane implements Stateful
 
              cols.add (ind > -1 ? ind : cols.size (),
                        col);
+
+             // Save the type.
+             try
+             {
+
+                 viewer.saveObject (this.object.getUserConfigurableObjectType (),
+                                    true);
+
+             } catch (Exception e) {
+
+                 Environment.logError ("Unable to save user config type: " + this.object.getUserConfigurableObjectType (),
+                                       e);
+
+             }
 
              UIUtils.runLater (onColumnAdded);
 
@@ -517,6 +564,19 @@ public class SortableColumnsPanel extends SplitPane implements Stateful
 
                 this.setDividerPositions (pos);
 
+                try
+                {
+
+                    viewer.saveObject (this.object.getUserConfigurableObjectType (),
+                                       true);
+
+                } catch (Exception e) {
+
+                    Environment.logError ("Unable to save user config type: " + this.object.getUserConfigurableObjectType (),
+                                          e);
+
+                }
+
                 this.dragColumn = null;
                 this.requestLayout ();
 
@@ -537,6 +597,21 @@ public class SortableColumnsPanel extends SplitPane implements Stateful
 
                 tp.fields ().remove (dvb.getTypeField ());
                 lc.getFieldsColumn ().fields ().add (dvb.getTypeField ());
+
+                // Save the type.
+                try
+                {
+
+                    viewer.saveObject (this.object.getUserConfigurableObjectType (),
+                                       true);
+
+                } catch (Exception e) {
+
+                    Environment.logError ("Unable to save user config type: " + this.object.getUserConfigurableObjectType (),
+                                          e);
+
+                }
+
                 this.setDragItem (null);
                 this.requestLayout ();
 

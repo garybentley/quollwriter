@@ -232,59 +232,6 @@ public class AchievementsManager implements ProjectEventListener
 
     }
 
-/*
-TODO Remove
-    public void removeAchievementReachedListener (AchievementReachedListener l)
-    {
-
-        this.listeners.remove (l);
-
-    }
-
-    public void addAchievementReachedListener (AchievementReachedListener l)
-    {
-
-        this.listeners.put (l, this.listenerFillObj);
-
-    }
-
-    protected void fireAchievementReachedEvent (AchievementRule ar)
-    {
-
-        final AchievementsManager _this = this;
-
-        final AchievementReachedEvent ev = new AchievementReachedEvent (ar);
-
-        UIUtils.doActionLater (new ActionListener ()
-        {
-
-            public void actionPerformed (ActionEvent aev)
-            {
-
-                Set<AchievementReachedListener> ls = null;
-
-                // Get a copy of the current valid listeners.
-                synchronized (_this.listeners)
-                {
-
-                    ls = new LinkedHashSet (_this.listeners.keySet ());
-
-                }
-
-                for (AchievementReachedListener l : ls)
-                {
-
-                    l.achievementReached (ev);
-
-                }
-
-            }
-
-        });
-
-    }
-*/
-
     public ObservableSet<AchievementRule> userAchievedRules ()
     {
 
@@ -1150,41 +1097,7 @@ TODO Remove
         },
         500,
         -1);
-/*
-TODO Remove
-        javax.swing.Timer t = new javax.swing.Timer (1000,
-        new ActionAdapter ()
-        {
 
-            public void actionPerformed (ActionEvent ev)
-            {
-
-                // Play after 1s.
-                try
-                {
-
-                    _this.achievementSound.setFramePosition (0);
-
-                    _this.achievementSound.start ();
-
-                    _this.soundRunning = false;
-
-                } catch (Exception e)
-                {
-
-                    Environment.logError ("Unable to play achievement sound",
-                                          e);
-
-                }
-
-            }
-
-        });
-
-        t.setRepeats (false);
-
-        t.start ();
-*/
     }
 
     private String getAsString (Set<String> ids)
@@ -1192,25 +1105,7 @@ TODO Remove
 
         return ids.stream ()
             .collect (Collectors.joining (","));
-/*
-        StringBuilder b = new StringBuilder ();
 
-        for (String id : ids)
-        {
-
-            if (b.length () > 0)
-            {
-
-                b.append (",");
-
-            }
-
-            b.append (id);
-
-        }
-
-        return b.toString ();
-*/
     }
 
     public void eventOccurred (ProjectEvent ev)

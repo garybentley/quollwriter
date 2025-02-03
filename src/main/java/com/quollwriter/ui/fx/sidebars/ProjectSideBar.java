@@ -224,21 +224,6 @@ public class ProjectSideBar extends BaseSideBar<ProjectViewer>
                        Priority.ALWAYS);
         this.setContent (bb);
 
-        this.addSetChangeListener (Environment.getAllTags (),
-                                   ev ->
-        {
-
-            Tag t = ev.getElementRemoved ();
-
-            if (t != null)
-            {
-
-                this.removeTagSection (t);
-
-            }
-
-        });
-
     }
 
     @Override
@@ -357,6 +342,21 @@ public class ProjectSideBar extends BaseSideBar<ProjectViewer>
                     this.addSidebarItem (this.createAssetSidebarItem (ch.getKey ()));
 
                 }
+
+            }
+
+        });
+
+        this.addSetChangeListener (this.viewer.getProject ().getAllTags (),
+                                   ev ->
+        {
+
+            Tag t = ev.getElementRemoved ();
+
+            if (t != null)
+            {
+
+                this.removeTagSection (t);
 
             }
 
@@ -510,7 +510,7 @@ public class ProjectSideBar extends BaseSideBar<ProjectViewer>
         Set<String> defSections = this.getSectionsFromProperty (Constants.DEFAULT_PROJECT_SIDEBAR_SECTIONS_PROPERTY_NAME);
 
         // Get all the user asset types.
-        Set<UserConfigurableObjectType> types = Environment.getAssetUserConfigurableObjectTypes (true);
+        Set<UserConfigurableObjectType> types = this.viewer.getProject ().getAssetUserConfigurableObjectTypes (true);
 
         for (UserConfigurableObjectType t : types)
         {
@@ -524,11 +524,11 @@ public class ProjectSideBar extends BaseSideBar<ProjectViewer>
         try
         {
 
-            tags = Environment.getAllTags ();
+            tags = this.viewer.getProject ().getAllTags ();
 
         } catch (Exception e) {
 
-            tags = new HashSet ();
+            tags = new HashSet<> ();
 
             Environment.logError ("Unable to get all tags",
                                   e);
@@ -813,6 +813,7 @@ TODO Remove
     {
 
         final ProjectSideBar _this = this;
+        Project proj = this.viewer.getProject ();
 
         if (objType.startsWith (Note.OBJECT_TYPE))
         {
@@ -964,7 +965,7 @@ TODO Remove
             try
             {
 
-                tag = Environment.getTagByKey (key);
+                tag = this.viewer.getProject ().getTagByKey (key);
 
             } catch (Exception e) {
 
@@ -1065,7 +1066,8 @@ TODO REmove
             try
             {
 
-                t = Environment.getUserConfigurableObjectType (key);
+                //t = Environment.getUserConfigurableObjectType (key);
+                t = proj.getUserConfigurableObjectType (key);
 
             } catch (Exception e) {
 
@@ -1094,7 +1096,8 @@ TODO REmove
         if (this.legacyAssetObjTypes.contains (objType))
         {
 
-            return this.createAssetSidebarItem (Environment.getUserConfigurableObjectType (objType));
+            return this.createAssetSidebarItem (proj.getUserConfigurableObjectType (objType));
+            //Environment.getUserConfigurableObjectType (objType));
 
         }
 
@@ -1183,6 +1186,7 @@ TODO REmove
 
         StringProperty name = null;
         int count = -1;
+        Project proj = this.viewer.getProject ();
 
         if (objType.startsWith (TaggedObjectSidebarItem.ID_PREFIX))
         {
@@ -1210,7 +1214,7 @@ TODO REmove
             try
             {
 
-                tag = Environment.getTagByKey (key);
+                tag = this.viewer.getProject ().getTagByKey (key);
 
             } catch (Exception e) {
 
@@ -1222,7 +1226,7 @@ TODO REmove
 
             }
 
-            count = this.viewer.getProject ().getAllObjectsWithTag (tag).size ();
+            count = proj.getAllObjectsWithTag (tag).size ();
 
             name = tag.nameProperty ();
 
@@ -1234,7 +1238,7 @@ TODO REmove
             name = Environment.getObjectTypeNamePlural (EditorEditor.OBJECT_TYPE);
             //"{Editors}";
 
-            Set eds = this.viewer.getProject ().getProjectEditors ();
+            Set eds = proj.getProjectEditors ();
 
             if (eds != null)
             {
@@ -1250,25 +1254,27 @@ TODO REmove
 
             name = Environment.getObjectTypeNamePlural (objType);
 
-            count = this.viewer.getProject ().getAllNamedChildObjects (Note.class).size ();
+            count = proj.getAllNamedChildObjects (Note.class).size ();
 
         }
 
         if (Chapter.OBJECT_TYPE.equals (objType))
         {
 
-            UserConfigurableObjectType utype = Environment.getUserConfigurableObjectType (objType);
+            UserConfigurableObjectType utype = proj.getUserConfigurableObjectType (objType);
+            //Environment.getUserConfigurableObjectType (objType);
 
             name = utype.objectTypeNamePluralProperty ();
 
-            count = this.viewer.getProject ().getAllNamedChildObjects (Chapter.class).size ();
+            count = proj.getAllNamedChildObjects (Chapter.class).size ();
 
         }
 
         if (this.legacyAssetObjTypes.contains (objType))
         {
 
-            UserConfigurableObjectType utype = Environment.getUserConfigurableObjectType (objType);
+            UserConfigurableObjectType utype = proj.getUserConfigurableObjectType (objType);
+            //Environment.getUserConfigurableObjectType (objType);
 
             if (utype == null)
             {
@@ -1279,7 +1285,7 @@ TODO REmove
 
             name = utype.objectTypeNamePluralProperty ();
 
-            Set<NamedObject> objs = this.viewer.getProject ().getAllNamedChildObjects (utype);
+            Set<NamedObject> objs = proj.getAllNamedChildObjects (utype);
 
             if (objs != null)
             {
@@ -1316,7 +1322,7 @@ TODO REmove
             try
             {
 
-                t = Environment.getUserConfigurableObjectType (key);
+                t = proj.getUserConfigurableObjectType (key);
 
             } catch (Exception e) {
 
@@ -1330,7 +1336,7 @@ TODO REmove
 
             name = t.objectTypeNamePluralProperty ();
 
-            count = this.viewer.getProject ().getAllNamedChildObjects (t).size ();
+            count = proj.getAllNamedChildObjects (t).size ();
 
         }
 
@@ -1387,7 +1393,7 @@ TODO REmove
             try
             {
 
-                t = Environment.getUserConfigurableObjectType (key);
+                t = this.viewer.getProject ().getUserConfigurableObjectType (key);
 
             } catch (Exception e) {
 
@@ -1417,7 +1423,7 @@ TODO REmove
             //ImageView iv = new ImageView ();
             //iv.imageProperty ().bind (Environment.getUserConfigurableObjectType (objType).icon16x16Property ());
             //return iv;
-            return Environment.getUserConfigurableObjectType (objType).icon16x16Property ();
+            return this.viewer.getProject ().getUserConfigurableObjectType (objType).icon16x16Property ();
 
         }
 

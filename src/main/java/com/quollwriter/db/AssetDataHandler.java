@@ -37,7 +37,8 @@ public class AssetDataHandler implements DataHandler<Asset, Project>
 
             long typekey = rs.getLong (ind++);
 
-            UserConfigurableObjectType t = (UserConfigurableObjectType) Environment.getUserConfigurableObjectType (typekey);
+            // Try and get the type from the project (the default now).
+            UserConfigurableObjectType t = parent.getUserConfigurableObjectType (typekey);
 
             if (t == null)
             {

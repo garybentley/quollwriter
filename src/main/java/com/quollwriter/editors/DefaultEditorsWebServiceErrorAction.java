@@ -1,11 +1,9 @@
 package com.quollwriter.editors;
 
-import java.awt.event.*;
 
 import java.net.*;
 
 import com.quollwriter.*;
-//import com.quollwriter.ui.*;
 import com.quollwriter.editors.ui.*;
 import com.quollwriter.data.editors.*;
 import com.quollwriter.ui.fx.viewers.*;

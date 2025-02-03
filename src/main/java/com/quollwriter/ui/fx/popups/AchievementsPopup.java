@@ -43,9 +43,20 @@ public class AchievementsPopup extends PopupContent
     public void showAchievement (AchievementRule ar)
     {
 
+        Project proj = null;
+
+        if (this.viewer instanceof AbstractProjectViewer)
+        {
+
+            proj = ((AbstractProjectViewer) this.viewer).getProject ();
+
+        }
+
         Node arn = new AchievementView (ar,
                                         true,
-                                        this.getBinder ());
+                                        this.getBinder (),
+                                        proj);
+                                        
         if (this.content.getChildren ().size () == 0)
         {
 

@@ -24,17 +24,7 @@ public class DocumentsUserConfigurableObjectTypeField extends UserConfigurableOb
     }
 
     @Override
-    public com.quollwriter.ui.userobjects.UserConfigurableObjectFieldViewEditHandler getViewEditHandler (UserConfigurableObject      obj,
-                                                                          UserConfigurableObjectField field,
-                                                                          com.quollwriter.ui.AbstractProjectViewer       viewer)
-    {
-
-        return null;
-
-    }
-
-    @Override
-    public UserConfigurableObjectFieldViewEditHandler getViewEditHandler2 (UserConfigurableObject      obj,
+    public UserConfigurableObjectFieldViewEditHandler getViewEditHandler (UserConfigurableObject      obj,
                                                                           UserConfigurableObjectField field,
                                                                           IPropertyBinder             binder,
                                                                           AbstractProjectViewer       viewer)
@@ -49,15 +39,7 @@ public class DocumentsUserConfigurableObjectTypeField extends UserConfigurableOb
     }
 
     @Override
-    public com.quollwriter.ui.userobjects.UserConfigurableObjectTypeFieldConfigHandler getConfigHandler ()
-    {
-
-        return null;
-
-    }
-
-    @Override
-    public UserConfigurableObjectTypeFieldConfigHandler getConfigHandler2 ()
+    public UserConfigurableObjectTypeFieldConfigHandler getConfigHandler ()
     {
 
         return new DocumentsUserConfigurableObjectTypeFieldConfigHandler (this);

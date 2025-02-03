@@ -2331,7 +2331,7 @@ TODO
 
         List<Node> buts2 = new ArrayList<> ();
 
-        Set<UserConfigurableObjectType> types = Environment.getAssetUserConfigurableObjectTypes (true);
+        Set<UserConfigurableObjectType> types = this.viewer.getProject ().getAssetUserConfigurableObjectTypes (true);
 
         for (UserConfigurableObjectType type : types)
         {

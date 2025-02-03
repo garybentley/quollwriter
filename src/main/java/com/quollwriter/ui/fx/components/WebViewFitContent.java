@@ -92,7 +92,7 @@ System.out.println ("ADDING: " + r);
             }
             */
 
-            UIUtils.runLater (() ->
+            UIUtils.forceRunLater (() ->
             {
 
                 synchronized (WebViewFitContent.heightUpdates)
@@ -549,7 +549,7 @@ System.out.println ("ADDING: " + r);
                     this.webview.setVisible (true);
                     this.webview.setMinHeight (height);
 
-                    UIUtils.runLater (() ->
+                    UIUtils.forceRunLater (() ->
                     {
 
                         this.webview.requestLayout ();
@@ -560,7 +560,7 @@ System.out.println ("ADDING: " + r);
 
                     this.webview.setVisible (true);
 
-                    UIUtils.runLater (() ->
+                    UIUtils.forceRunLater (() ->
                     {
 
                         this.webview.requestLayout ();
@@ -592,7 +592,7 @@ System.out.println ("ADDING: " + r);
         this.adjust = com.quollwriter.Environment.schedule (() ->
         {
 
-        UIUtils.runLater (() ->
+        UIUtils.forceRunLater (() ->
         {
 
             try

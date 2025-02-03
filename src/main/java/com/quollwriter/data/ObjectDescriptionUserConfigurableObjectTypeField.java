@@ -28,15 +28,7 @@ public class ObjectDescriptionUserConfigurableObjectTypeField extends MultiTextU
     }
 
     @Override
-    public com.quollwriter.ui.userobjects.UserConfigurableObjectTypeFieldConfigHandler getConfigHandler ()
-    {
-
-        return new com.quollwriter.ui.userobjects.ObjectDescriptionUserConfigurableObjectTypeFieldConfigHandler (this);
-
-    }
-
-    @Override
-    public UserConfigurableObjectTypeFieldConfigHandler getConfigHandler2 ()
+    public UserConfigurableObjectTypeFieldConfigHandler getConfigHandler ()
     {
 
         return new ObjectDescriptionUserConfigurableObjectTypeFieldConfigHandler (this);
@@ -44,23 +36,10 @@ public class ObjectDescriptionUserConfigurableObjectTypeField extends MultiTextU
     }
 
     @Override
-    public com.quollwriter.ui.userobjects.UserConfigurableObjectFieldViewEditHandler getViewEditHandler (UserConfigurableObject      obj,
-                                                                          UserConfigurableObjectField field,
-                                                                          com.quollwriter.ui.AbstractProjectViewer       viewer)
-    {
-
-        return new com.quollwriter.ui.userobjects.ObjectDescriptionUserConfigurableObjectFieldViewEditHandler (this,
-                                                                                obj,
-                                                                                field,
-                                                                                viewer);
-
-    }
-
-    @Override
-    public ObjectDescriptionUserConfigurableObjectFieldViewEditHandler getViewEditHandler2 (UserConfigurableObject      obj,
-                                                                          UserConfigurableObjectField field,
-                                                                          IPropertyBinder             binder,
-                                                                          AbstractProjectViewer       viewer)
+    public ObjectDescriptionUserConfigurableObjectFieldViewEditHandler getViewEditHandler (UserConfigurableObject      obj,
+                                                                                           UserConfigurableObjectField field,
+                                                                                           IPropertyBinder             binder,
+                                                                                           AbstractProjectViewer       viewer)
     {
 
         return new ObjectDescriptionUserConfigurableObjectFieldViewEditHandler (this,

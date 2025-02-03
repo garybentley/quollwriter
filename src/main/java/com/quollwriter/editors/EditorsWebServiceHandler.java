@@ -13,10 +13,10 @@ import javafx.beans.property.*;
 import org.bouncycastle.openpgp.*;
 
 import com.quollwriter.*;
-import com.quollwriter.ui.*;
 import com.quollwriter.editors.ui.*;
 import com.quollwriter.editors.messages.*;
 import com.quollwriter.data.editors.*;
+import com.quollwriter.ui.fx.viewers.*;
 
 import static com.quollwriter.LanguageStrings.*;
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
@@ -159,7 +159,7 @@ public class EditorsWebServiceHandler
 
         }
 
-        AbstractViewer viewer = null; // TODO Environment.getFocusedViewer ();
+        AbstractViewer viewer = Environment.getFocusedViewer ();
 
         for (int i = 0; i < invites.size (); i++)
         {
@@ -1018,6 +1018,7 @@ TODO Remove
 
     }
 */
+/*
     private Map getEditorData (String                             name,
                                String                             about,
                                File                               avatarImage,
@@ -1070,7 +1071,7 @@ TODO Remove
         return data;
 
     }
-
+*/
     public void saveEditor (String                             name,
                             String                             about,
                             File                               avatarImage,
@@ -1142,7 +1143,7 @@ TODO Remove
         }
 
     }
-
+/*
     private Map getAuthorData (String name,
                                String about,
                                File   avatarImage)
@@ -1186,7 +1187,7 @@ TODO Remove
         return data;
 
     }
-
+*/
     private void createAuthor (String name,
                                String about,
                                File   avatarImage)

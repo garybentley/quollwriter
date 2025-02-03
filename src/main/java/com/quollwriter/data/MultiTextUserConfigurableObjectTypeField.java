@@ -1,7 +1,5 @@
 package com.quollwriter.data;
 
-import java.awt.Dimension;
-
 import java.util.Map;
 import java.util.Set;
 import java.util.LinkedHashSet;
@@ -28,20 +26,7 @@ public class MultiTextUserConfigurableObjectTypeField extends UserConfigurableOb
     }
 
     @Override
-    public com.quollwriter.ui.userobjects.UserConfigurableObjectFieldViewEditHandler getViewEditHandler (UserConfigurableObject      obj,
-                                                                          UserConfigurableObjectField field,
-                                                                          com.quollwriter.ui.AbstractProjectViewer       viewer)
-    {
-
-        return new com.quollwriter.ui.userobjects.MultiTextUserConfigurableObjectFieldViewEditHandler (this,
-                                                                        obj,
-                                                                        field,
-                                                                        viewer);
-
-    }
-
-    @Override
-    public UserConfigurableObjectFieldViewEditHandler getViewEditHandler2 (UserConfigurableObject      obj,
+    public UserConfigurableObjectFieldViewEditHandler getViewEditHandler (UserConfigurableObject      obj,
                                                                           UserConfigurableObjectField field,
                                                                           IPropertyBinder             binder,
                                                                           AbstractProjectViewer       viewer)
@@ -55,15 +40,7 @@ public class MultiTextUserConfigurableObjectTypeField extends UserConfigurableOb
     }
 
     @Override
-    public com.quollwriter.ui.userobjects.UserConfigurableObjectTypeFieldConfigHandler getConfigHandler ()
-    {
-
-        return new com.quollwriter.ui.userobjects.MultiTextUserConfigurableObjectTypeFieldConfigHandler (this);
-
-    }
-
-    @Override
-    public UserConfigurableObjectTypeFieldConfigHandler getConfigHandler2 ()
+    public UserConfigurableObjectTypeFieldConfigHandler getConfigHandler ()
     {
 
         return new MultiTextUserConfigurableObjectTypeFieldConfigHandler (this);

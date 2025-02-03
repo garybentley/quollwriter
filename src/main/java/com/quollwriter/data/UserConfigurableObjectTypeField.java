@@ -142,11 +142,7 @@ public abstract class UserConfigurableObjectTypeField extends NamedObject
     // TODO: Check to see if this needs to be generic.
     // TODO: Have this be configurable and use class loading...
     // TODO CLean up
-    public abstract com.quollwriter.ui.userobjects.UserConfigurableObjectFieldViewEditHandler getViewEditHandler (UserConfigurableObject      obj,
-                                                                                   UserConfigurableObjectField field,
-                                                                                   com.quollwriter.ui.AbstractProjectViewer       viewer);
-
-   public abstract UserConfigurableObjectFieldViewEditHandler getViewEditHandler2 (UserConfigurableObject      obj,
+   public abstract UserConfigurableObjectFieldViewEditHandler getViewEditHandler (UserConfigurableObject      obj,
                                                                                   UserConfigurableObjectField field,
                                                                                   IPropertyBinder             binder,
                                                                                   AbstractProjectViewer       viewer);
@@ -158,10 +154,7 @@ public abstract class UserConfigurableObjectTypeField extends NamedObject
      *
      * @return The config handler for this field.
      */
-     // TODO Clean up
-    public abstract com.quollwriter.ui.userobjects.UserConfigurableObjectTypeFieldConfigHandler getConfigHandler ();
-
-    public abstract UserConfigurableObjectTypeFieldConfigHandler getConfigHandler2 ();
+    public abstract UserConfigurableObjectTypeFieldConfigHandler getConfigHandler ();
 
     public boolean isSortable ()
     {

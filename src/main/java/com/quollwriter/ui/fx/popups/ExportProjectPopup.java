@@ -421,7 +421,7 @@ public class ExportProjectPopup extends PopupContent<ProjectViewer>
             }
 
             de.setProject (this.viewer.getProject ());
-            ws = de.getStage2 (stepId);
+            ws = de.getStage (stepId);
 
         }
 
@@ -842,7 +842,7 @@ public class ExportProjectPopup extends PopupContent<ProjectViewer>
 
         }
 
-        Set<UserConfigurableObjectType> assetTypes = Environment.getAssetUserConfigurableObjectTypes (true);
+        Set<UserConfigurableObjectType> assetTypes = p.getAssetUserConfigurableObjectTypes (true);
 
         for (UserConfigurableObjectType t : assetTypes)
         {
@@ -851,6 +851,7 @@ public class ExportProjectPopup extends PopupContent<ProjectViewer>
 
             this.addAssetsToTree (root,
                                   t,
+                                  p,
                                   as);
 
         }
@@ -913,6 +914,7 @@ public class ExportProjectPopup extends PopupContent<ProjectViewer>
 
     private void addAssetsToTree (TreeItem<NamedObject>      root,
                                   UserConfigurableObjectType type,
+                                  Project                    p,
                                   Set<Asset>                 assets)
     {
 
@@ -933,7 +935,7 @@ public class ExportProjectPopup extends PopupContent<ProjectViewer>
         List<Asset> lassets = new ArrayList<> (assets);
 
         Collections.sort (lassets,
-                          NamedObjectSorter.getInstance ());
+                          new NamedObjectSorter (p));
 
         for (Asset a : lassets)
         {

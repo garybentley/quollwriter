@@ -9,7 +9,7 @@ import com.quollwriter.*;
 import com.quollwriter.ui.fx.*;
 import com.quollwriter.data.*;
 
-public class UserConfigurableObjectTypeDataHandler implements DataHandler<UserConfigurableObjectType, NamedObject>
+public class UserConfigurableObjectTypeDataHandler implements DataHandler<UserConfigurableObjectType, Project>
 {
 
     private static final String STD_SELECT_PREFIX = "SELECT dbkey, userobjtype, name, pluralname, description, markup, icon24x24, icon16x16, layout, assetobjtype, createshortcutkey, lastmodified, datecreated, properties, id, version FROM userobjecttype_v ";
@@ -29,9 +29,9 @@ public class UserConfigurableObjectTypeDataHandler implements DataHandler<UserCo
 
     }
 
-    private UserConfigurableObjectType getUserConfigurableObjectType (ResultSet   rs,
-                                                                      NamedObject parent,
-                                                                      boolean     loadChildObjects)
+    private UserConfigurableObjectType getUserConfigurableObjectType (ResultSet rs,
+                                                                      Project   parent,
+                                                                      boolean   loadChildObjects)
                                                                throws GeneralException
     {
 
@@ -51,7 +51,7 @@ public class UserConfigurableObjectTypeDataHandler implements DataHandler<UserCo
 
             }
 
-            t = new UserConfigurableObjectType ();
+            t = new UserConfigurableObjectType (parent);
             t.setKey (key);
             t.setUserObjectType (rs.getString (ind++));
 
@@ -94,7 +94,17 @@ public class UserConfigurableObjectTypeDataHandler implements DataHandler<UserCo
                                                                                                             conn,
                                                                                                             true));
 
-            Environment.addUserConfigurableObjectType (t);
+            if (parent != null)
+            {
+
+                parent.addUserConfigurableObjectType (t);
+
+            } else {
+
+                // Keep this around, needed so we can get the environment type.
+                //Environment.addUserConfigurableObjectType (t);
+
+            }
 
             this.cache.put (key,
                             t);
@@ -111,7 +121,7 @@ public class UserConfigurableObjectTypeDataHandler implements DataHandler<UserCo
 
     }
 
-    public List<UserConfigurableObjectType> getObjects (NamedObject parent,
+    public List<UserConfigurableObjectType> getObjects (Project     parent,
                                                         Connection  conn,
                                                         boolean     loadChildObjects)
                                                  throws GeneralException
@@ -160,7 +170,7 @@ public class UserConfigurableObjectTypeDataHandler implements DataHandler<UserCo
     }
 
     public UserConfigurableObjectType getObjectByKey (long        key,
-                                                      NamedObject parent,
+                                                      Project     parent,
                                                       Connection  conn,
                                                       boolean     loadChildObjects)
                                                throws GeneralException

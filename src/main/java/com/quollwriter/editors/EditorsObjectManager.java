@@ -14,7 +14,7 @@ import org.bouncycastle.crypto.params.*;
 import org.bouncycastle.openpgp.operator.bc.*;
 
 import com.quollwriter.*;
-import com.quollwriter.ui.*;
+import com.quollwriter.ui.fx.*;
 import com.quollwriter.db.*;
 import com.quollwriter.data.*;
 import com.quollwriter.data.editors.*;
@@ -570,7 +570,7 @@ public class EditorsObjectManager extends ObjectManager
                 try
                 {
 
-                    params.add (UIUtils.getImageBytes (SwingFXUtils.fromFXImage (acc.getAvatar (), null)));
+                    params.add (UIUtils.getImageBytes (acc.getAvatar ()));
 
                 } catch (Exception e) {
 

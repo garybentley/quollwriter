@@ -159,13 +159,6 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
     private SideBar       mainSideBar = null;
     private BooleanProperty inFullScreenModeProp = null;
 
-    //private StackPane sidebarsPane = null;
-    //private StackPane otherSidebarsPane = null;
-    //private ViewerSplitPane parentPane = null;
-    //private StackPane parentWrapper = null;
-    //private Node content = null;
-    //private VBox notifications = null;
-
     private Set<QuollPopup> popups = new HashSet<> ();
 
     private Set<ProjectEventListener> projectEventListeners = new HashSet<> ();
@@ -210,54 +203,6 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
         });
 
         this.setFillWidth (true);
-
-/*
-        this.sidebarsPane = new StackPane ();
-        this.sidebarsPane.getStyleClass ().add (StyleClassNames.SIDEBARS);
-        this.sidebarsPane.managedProperty ().bind (this.sidebarsPane.visibleProperty ());
-        SplitPane.setResizableWithParent (this.sidebarsPane, false);
-
-        this.otherSidebarsPane = new StackPane ();
-        this.otherSidebarsPane.getStyleClass ().add (StyleClassNames.OTHERSIDEBARS);
-        this.otherSidebarsPane.managedProperty ().bind (this.otherSidebarsPane.visibleProperty ());
-        SplitPane.setResizableWithParent (this.otherSidebarsPane, false);
-*/
-/*
-        this.parentWrapper = new StackPane ();
-        this.parentWrapper.getStyleClass ().add (StyleClassNames.CONTENT);
-        this.parentWrapper.prefWidthProperty ().bind (this.popupPane.widthProperty ());
-        this.parentWrapper.prefHeightProperty ().bind (this.popupPane.heightProperty ());
-        this.popupPane.getChildren ().add (this.parentWrapper);
-*/
-/*
-        this.parentPane = new SplitPane ();
-        SplitPane.setResizableWithParent (this.parentPane, true);
-        this.parentPane.getStyleClass ().add (StyleClassNames.CONTENT);
-        this.parentPane.prefWidthProperty ().bind (this.popupPane.widthProperty ());
-        this.parentPane.prefHeightProperty ().bind (this.popupPane.heightProperty ());
-        this.popupPane.getChildren ().add (this.parentPane);
-*/
-
-/*
-        this.header = Header.builder ()
-            //.controls (b.headerControlsSupplier.get ())
-            .toolbar (b.headerToolbar)
-            .styleClassName (StyleClassNames.HEADER)
-            .build ();
-        this.header.titleProperty ().bind (this.titleProperty ());
-        VBox.setVgrow (this.header,
-                       Priority.NEVER);
-        this.normalContent.getChildren ().addAll (this.header, b.content);
-        this.content = b.content;
-
-        this.parentPane = new ViewerSplitPane (UserProperties.uiLayoutProperty (),
-                                               this);
-        this.parentPane.getStyleClass ().add (StyleClassNames.CONTENT);
-        VBox.setVgrow (this.parentPane,
-                       Priority.ALWAYS);
-
-        this.normalContent.getChildren ().addAll (this.header, this.parentPane);
-*/
 
         this.popupPane = new Pane ();
         this.popupPane.getStyleClass ().add (StyleClassNames.POPUPPANE);
@@ -638,8 +583,6 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
         if (s == Side.BOTTOM)
         {
 
-            //y = y + ((Region) n).getHeight ();
-            //y = y + ((Region) n).getPrefHeight ();
             y += b.getHeight () + 2;
 
         }
@@ -647,7 +590,6 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
         if (s == Side.TOP)
         {
 
-            //y -= ((Region) n).getPrefHeight () - p.getHeight ();
             y -= b.getHeight () - p.getHeight () - 2;
 
         }
@@ -655,7 +597,6 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
         if (s == Side.LEFT)
         {
 
-            //x -= ((Region) n).getPrefWidth () - p.getWidth ();
             x -= b.getWidth () - p.getWidth () - 2;
 
         }
@@ -663,7 +604,6 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
         if (s == Side.RIGHT)
         {
 
-            //x += ((Region) n).getPrefWidth ();
             x += b.getWidth () + 2;
 
         }
@@ -1034,29 +974,17 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
                 }
 
                 this.closeSideBar ();
-/*
-                // Check for sidebars.
-                if (!this.activeSideBars.empty ())
-                {
 
-                    this.activeSideBars.pop ().close ();
-xxx
-                }
-*/
             }
 
         });
 
-        this.addKeyMapping (CommandId.debug,
+        this.addKeyMapping (CommandId.debugconsole,
                             KeyCode.F12, KeyCombination.SHORTCUT_DOWN, KeyCombination.ALT_DOWN);
         this.addKeyMapping (CommandId.debugmode,
                             KeyCode.F1, KeyCombination.SHORTCUT_DOWN, KeyCombination.ALT_DOWN);
         this.addKeyMapping (CommandId.cssviewer,
                             KeyCode.F2, KeyCombination.SHORTCUT_DOWN, KeyCombination.ALT_DOWN);
-/*
-        this.addKeyMapping (CommandId.whatsnew,
-                            KeyCode.F11);
-*/
         this.addKeyMapping (CommandId.showoptions,
                             KeyCode.F3);
         this.addKeyMapping (CommandId.vieweditors,
@@ -1179,27 +1107,6 @@ xxx
         this.addActionMapping (() ->
         {
 
-            QuollPopup qp = this.getPopupById (TagsManager.POPUP_ID);
-
-            if (qp != null)
-            {
-
-                qp.toFront ();
-                return;
-
-            }
-
-            new TagsManager (this).show ();
-
-            this.fireProjectEvent (ProjectEvent.Type.tags,
-                                   ProjectEvent.Action.edit);
-
-        },
-        CommandId.edittags);
-
-        this.addActionMapping (() ->
-        {
-
             // TODO
 
         },
@@ -1302,8 +1209,8 @@ xxx
         this.addActionMapping (() -> this.showWarmupPromptSelect (),
                                CommandId.dowarmup,
                                CommandId.warmup);
-        this.addActionMapping (() -> new DebugConsole (_this),
-                               CommandId.debug);
+        this.addActionMapping (() -> this.showDebugConsole (),
+                               CommandId.debugconsole);
         this.addActionMapping (() ->
         {
 
@@ -1321,10 +1228,7 @@ xxx
 
         this.addActionMapping (() ->
         {
-/*
-			UserProperties.set (Constants.WHATS_NEW_VERSION_VIEWED_PROPERTY_NAME,
-								"0");
-*/
+
             _this.showWhatsNew (true);
 
         },
@@ -1515,18 +1419,6 @@ xxx
         this.handleWhatsNew ();
 
         this.handleShowTips ();
-
-        // When we update our user property, update the layout property.
-        /*
-TODO Remove handled by the content.
-        this.addChangeListener (UserProperties.uiLayoutProperty (),
-                                (prop, oldv, newv) ->
-        {
-
-            this.updateLayout ();
-
-        });
-        */
 
         // We show later to ensure that the init has worked.
         Environment.registerViewer (this);
@@ -1934,12 +1826,7 @@ TODO Remove handled by the content.
                     }
 
                     return text;
-/*
-                    t = StringUtils.replaceString (t,
-                                                   "[achievement]",
-                                                   "<img src='file:///d:/development/github/quollwriterv3/src/main/resources/imgs/achievement16.png' />");
-                                                   //"<span class='icon.achievement'></span>");
-*/
+
                 };
 
                 StringProperty tipText = this.tips.getNextTip ();
@@ -2036,31 +1923,7 @@ TODO Remove handled by the content.
 
                          })
                         .build ();
-/*
-                    ComponentUtils.createQuestionPopup (getUILanguageStringProperty (prefix, LanguageStrings.title),
-                                                        //"Stop showing tips?",
-                                                        StyleClassNames.STOP,
-                                                        getUILanguageStringProperty (prefix,LanguageStrings.text),
-                                                        //"Stop showing tips when Quoll Writer starts?<br /><br />They can enabled at any time in the <a href='action:options.start'>Options panel</a>.",
-                                                        getUILanguageStringProperty (prefix,buttons,confirm),
-                                                        //"Yes, stop showing them",
-                                                        getUILanguageStringProperty (prefix,buttons,cancel),
-                                                        //"No, keep them",
-                                                        // On confirm...
-                                                        fev ->
-                                                        {
 
-                                                              _this.fireProjectEvent (ProjectEvent.Type.tips,
-                                                                                      ProjectEvent.Action.off);
-
-           													  UserProperties.set (Constants.SHOW_TIPS_PROPERTY_NAME,
-        													  					  false);
-
-                                                              _this.removeNotification (n);
-
-                                                         },
-                                                         _this);
-*/
                 });
 
             } catch (Exception e) {
@@ -2190,7 +2053,6 @@ TODO Remove handled by the content.
 
             ComponentUtils.showErrorMessage (this,
                                              getUILanguageStringProperty (whatsnew,actionerror));
-                                      //"Unable to show What's New, please contact Quoll Writer support for assistance.");
 
             return;
 
@@ -2300,6 +2162,24 @@ TODO Remove handled by the content.
         }
 
         new ObjectTypeNameChangePopup (this).show ();
+
+    }
+
+    public void showDebugConsole ()
+    {
+
+        QuollPopup qp = this.getPopupById (DebugConsolePopup.POPUP_ID);
+
+        if (qp != null)
+        {
+
+            qp.show ();
+            qp.toFront ();
+            return;
+
+        }
+
+        new DebugConsolePopup (this).show ();
 
     }
 
@@ -2570,7 +2450,6 @@ TODO
 
             }
 
-            //String toolTip = (EditorsEnvironment.hasRegistered () ? "Click to show my {contacts}" : "Click to register for the Editors Service.");
             return QuollButton.builder ()
                 .tooltip (prefix,type,tooltip)
                 .iconName (StyleClassNames.CONTACTS)
@@ -2629,8 +2508,6 @@ TODO
 
     public abstract void deleteAllObjectsForType (UserConfigurableObjectType t)
                                            throws GeneralException;
-
-    //public abstract Set<String> getTitleHeaderControlIds ();
 
     public boolean isSideBarVisible (String id)
     {
@@ -2831,24 +2708,7 @@ TODO
     {
 
         int c = this.activeSideBars.size ();
-/*
-TODO Clean up?
-        String l = UserProperties.uiLayoutProperty ().getValue ();
 
-        if ((l.equals (Constants.LEFT))
-            ||
-            (l.equals (Constants.RIGHT))
-            ||
-            (l.equals (Constants.LAYOUT_PS_CH))
-            ||
-            (l.equals (Constants.LAYOUT_CH_PS))
-           )
-        {
-
-            c++;
-
-        }
-*/
         return c;
 
     }
@@ -3326,103 +3186,6 @@ TODO
 
     }
 
-    public void showDeleteUserConfigurableType (UserConfigurableObjectType type)
-    {
-
-        String pid = "deleteall" + type.getObjectReference ().asString ();
-
-        QuollPopup.yesConfirmTextEntryBuilder ()
-            .withViewer (this)
-            .title (getUILanguageStringProperty (Arrays.asList (assets,deleteall,title),
-                                                 type.objectTypeNamePluralProperty ()))
-            .popupId (pid)
-            .styleClassName (StyleClassNames.DELETE)
-            .description (getUILanguageStringProperty (Arrays.asList (assets,deleteall,text),
-                                                       type.objectTypeNamePluralProperty ()))
-            .confirmButtonLabel (assets,deleteall,buttons,confirm)
-            .cancelButtonLabel (assets,deleteall,buttons,cancel)
-            .onConfirm (eev ->
-            {
-
-                try
-                {
-
-                    this.deleteAllObjectsForType (type);
-
-                } catch (Exception e) {
-
-                    Environment.logError ("Unable to remove all: " +
-                                          type,
-                                          e);
-
-                    ComponentUtils.showErrorMessage (this,
-                                                     getUILanguageStringProperty (assets,deleteall,actionerror));
-                                              //String.format ("Unable to remove all %1$s.",
-                                                //             type.getObjectTypeNamePlural ()));
-
-                    return;
-
-                }
-
-                try
-                {
-
-                    Environment.removeUserConfigurableObjectType (type);
-
-                } catch (Exception e) {
-
-                    Environment.logError ("Unable to remove user object type: " +
-                                          type,
-                                          e);
-
-                    ComponentUtils.showErrorMessage (this,
-                                                     getUILanguageStringProperty (assets,deleteall,actionerror));
-                                              //"Unable to remove object.");
-
-                    return;
-
-                }
-
-                this.getPopupById (pid).close ();
-
-            })
-            .build ();
-
-    }
-
-    public void showAddNewUserConfigurableType ()
-    {
-
-        String pid = AddEditUserConfigurableObjectType.POPUP_ID;
-
-        if (this.getPopupById (pid) != null)
-        {
-
-            return;
-
-        }
-
-        new AddEditUserConfigurableObjectType (this).show ();
-
-    }
-
-    public void showEditUserConfigurableType (UserConfigurableObjectType t)
-    {
-
-        String pid = AddEditUserConfigurableObjectType.getPopupIdForType (t);
-
-        if (this.getPopupById (pid) != null)
-        {
-
-            return;
-
-        }
-
-        new AddEditUserConfigurableObjectType (t,
-                                               this).show ();
-
-    }
-
     private String getUILayout ()
     {
 
@@ -3467,35 +3230,7 @@ TODO
         return uiLayout;
 
     }
-/*
-TODO Not needed, is a function of the sidebar itself...
-    public void addToSidebarWrapper (Side where,
-                                     Node node)
-    {
 
-        if (where == Side.TOP)
-        {
-
-            this.sidebarsPane.getChildren ().add (0,
-                                             node);
-
-            return;
-
-        }
-
-        if (where == Side.BOTTOM)
-        {
-
-            this.sidebarsPaneWrapper.getChildren ().add (node);
-
-            return;
-
-        }
-
-        throw new IllegalArgumentException ("Side: " + where + " is not supported.");
-
-    }
-*/
     public Viewer getViewer ()
     {
 
@@ -3543,20 +3278,7 @@ TODO Not needed, is a function of the sidebar itself...
         v.init (null);
 
         this.viewer = v;
-/*
-Not needed, already covered by the full screen content.
-        this.viewer.fullScreenProperty ().addListener ((pr, oldv, newv) ->
-        {
 
-            if (!newv)
-            {
-
-                this.exitFullScreen ();
-
-            }
-
-        });
-*/
         // Best place for this?
         v.getScene ().addEventFilter (javafx.scene.input.MouseEvent.MOUSE_RELEASED,
                                       ev ->

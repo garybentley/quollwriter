@@ -175,7 +175,9 @@ public class ChaptersOverReadabilityTargetPopup extends PopupContent<AbstractPro
 
         VBox content = new VBox ();
 
-        content.getChildren ().add (gp);
+        ScrollPane sp = new ScrollPane (gp);
+
+        content.getChildren ().add (sp);
 
         content.getChildren ().add (QuollButtonBar.builder ()
             .button (QuollButton.builder ()

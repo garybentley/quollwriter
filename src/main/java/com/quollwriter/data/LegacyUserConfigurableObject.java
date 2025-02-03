@@ -13,10 +13,10 @@ public abstract class LegacyUserConfigurableObject extends UserConfigurableObjec
     public static final String DESCRIPTION_LEGACY_FIELD_ID = "description";
     public static final String ALIASES_LEGACY_FIELD_ID = "aliases";
 
-    public LegacyUserConfigurableObject (String objType)
+    public LegacyUserConfigurableObject (UserConfigurableObjectType objType)
     {
 
-        super (Environment.getUserConfigurableObjectType (objType));
+        super (objType);
 
     }
 

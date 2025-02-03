@@ -154,7 +154,7 @@ public class Viewer extends Stage implements Stateful
                 this.setX (x);
 
             }
-            
+
             this.setMaximized (s.getAsBoolean (Constants.WINDOW_MAXIMIZED_PROPERTY_NAME));
 
         }
@@ -207,7 +207,7 @@ public class Viewer extends Stage implements Stateful
 
         }
 
-        this.scene.getRoot ().setStyle (String.format ("-fx-font-size: %1$spt; -fx-font-family: \"%2$s\"",
+        this.scene.getRoot ().setStyle (String.format ("-fx-font-size: %1$spt; -fx-font-family: \"%2$s\";",
                                                              UserProperties.getUIBaseFontSize (),
                                                              f.getName ()));
 
@@ -328,6 +328,13 @@ try{
         });
 
         box.pseudoClassStateChanged (StyleClassNames.NIGHT_MODE_PSEUDO_CLASS, Environment.isNightModeEnabled ());
+
+        this.binder.addChangeListener (UserProperties.nightModeBGColorProperty (),
+                                       (pr, oldv, newv) ->
+        {
+
+
+        });
 
         this.getIcons ().addAll (Environment.getWindowIcons ());
 

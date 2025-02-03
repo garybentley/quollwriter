@@ -350,6 +350,7 @@ public class QuollImageView extends StackPane
         this.imageProp.setValue (im);
         this.ib.setImage (im);
         this.setPrefHeight (im.getHeight ());
+        this.setMinHeight (im.getHeight ());
         /*
         UIUtils.runLater (() ->
         {

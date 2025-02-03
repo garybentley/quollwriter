@@ -92,7 +92,7 @@ public class WordFinder extends AbstractDialogueRule
                               this.getWhereDesc ());
 
     }
-
+/*
     @Override
     public String getEditFormTitle (boolean add)
     {
@@ -109,7 +109,7 @@ public class WordFinder extends AbstractDialogueRule
                                                LanguageStrings.edittitle));
 
     }
-
+*/
     private String getWhereDesc ()
     {
 
@@ -297,7 +297,8 @@ public class WordFinder extends AbstractDialogueRule
 
     }
 
-    public void updateFromForm2 ()
+    @Override
+    public void updateFromForm ()
     {
 
         this.setOnlyInDialogue (this.onlyInDialogueCB2.isSelected ());
@@ -330,40 +331,6 @@ public class WordFinder extends AbstractDialogueRule
 
     }
 
-    public void updateFromForm ()
-    {
-/*
-TODO Remove
-        this.setOnlyInDialogue (this.onlyInDialogueCB.isSelected ());
-        this.setIgnoreInDialogue (this.ignoreInDialogueCB.isSelected ());
-
-        int ws = this.whereCB.getSelectedIndex ();
-
-        if (ws == 0)
-        {
-
-            this.setWhere (DialogueConstraints.ANYWHERE);
-
-        }
-
-        if (ws == 1)
-        {
-
-            this.setWhere (DialogueConstraints.START);
-
-        }
-
-        if (ws == 2)
-        {
-
-            this.setWhere (DialogueConstraints.END);
-
-        }
-
-        this.setWord (this.words.getText ().trim ());
-*/
-    }
-
     @Override
     public String getDescription ()
     {
@@ -384,7 +351,7 @@ TODO Remove
     }
 
     @Override
-    public Set<Form.Item> getFormItems2 ()
+    public Set<Form.Item> getFormItems ()
     {
 
         Set<Form.Item> items = new LinkedHashSet<> ();
@@ -475,124 +442,7 @@ TODO Remove
     }
 
     @Override
-    // TODO REmove
-    public Set<com.quollwriter.ui.forms.FormItem> getFormItems ()
-    {
-
-        Set<com.quollwriter.ui.forms.FormItem> items = new LinkedHashSet<> ();
-
-/*
-        List<String> pref = new ArrayList ();
-        pref.add (LanguageStrings.problemfinder);
-        pref.add (LanguageStrings.config);
-        pref.add (LanguageStrings.rules);
-        pref.add (LanguageStrings.wordfinder);
-        pref.add (LanguageStrings.labels);
-
-        this.words = new TextFormItem (Environment.getUIString (pref,
-                                                                LanguageStrings.wordphrase),
-                                                                //"Word/Phrase",
-                                       this.word);
-
-        items.add (this.words);
-
-        Vector<String> whereVals = new Vector<> ();
-        whereVals.add (Environment.getUIString (pref,
-                                                LanguageStrings.anywhere));
-        //"Anywhere");
-        whereVals.add (Environment.getUIString (pref,
-                                                LanguageStrings.startofsentence));
-        //"Start of sentence");
-        whereVals.add (Environment.getUIString (pref,
-                                                LanguageStrings.endofsentence));
-        //"End of sentence");
-
-        String selected = whereVals.get (0);
-
-        String loc = this.getWhere ();
-
-        if (loc.equals (DialogueConstraints.START))
-        {
-
-            selected = whereVals.get (1);
-
-        }
-
-        if (loc.equals (DialogueConstraints.END))
-        {
-
-            selected = whereVals.get (2);
-
-        }
-
-        this.whereCB = new ComboBoxFormItem (Environment.getUIString (pref,
-                                                                      LanguageStrings.where),
-        //"Where",
-                                             whereVals,
-                                             selected,
-                                             null);
-
-        final WordFinder _this = this;
-
-        items.add (this.whereCB);
-
-        this.ignoreInDialogueCB = new CheckboxFormItem (null,
-                                                        Environment.getUIString (pref,
-                                                                                 LanguageStrings.ignoreindialogue));
-                                                        //"Ignore in dialogue");
-        this.onlyInDialogueCB = new CheckboxFormItem (null,
-                                                      Environment.getUIString (pref,
-                                                                               LanguageStrings.onlyindialogue));
-                                                      //"Only in dialogue");
-
-        this.ignoreInDialogueCB.addItemListener (new ItemListener ()
-        {
-
-            @Override
-            public void itemStateChanged (ItemEvent ev)
-            {
-
-                if (_this.ignoreInDialogueCB.isSelected ())
-                {
-
-                    _this.onlyInDialogueCB.setSelected (false);
-
-                }
-
-            }
-
-        });
-
-        this.onlyInDialogueCB.addItemListener (new ItemListener ()
-        {
-
-            @Override
-            public void itemStateChanged (ItemEvent ev)
-            {
-
-                if (_this.onlyInDialogueCB.isSelected ())
-                {
-
-                    _this.ignoreInDialogueCB.setSelected (false);
-
-                }
-
-            }
-
-        });
-
-        this.ignoreInDialogueCB.setSelected (this.isIgnoreInDialogue ());
-        this.onlyInDialogueCB.setSelected (this.isOnlyInDialogue ());
-
-        items.add (this.ignoreInDialogueCB);
-
-        items.add (this.onlyInDialogueCB);
-*/
-        return items;
-
-    }
-
-    public StringProperty getFormError2 ()
+    public StringProperty getFormError ()
     {
 
         String newWords = this.words2.getText ();
@@ -607,30 +457,6 @@ TODO Remove
 
         }
 
-        return null;
-
-    }
-
-    public String getFormError ()
-    {
-/*
-TODO Remove
-        String newWords = this.words.getText ();
-
-        if ((newWords == null)
-            ||
-            (newWords.trim ().length () == 0)
-           )
-        {
-
-            return Environment.getUIString (LanguageStrings.problemfinder,
-                                            LanguageStrings.config,
-                                            LanguageStrings.rules,
-                                            LanguageStrings.wordfinder,
-                                            LanguageStrings.nowordserror);
-
-        }
-*/
         return null;
 
     }

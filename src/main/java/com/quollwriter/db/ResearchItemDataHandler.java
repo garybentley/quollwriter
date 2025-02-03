@@ -35,7 +35,7 @@ public class ResearchItemDataHandler implements DataHandler<ResearchItem, Projec
 
             long key = rs.getLong (ind++);
 
-            ResearchItem l = new ResearchItem ();
+            ResearchItem l = new ResearchItem (proj.getUserConfigurableObjectType (ResearchItem.OBJECT_TYPE));
             l.setKey (key);
 
             // Load the object fields.

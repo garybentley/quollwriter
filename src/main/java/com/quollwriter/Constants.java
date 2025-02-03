@@ -132,6 +132,8 @@ public class Constants
 
     public static final String BACKUPS_HTML_PANEL_ACTION = "backups";
 
+    public static final String NIGHT_MODE_BG_COLOR_PROPERTY_NAME = "nightModeBGColor";
+
     public static final String FULL_SCREEN_HEADER_CONTROL_BUTTON_IDS_PROPERTY_NAME = "fullScreenHeaderControlButtonIds";
 
     public static final String PROJECT_VIEWER_HEADER_CONTROL_BUTTON_IDS_PROPERTY_NAME = "projectViewerHeaderControlButtonIds";

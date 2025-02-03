@@ -45,38 +45,31 @@ public class NewAssetPopup extends PopupContent<ProjectViewer>
 
         Set<Form.Item> items = new LinkedHashSet<> ();
 
-        Runnable doSave = () ->
-        {
-
-            this.handleSave ();
-
-        };
-
         UserConfigurableObjectType type = asset.getUserConfigurableObjectType ();
 
-        this.nameHandler = type.getPrimaryNameField ().getViewEditHandler2 (asset,
-                                                                            asset.getField (type.getPrimaryNameField ()),
-                                                                            this.getBinder (),
-                                                                            viewer);
+        this.nameHandler = type.getPrimaryNameField ().getViewEditHandler (asset,
+                                                                           asset.getField (type.getPrimaryNameField ()),
+                                                                           this.getBinder (),
+                                                                           viewer);
 
         if (type.getObjectDescriptionField () != null)
         {
 
-            this.descHandler = type.getObjectDescriptionField ().getViewEditHandler2 (asset,
-                                                                                      asset.getField (type.getObjectDescriptionField ()),
-                                                                                      this.getBinder (),
-                                                                                      viewer);
+            this.descHandler = type.getObjectDescriptionField ().getViewEditHandler (asset,
+                                                                                     asset.getField (type.getObjectDescriptionField ()),
+                                                                                     this.getBinder (),
+                                                                                     viewer);
 
         }
 
         items.addAll (this.nameHandler.getInputFormItems (null,
-                                                          doSave));
+                                                          null));
 
         if (this.descHandler != null)
         {
 
             items.addAll (this.descHandler.getInputFormItems (null,
-                                                              doSave));
+                                                              null));
 
         }
 

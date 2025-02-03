@@ -23,7 +23,7 @@ public class TagsManager extends PopupContent
 
     public static final String POPUP_ID = "tagsmanager";
 
-    public TagsManager (AbstractViewer viewer)
+    public TagsManager (AbstractProjectViewer viewer)
     {
 
         super (viewer);
@@ -37,7 +37,7 @@ public class TagsManager extends PopupContent
             .currentItemsDescription (getUILanguageStringProperty (tags,actions,manage,table,text))
             .valueExistsError (getUILanguageStringProperty (tags,actions,manage,table,edit,errors,valueexists))
             .noValueError (getUILanguageStringProperty (tags,actions,manage,table,edit,errors,novalue))
-            .items (FXCollections.observableList (Environment.getAllTags ().stream ()
+            .items (FXCollections.observableList (viewer.getProject ().getAllTags ().stream ()
                         .map (p -> p.getName ())
                         .collect (Collectors.toList ())))
             .build ();
@@ -48,7 +48,7 @@ public class TagsManager extends PopupContent
         {
 
             String v = ev.getOldValue ();
-            Tag t = Environment.getTagByName (v);
+            Tag t = viewer.getTagByName (v);
 
             if (t != null)
             {
@@ -56,7 +56,7 @@ public class TagsManager extends PopupContent
                 try
                 {
 
-                    Environment.deleteTag (t);
+                    viewer.deleteTag (t);
 
                 } catch (Exception e) {
 
@@ -87,22 +87,13 @@ public class TagsManager extends PopupContent
 
             }
 
-            // TODO Remove... Won't ever be hit.
-            if (Environment.getTagByName (v) != null)
-            {
-
-                man.showNewError (getUILanguageStringProperty (tags,actions,manage,newtag,errors,valueexists));
-                return;
-
-            }
-
             try
             {
 
                 Tag t = new Tag ();
                 t.setName (v);
 
-                Environment.saveTag (t);
+                viewer.saveTag (t);
 
             } catch (Exception e) {
 
@@ -143,38 +134,22 @@ public class TagsManager extends PopupContent
 
             }
 
-            Tag ot = Environment.getTagByName (n);
-            Tag nt = Environment.getTagByName (v);
+            Tag ot = viewer.getTagByName (n);
+            Tag nt = viewer.getTagByName (v);
 
-            // TODO Remove check, won't ever be hit.
-            if (nt != null)
+            ot.setName (v);
+
+            try
             {
 
-                if (!nt.equals (ot))
-                {
+                viewer.saveTag (ot);
 
-                    man.showExistingError (getUILanguageStringProperty (tags,actions,manage,table,edit,errors,valueexists));
-                    return;
+            } catch (Exception e) {
 
-                }
+                Environment.logError ("Unable to update tag: " + ot,
+                                      e);
 
-            } else {
-
-                ot.setName (v);
-
-                try
-                {
-
-                    Environment.saveTag (ot);
-
-                } catch (Exception e) {
-
-                    Environment.logError ("Unable to update tag: " + ot,
-                                          e);
-
-                    man.showExistingError (getUILanguageStringProperty (tags,actions,manage,table,edit,actionerror));
-
-                }
+                man.showExistingError (getUILanguageStringProperty (tags,actions,manage,table,edit,actionerror));
 
             }
 

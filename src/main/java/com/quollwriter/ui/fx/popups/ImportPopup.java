@@ -2,6 +2,7 @@ package com.quollwriter.ui.fx.popups;
 
 import java.util.*;
 import java.io.*;
+import java.sql.Connection;
 import java.net.*;
 import java.nio.file.*;
 
@@ -19,6 +20,7 @@ import javafx.scene.input.*;
 import com.quollwriter.importer.*;
 
 import com.quollwriter.*;
+import com.quollwriter.db.*;
 import com.quollwriter.data.*;
 import com.quollwriter.data.comparators.*;
 import com.quollwriter.text.*;
@@ -66,6 +68,12 @@ public class ImportPopup extends PopupContent<AbstractViewer>
     private Set<String> filesToCopy = new HashSet<> ();
 
     private Map<String, Wizard.Step> steps = new HashMap<> ();
+
+    // Old -> New
+    private Map<UserConfigurableObjectType, UserConfigurableObjectType> typeKeyMapping = new HashMap<> ();
+
+    // Old -> New
+    private Map<UserConfigurableObjectTypeField, UserConfigurableObjectTypeField> fieldKeyMapping = new HashMap<> ();
 
     public ImportPopup (AbstractViewer viewer)
     {
@@ -120,7 +128,7 @@ public class ImportPopup extends PopupContent<AbstractViewer>
                 UserConfigurableObjectType uc = (UserConfigurableObjectType) n;
 
                 QuollLabel l = QuollLabel.builder ()
-                    .label (n.nameProperty ())
+                    .label (uc.objectTypeNamePluralProperty ())
                     .build ();
 
                 l.setGraphic (new ImageView (uc.getIcon16x16 ()));
@@ -167,21 +175,7 @@ public class ImportPopup extends PopupContent<AbstractViewer>
                 .build ();
 
         });
-        /*
-        .builder ()
-            .cellFactory (treeView ->
-            {
 
-                return new NamedObjectCheckBoxTreeCell (treeItem ->
-                {
-
-                    return new SimpleBooleanProperty (treeItem.getValue ().getObjectType ().equals ("_string"));
-
-                });
-
-            })
-            .build ();
-*/
         this.itemsTree.setShowRoot (false);
 
         EventHandler<ActionEvent> hand = ev ->
@@ -353,8 +347,11 @@ public class ImportPopup extends PopupContent<AbstractViewer>
                 try
                 {
 
-                    p = Environment.getProjectObjectManager (pi,
-                                                             pi.getFilePassword ()).getProject ();
+                    ObjectManager om = Environment.getProjectObjectManager (pi,
+                                                                            pi.getFilePassword ());
+                    p = om.getProject ();
+
+                    om.closeConnectionPool ();
 
                 } catch (Exception e) {
 
@@ -404,7 +401,7 @@ public class ImportPopup extends PopupContent<AbstractViewer>
                 // Need to null the key/id for all items in the project.
                 for (NamedObject n : p.getAllNamedChildObjects ())
                 {
-
+/*
                     n.setKey (null);
                     n.setId (null);
                     n.setDateCreated (new java.util.Date ());
@@ -426,7 +423,7 @@ public class ImportPopup extends PopupContent<AbstractViewer>
                         }
 
                     }
-
+*/
                 }
 
                 // Need a selectable tree here.
@@ -532,91 +529,347 @@ public class ImportPopup extends PopupContent<AbstractViewer>
 
     }
 
-    private void handleFinish ()
+    private UserConfigurableObjectType addUserConfigurableObjectType (Connection                 conn,
+                                                                      ObjectManager              om,
+                                                                      UserConfigurableObjectType type,
+                                                                      Project                    thisProj)
+                                                               throws Exception
     {
 
-        this.proj = this.getSelectedItems ();
+        // See if we already have this type
+        UserConfigurableObjectType t = thisProj.getUserConfigurableObjectTypeByName (type.getObjectTypeName ());
 
-        if (this.addToProject.isSelected ())
+        if (t == null)
         {
 
-            // Add all the items.
-            Set<NamedObject> objs = this.proj.getAllNamedChildObjects ();
+            long oldKey = type.getKey ();
 
-            Book b = this.pv.getProject ().getBooks ().get (0);
+            // Create a clone and add to "thisproj".
+            UserConfigurableObjectType nt = new UserConfigurableObjectType (thisProj);
+            nt.setName (type.getName ());
+            nt.setDescription (type.getDescription ());
+            nt.setObjectTypeName (type.getObjectTypeName ());
+            nt.setObjectTypeNamePlural (type.getObjectTypeNamePlural ());
+            nt.setIcon16x16 (type.getIcon16x16 ());
+            nt.setIcon24x24 (type.getIcon24x24 ());
+            nt.setLayout (type.getLayout ());
+            nt.setUserObjectType (type.getUserObjectType ());
+            nt.setAssetObjectType (type.isAssetObjectType ());
+            nt.setCreateShortcutKeyStroke (type.getCreateShortcutKeyStroke ());
+            nt.setIgnoreFieldsState (true);
 
-            for (NamedObject n : objs)
+            // Create the new type.
+            om.saveObject (nt,
+                           conn);
+
+            this.typeKeyMapping.put (type,
+                                     nt);
+
+            UserConfigurableObjectTypeField oldnamefield = type.getPrimaryNameField ();
+            if (oldnamefield != null)
             {
 
-                if (n instanceof Asset)
+                // Add the primary name field.
+                ObjectNameUserConfigurableObjectTypeField newnamefield = (ObjectNameUserConfigurableObjectTypeField) UserConfigurableObjectTypeField.Type.getNewFieldForType (UserConfigurableObjectTypeField.Type.objectname);
+
+                newnamefield.setFormName (oldnamefield.getFormName ());
+                newnamefield.setUserConfigurableObjectType (nt);
+
+                Map<String, Object> ndefs = new HashMap<> ();
+                ndefs.putAll (oldnamefield.getDefinition ());
+                newnamefield.setDefinition (ndefs);
+
+                om.saveObject (newnamefield,
+                               conn);
+
+                nt.setPrimaryNameField (newnamefield);
+
+                this.fieldKeyMapping.put (oldnamefield,
+                                          newnamefield);
+
+            }
+
+            // Get the fields and create them.
+            for (UserConfigurableObjectType.FieldsColumn fc : type.getSortableFieldsColumns ())
+            {
+
+                List<UserConfigurableObjectTypeField> nfcfields = new ArrayList<> ();
+
+                // Clone/create fields.
+                for (UserConfigurableObjectTypeField fft : fc.fields ())
                 {
 
-                    String prefix = "Imported";
+                    // Get the field.
+                    UserConfigurableObjectTypeField nft = UserConfigurableObjectTypeField.Type.getNewFieldForType (fft.getType ());
 
-                    Asset a = (Asset) n;
+                    nft.setFormName (fft.getFormName ());
+                    nft.setUserConfigurableObjectType (nt);
 
-                    int max = 0;
+                    Map<String, Object> defs = new HashMap<> ();
+                    defs.putAll (fft.getDefinition ());
+                    nft.setDefinition (defs);
+                    nft.setDefaultValue (fft.getDefaultValue ());
 
-                    String name = a.getName ();
+                    nft.setOrder (fft.getOrder ());
 
-                    // See if we should merge.
-                    Asset oa = this.pv.getProject ().getAssetByName (name,
-                                                                     a.getUserConfigurableObjectType ());
+                    om.saveObject (nft,
+                                   conn);
 
-                    if (oa != null)
+                    this.fieldKeyMapping.put (fft,
+                                              nft);
+
+                    nfcfields.add (nft);
+
+                }
+
+                UserConfigurableObjectType.FieldsColumn nfc = nt.addNewColumn (nfcfields);
+                nfc.setTitle (fc.getTitle ());
+                nfc.setShowFieldLabels (fc.isShowFieldLabels ());
+
+            }
+
+            nt.setIgnoreFieldsState (false);
+            nt.updateSortableFieldsState ();
+
+            // Save the type again.
+            om.saveObject (nt,
+                           conn);
+
+            return type;
+
+        } else {
+
+            t.setIgnoreFieldsState (true);
+
+            this.typeKeyMapping.put (type,
+                                     t);
+
+            // We have the type, are the fields compatible?
+            for (UserConfigurableObjectTypeField f : type.getConfigurableFields ())
+            {
+
+                // Does the current project have the field we are trying to import?
+                UserConfigurableObjectTypeField of = t.getConfigurableFields ().stream ()
+                    .filter (pf ->
                     {
 
-                        for (Asset pa : this.pv.getProject ().getAssets (a.getUserConfigurableObjectType ()))
+                        // If the field legacy?
+                        if ((f.isLegacyField ())
+                            &&
+                            (pf.isLegacyField ())
+                            &&
+                            (f.getLegacyFieldId ().equals (pf.getLegacyFieldId ()))
+                           )
                         {
 
-                             if (pa.getName ().toLowerCase ().startsWith (name.toLowerCase ()))
+                            return true;
+
+                        }
+
+                        if (pf.isLegacyField ())
+                        {
+
+                            return false;
+
+                        }
+
+                        // Not legacy.
+                        if (f.getName ().equals (pf.getName ()))
+                        {
+
+                            return true;
+
+                        }
+
+                        if ((f.getFormName () != null)
+                            &&
+                            (f.getFormName ().equals (pf.getFormName ()))
+                           )
+                        {
+
+                            return true;
+
+                        }
+
+                        return false;
+
+                    })
+                    .findFirst ()
+                    .orElse (null);
+
+                if (of == null)
+                {
+
+                    // Create the field.
+                    of = UserConfigurableObjectTypeField.Type.getNewFieldForType (f.getType ());
+
+                    of.setFormName (f.getFormName ());
+                    of.setUserConfigurableObjectType (t);
+
+                    Map<String, Object> defs = new HashMap<> ();
+                    defs.putAll (f.getDefinition ());
+                    of.setDefinition (defs);
+                    of.setDefaultValue (f.getDefaultValue ());
+
+                    of.setOrder (f.getOrder ());
+
+                    om.saveObject (of,
+                                   conn);
+
+                    this.fieldKeyMapping.put (f,
+                                              of);
+
+                    // Add to the first column.
+                    t.addFieldToColumn (0,
+                                        of);
+
+                } else {
+
+                    this.fieldKeyMapping.put (f,
+                                              of);
+
+                }
+
+            }
+
+            t.setIgnoreFieldsState (false);
+            t.updateSortableFieldsState ();
+
+            // Save the type again - this saves all the fields/state
+            om.saveObject (t,
+                           conn);
+
+            return t;
+
+        }
+
+    }
+
+    private void addSelectedItemsToProject (Connection conn)
+                                     throws Exception
+    {
+
+        String importingFrom = this.importFromProject.isSelected () ? " project [" + this.importFromProj.getName () + "]" : " file [" + this.fileFind.getFile () + "]";
+
+        Project thisProj = this.pv.getProject ();
+
+        Book b = this.pv.getProject ().getBooks ().get (0);
+
+        Set<NamedObject> selected = new HashSet<> ();
+        this.getSelectedObjects (this.itemsTree.getRoot (),
+                                 selected);
+
+        for (NamedObject n : selected)
+        {
+
+            if (n instanceof Chapter)
+            {
+
+                Chapter c = (Chapter) n;
+
+                c.setBook (b);
+
+                this.pv.saveObject (c,
+                                    conn);
+
+                b.addChapter (c);
+
+                this.pv.saveObject (c,
+                                    conn);
+
+                this.pv.createActionLogEntry (c,
+                                              "Imported chapter from: " +
+                                              importingFrom,
+                                              conn);
+
+            }
+
+            if (n instanceof UserConfigurableObjectType)
+            {
+
+                UserConfigurableObjectType uo = (UserConfigurableObjectType) n;
+
+                uo = this.addUserConfigurableObjectType (conn,
+                                                         this.pv.getObjectManager (),
+                                                         uo,
+                                                         thisProj);
+
+                thisProj.addUserConfigurableObjectType (uo);
+
+                this.pv.createActionLogEntry (uo,
+                                              prefix + " asset type from: " +
+                                              importingFrom,
+                                              conn);
+
+            }
+
+            if (n instanceof Asset)
+            {
+
+                Asset a = (Asset) n;
+
+                String prefix = "Imported";
+
+                int max = 0;
+
+                String name = a.getName ();
+
+                // See if we should merge.
+                Asset oa = this.pv.getProject ().getAssetByName (name,
+                                                                 a.getUserConfigurableObjectType ());
+
+                if (oa != null)
+                {
+
+                    for (Asset pa : this.pv.getProject ().getAssets (a.getUserConfigurableObjectType ()))
+                    {
+
+                         if (pa.getName ().toLowerCase ().startsWith (name.toLowerCase ()))
+                         {
+
+                             // See if there is a number at the end.
+                             int ind = pa.getName ().lastIndexOf ("(");
+
+                             if (ind != -1)
                              {
 
-                                 // See if there is a number at the end.
-                                 int ind = pa.getName ().lastIndexOf ("(");
+                                 int ind2 = pa.getName ().indexOf (")",
+                                                                   ind + 1);
 
-                                 if (ind != -1)
+                                 if (ind2 != -1)
                                  {
 
-                                     int ind2 = pa.getName ().indexOf (")",
-                                                                       ind + 1);
+                                     String nn = pa.getName ().substring (ind + 1,
+                                                                          ind2);
 
-                                     if (ind2 != -1)
+                                     try
                                      {
 
-                                         String nn = pa.getName ().substring (ind + 1,
-                                                                              ind2);
+                                         int m = Integer.parseInt (nn);
 
-                                         try
+                                         if (m > max)
                                          {
 
-                                             int m = Integer.parseInt (nn);
-
-                                             if (m > max)
-                                             {
-
-                                                 max = m;
-
-                                             }
-
-                                         } catch (Exception e)
-                                         {
-
-                                             // Ignore.
+                                             max = m;
 
                                          }
 
-                                     }
-
-                                 } else
-                                 {
-
-                                     if (max == 0)
+                                     } catch (Exception e)
                                      {
 
-                                         max = 1;
+                                         // Ignore.
 
                                      }
+
+                                 }
+
+                             } else
+                             {
+
+                                 if (max == 0)
+                                 {
+
+                                     max = 1;
 
                                  }
 
@@ -624,129 +877,100 @@ public class ImportPopup extends PopupContent<AbstractViewer>
 
                          }
 
-                         if (max > 0)
-                         {
+                     }
 
-                             max++;
+                     if (max > 0)
+                     {
 
-                             name = name + " (" + max + ")";
+                         max++;
 
-                         }
+                         name = name + " (" + max + ")";
 
-                         a.setName (name);
+                     }
 
-                        //continue;
-                        // Don't merge but don't add either, merging is no longer viable.
-                        /*
-                        // Merge.
-                        oa.merge (a);
+                     a.setName (name);
 
-                        a = oa;
+                    //continue;
+                    // Don't merge but don't add either, merging is no longer viable.
+                    /*
+                    // Merge.
+                    oa.merge (a);
 
-                        prefix = "Merged";
-                        */
+                    a = oa;
 
-                    } //else {
-
-                        this.pv.getProject ().addAsset (a);
-
-                    //}
-
-                    try
-                    {
-
-                        this.pv.saveObject (a,
-                                            true);
-
-                        this.pv.createActionLogEntry (a,
-                                                      prefix + " asset from: " +
-                                                      this.fileFind.getFile ());
-
-                    } catch (Exception e)
-                    {
-
-                        Environment.logError ("Unable to save asset: " +
-                                              a,
-                                              e);
-
-                        ComponentUtils.showErrorMessage (this.viewer,
-                                                         getUILanguageStringProperty (Arrays.asList (importproject,errors,unabletosave),
-                                                                                      a.getName ()));
-
-                    }
-
-                    this.pv.openObjectSection (a.getObjectType ());
+                    prefix = "Merged";
+                    */
 
                 }
 
-                if (n instanceof Chapter)
+                UserConfigurableObjectType at = a.getUserConfigurableObjectType ();
+
+                at = this.addUserConfigurableObjectType (conn,
+                                                         this.pv.getObjectManager (),
+                                                         at,
+                                                         thisProj);
+
+                a.setUserConfigurableObjectType (at);
+                a.setKey (null);
+                a.setId (null);
+                a.setDateCreated (new java.util.Date ());
+
+                this.pv.saveObject (a,
+                                    conn);
+
+                // Set up the fields
+                for (UserConfigurableObjectField of : a.getFields ())
                 {
+                    // Update the key of user config object type field.
+                    // Set the field key to be null (so a new one is created)
+                    of.setUserConfigurableObjectTypeField (this.fieldKeyMapping.get (of.getUserConfigurableObjectTypeField ()));
+                    of.setKey (null);
+                    of.setId (null);
+                    of.setDateCreated (new java.util.Date ());
 
-                    Chapter c = (Chapter) n;
+                    this.pv.saveObject (of,
+                                        conn);
 
-                    try
-                    {
-
-                        c.setBook (b);
-
-                        this.pv.saveObject (c,
-                                            true);
-
-                        b.addChapter (c);
-
-                        this.pv.saveObject (c,
-                                            true);
-
-                        this.pv.createActionLogEntry (c,
-                                                      "Imported chapter from project: " +
-                                                      this.proj.getId ());
-
-                    } catch (Exception e)
-                    {
-
-                        Environment.logError ("Unable to save chapter: " +
-                                              c,
-                                              e);
-
-                        ComponentUtils.showErrorMessage (this.viewer,
-                                                         getUILanguageStringProperty (Arrays.asList (importproject,errors,unabletosave),
-                                                                                      //"Unable to save: " +
-                                                                                      c.getName ()));
-
-                        continue;
-
-                    }
-/*
-TODO?
-                    this.pv.addChapterToTreeAfter (c,
-                                                   null);
-
-                    this.pv.openObjectSection (c.getObjectType ());
-*/
                 }
+
+                thisProj.addUserConfigurableObjectType (at);
+
+                thisProj.addAsset (a);
+
+                this.pv.createActionLogEntry (a,
+                                              prefix + " asset from: " +
+                                              importingFrom,
+                                              conn);
+
+                this.pv.openObjectSection (a.getObjectType ());
 
             }
 
             if (this.importFromProj != null)
             {
 
-                for (String fn : this.filesToCopy)
+                if (n instanceof UserConfigurableObject)
                 {
 
-                    File f = new File (this.importFromProj.getFilesDirectory (),
-                                       fn);
+                    UserConfigurableObject uo = (UserConfigurableObject) n;
 
-                    try
+                    // Get the files that need to be transfered/copied.
+                    for (UserConfigurableObjectField f : uo.getFields ())
                     {
 
-                        this.pv.getProject ().saveToFilesDirectory (f,
-                                                                    fn);
+                        for (String fn : f.getProjectFileNames ())
+                        {
 
-                    } catch (Exception e) {
+                            if (fn == null)
+                            {
 
-                        Environment.logError ("Unable to copy file: " +
-                                              f,
-                                              e);
+                                continue;
+
+                            }
+
+                            this.filesToCopy.add (fn);
+
+                        }
 
                     }
 
@@ -754,72 +978,269 @@ TODO?
 
             }
 
-            this.pv.fireProjectEvent (ProjectEvent.Type._import,
-                                      ProjectEvent.Action.any);
+        }
 
-            QuollPopup.messageBuilder ()
-                .title (importproject,importcompletepopup,title)
-                .withViewer (this.pv)
-                .message (importproject,importcompletepopup,text)
-                .closeButton ()
-                .build ();
+    }
+
+    private void createNewProject ()
+    {
+
+        Project p = new Project (this.newProjectPanel.getName ());
+
+        String pwd = this.newProjectPanel.getPassword ();
+        p.setFilePassword (pwd);
+
+        p.setProjectDirectory (this.newProjectPanel.getSaveDirectory ().toFile ());
+
+        ObjectManager om = null;
+        Connection conn = null;
+
+        try
+        {
+
+            om = Environment.createProject (p.getProjectDirectory ().toPath (),
+                                            p);
+
+            conn = om.getConnection ();
+
+            Book b = new Book (p);
+
+            p.addBook (b);
+
+            om.saveObject (b,
+                           conn);
+
+            Set<NamedObject> selected = new LinkedHashSet<> ();
+            this.getSelectedObjects (this.itemsTree.getRoot (),
+                                     selected);
+
+            for (NamedObject n : selected)
+            {
+
+                HashSet<Path> filesToCopy = new HashSet<> ();
+
+                if (this.importFromProj != null)
+                {
+
+                    if (n instanceof UserConfigurableObject)
+                    {
+
+                        UserConfigurableObject uo = (UserConfigurableObject) n;
+
+                        // Get the files that need to be transfered/copied.
+                        for (UserConfigurableObjectField f : uo.getFields ())
+                        {
+
+                            for (String fn : f.getProjectFileNames ())
+                            {
+
+                                if (fn == null)
+                                {
+
+                                    continue;
+
+                                }
+
+                                p.saveToFilesDirectory (new File (this.importFromProj.getFilesDirectory (),
+                                                                  fn),
+                                                        fn);
+
+                                this.filesToCopy.add (fn);
+
+                            }
+
+                        }
+
+                    }
+
+                }
+
+                if (n instanceof Chapter)
+                {
+
+                    n.setKey (null);
+                    n.setDateCreated (new java.util.Date ());
+                    n.setId (null);
+
+                    b.addChapter ((Chapter) n);
+
+                    om.saveObject (n,
+                                   conn);
+
+                }
+
+                // Old -> New key mapping
+                Map<Long, Long> tmapping = new HashMap<> ();
+
+                if (n instanceof UserConfigurableObjectType)
+                {
+
+                    UserConfigurableObjectType uo = (UserConfigurableObjectType) n;
+
+                    uo = this.addUserConfigurableObjectType (conn,
+                                                             om,
+                                                             uo,
+                                                             p);
+
+                    p.addUserConfigurableObjectType (uo);
+
+                }
+
+                if (n instanceof Asset)
+                {
+
+                    Asset a = (Asset) n;
+
+                    UserConfigurableObjectType at = a.getUserConfigurableObjectType ();
+
+                    a.setUserConfigurableObjectType (this.typeKeyMapping.get (at));
+
+                    om.saveObject (a,
+                                   conn);
+
+                    p.addUserConfigurableObjectType (a.getUserConfigurableObjectType ());
+
+                    p.addAsset (a);
+
+                    // Set up the fields
+                    for (UserConfigurableObjectField of : a.getFields ())
+                    {
+
+                        // Update the key of user config object type field.
+                        // Set the field key to be null (so a new one is created)
+                        of.setUserConfigurableObjectTypeField (this.fieldKeyMapping.get (of.getUserConfigurableObjectTypeField ()));
+
+                        om.saveObject (of,
+                                       conn);
+
+                    }
+
+                    om.createActionLogEntry (a,
+                                             prefix + " asset from: " +
+                                             this.fileFind.getFile (),
+                                             null,
+                                             conn);
+
+                }
+
+            }
+
+            Chapter c = b.getFirstChapter ();
+
+            // Create a new chapter for the book.
+            if (c == null)
+            {
+
+                c = new Chapter (b,
+                                 Environment.getDefaultChapterName ());
+
+                b.addChapter (c);
+
+                om.saveObject (c,
+                               conn);
+
+            }
+
+            om.createActionLogEntry (p,
+                                     "Project imported from: " +
+                                     this.fileFind.getFile (),
+                                     null,
+                                     conn);
+/*
+            pj.fireProjectEvent (ProjectEvent.Type._import,
+                                 ProjectEvent.Action.any);
+*/
+
+        } catch (Exception e)
+        {
+
+            Environment.logError ("Unable to create new project: " +
+                                  p,
+                                  e);
+
+            ComponentUtils.showErrorMessage (this.viewer,
+                                             getUILanguageStringProperty (Arrays.asList (importproject,errors,unabletocreateproject),
+                                                                          p.getName ()));
+                                      //"Unable to create new project: " + this.proj.getName ());
+
+        } finally {
+
+            if (conn != null)
+            {
+
+                om.releaseConnection (conn);
+                om.closeConnectionPool ();
+
+            }
+
+        }
+
+        try
+        {
+
+            Environment.openProject (p);
+
+        } catch (Exception e) {
+
+            Environment.logError ("Unable to open project: " +
+                                  p,
+                                  e);
+
+            ComponentUtils.showErrorMessage (this.viewer,
+                                             getUILanguageStringProperty (Arrays.asList (importproject,errors,cantopenproject),
+                                                                          p.getName ()));
+
+        }
+
+
+    }
+
+    private void handleFinish ()
+    {
+
+        final ImportPopup _this = this;
+
+        if (this.addToProject.isSelected ())
+        {
+
+            this.pv.doAsTransaction (conn ->
+            {
+
+                try
+                {
+
+                    this.addSelectedItemsToProject (conn);
+
+                } catch (Exception e) {
+
+                    Environment.logError ("Unable to save imported objects",
+                                          e);
+
+                    ComponentUtils.showErrorMessage (_this.pv,
+                                                     getUILanguageStringProperty (Arrays.asList (importproject,errors,unabletosave)));
+
+                }
+
+                UIUtils.runLater (() ->
+                {
+
+                    this.pv.fireProjectEvent (ProjectEvent.Type._import,
+                                              ProjectEvent.Action.any);
+
+                    QuollPopup.messageBuilder ()
+                        .title (importproject,importcompletepopup,title)
+                        .withViewer (this.pv)
+                        .message (importproject,importcompletepopup,text)
+                        .closeButton ()
+                        .build ();
+
+                });
+
+            });
 
         } else {
 
-            // Create a new project.
-            String pwd = this.newProjectPanel.getPassword ();
-
-            try
-            {
-
-                AbstractProjectViewer pj = AbstractProjectViewer.createProjectViewerForType (this.proj);
-
-                pj.createViewer ();
-
-                // Get the "old" files dir.
-
-                this.proj.setName (this.newProjectPanel.getName ());
-                this.proj.setFilePassword (pwd);
-
-                pj.newProject (this.newProjectPanel.getSaveDirectory (),
-                               this.proj);
-
-                if (this.filesToCopy != null)
-                {
-
-                    for (String fn : this.filesToCopy)
-                    {
-
-                        pj.getProject ().saveToFilesDirectory (new File (this.importFromProj.getFilesDirectory (),
-                                                                         fn),
-                                                               fn);
-
-                    }
-
-                }
-
-                pj.createActionLogEntry (pj.getProject (),
-                                         "Project imported from: " +
-                                         this.fileFind.getFile ());
-
-                pj.fireProjectEvent (ProjectEvent.Type._import,
-                                     ProjectEvent.Action.any);
-
-            } catch (Exception e)
-            {
-
-                Environment.logError ("Unable to create new project: " +
-                                      this.proj,
-                                      e);
-
-                ComponentUtils.showErrorMessage (this.viewer,
-                                                 getUILanguageStringProperty (Arrays.asList (importproject,errors,unabletocreateproject),
-                                                                              this.proj.getName ()));
-                                          //"Unable to create new project: " + this.proj.getName ());
-
-                return;
-
-            }
+            this.createNewProject ();
 
         }
 
@@ -1229,30 +1650,6 @@ TODO Add tool tip?
                                                                      LanguageStrings.selectfile,
                                                                      LanguageStrings.finder,
                                                                      LanguageStrings.title));
-*/
-/*
-        //"Click to find a file");
-        this.fileFind.setClearOnCancel (true);
-        this.fileFind.init ();
-*/
-/*
-        builder.addLabel (Environment.getUIString (LanguageStrings.importproject,
-                                                   LanguageStrings.stages,
-                                                   LanguageStrings.selectfile,
-                                                   LanguageStrings.finder,
-                                                   LanguageStrings.label),
-                          //"File",
-                          cc.xy (2,
-                                 1));
-        builder.add (this.fileFind,
-                     cc.xy (4,
-                            1));
-
-        JPanel p = builder.getPanel ();
-        p.setOpaque (false);
-        p.setAlignmentX (JComponent.LEFT_ALIGNMENT);
-
-        b.add (p);
 */
         ws.content = b;
 
@@ -1688,10 +2085,82 @@ TODO Add tool tip?
 
             }
 
+            Project thisProj = this.pv.getProject ();
+
+            if (n instanceof UserConfigurableObjectType)
+            {
+
+                UserConfigurableObjectType uo = (UserConfigurableObjectType) n;
+
+                // See if we already have this type
+                UserConfigurableObjectType t = thisProj.getUserConfigurableObjectTypeByName (uo.getObjectTypeName ());
+
+                if (t == null)
+                {
+
+                    // Add the type to this project.
+
+                } else {
+
+                    // We have the type, are the fields compatible?
+                    for (UserConfigurableObjectTypeField f : uo.getConfigurableFields ())
+                    {
+
+                        // Does the current project have the field we are trying to import?
+                        UserConfigurableObjectTypeField of = t.getConfigurableFieldByFormName (f.getFormName ());
+
+                        if (of == null)
+                        {
+
+                            // Doesn't have, add a new field.  Add it to the first layout column.
+
+                        }
+
+                    }
+
+                }
+
+            }
+
             if (n instanceof Asset)
             {
 
                 Asset a = (Asset) n;
+
+                UserConfigurableObjectType at = a.getUserConfigurableObjectType ();
+
+                // Do we have the type?
+                UserConfigurableObjectType ot = thisProj.getUserConfigurableObjectTypeByName (at.getObjectTypeName ());
+
+                if (ot == null)
+                {
+
+                    // Add the type to this project.
+
+                } else {
+
+                    a.setUserConfigurableObjectType (ot);
+
+                    // We have the type, are the fields compatible?
+                    for (UserConfigurableObjectTypeField f : at.getConfigurableFields ())
+                    {
+
+                        // Does the current project have the field we are trying to import?
+/*
+                        UserConfigurableObjectTypeField of = t.getConfigurableTypeFieldByFormName (f.getFormName ());
+
+                        if (of == null)
+                        {
+
+                            // Doesn't have, add a new field.  Add it to the first layout column.
+System.out.println ("DONT HAVE FIELD: " + f.getFormName ());
+                        }
+*/
+                        f.setKey (null);
+
+                    }
+
+                }
 
                 p.addAsset (a);
 
@@ -1920,16 +2389,28 @@ TODO Add tool tip?
 
         }
 
-        Set<UserConfigurableObjectType> assetTypes = Environment.getAssetUserConfigurableObjectTypes (true);
+        Set<UserConfigurableObjectType> assetTypes = p.getAssetUserConfigurableObjectTypes (true);
 
         for (UserConfigurableObjectType t : assetTypes)
         {
 
             Set<Asset> as = p.getAssets (t);
 
-            this.addAssetsToTree (root,
-                                  t,
-                                  as);
+            if (as.size () > 0)
+            {
+
+                this.addAssetsToTree (root,
+                                      t,
+                                      p,
+                                      as);
+
+            } else {
+
+                CheckBoxTreeItem<NamedObject> ci = new CheckBoxTreeItem<> (t);
+
+                root.getChildren ().add (ci);
+
+            }
 
         }
 
@@ -1938,7 +2419,7 @@ TODO Add tool tip?
         {
 
             this.wizard.enableButton (Wizard.NEXT_BUTTON_ID,
-                                      this.getSelectedCount (root) > 0);
+                                      UIUtils.getSelectedCount (root) > 0);
 
         });
 
@@ -1946,44 +2427,9 @@ TODO Add tool tip?
 
     }
 
-    private int getSelectedCount (TreeItem<NamedObject> item)
-    {
-
-        int c = 0;
-
-        if (item instanceof CheckBoxTreeItem)
-        {
-
-            c += ((CheckBoxTreeItem<NamedObject>) item).isSelected () ? 1 : 0;
-
-        }
-
-        c += item.getChildren ().stream ()
-            .mapToInt (it ->
-            {
-
-                int _c = 0;
-
-                if (it instanceof CheckBoxTreeItem)
-                {
-
-                    CheckBoxTreeItem<NamedObject> cit = (CheckBoxTreeItem<NamedObject>) it;
-
-                    _c = cit.isSelected () ? 1 : 0 + this.getSelectedCount (cit);
-
-                }
-
-                return _c;
-
-            })
-            .sum ();
-
-        return c;
-
-    }
-
     private void addAssetsToTree (TreeItem<NamedObject>      root,
                                   UserConfigurableObjectType type,
+                                  Project                    p,
                                   Set<Asset>                 assets)
     {
 
@@ -2004,7 +2450,7 @@ TODO Add tool tip?
         List<Asset> lassets = new ArrayList<> (assets);
 
         Collections.sort (lassets,
-                          NamedObjectSorter.getInstance ());
+                          new NamedObjectSorter (p));
 
         for (Asset a : lassets)
         {
@@ -2130,7 +2576,7 @@ TODO Add tool tip?
         {
 
             wizard.enableButton (Wizard.NEXT_BUTTON_ID,
-                                 this.getSelectedCount (this.itemsTree.getRoot ()) > 0);
+                                 UIUtils.getSelectedCount (this.itemsTree.getRoot ()) > 0);
 
         }
 

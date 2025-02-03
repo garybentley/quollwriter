@@ -19,7 +19,8 @@ public class AchievementView extends HBox
 
     public AchievementView (AchievementRule ar,
                             boolean         achieved,
-                            IPropertyBinder binder)
+                            IPropertyBinder binder,
+                            Project         project)
     {
 
         this.getStyleClass ().add (StyleClassNames.ACHIEVEMENT);
@@ -37,20 +38,28 @@ public class AchievementView extends HBox
         try
         {
 
-            UserConfigurableObjectType t = Environment.getUserConfigurableObjectType (ar.getIcon ());
-
-            if ((t != null)
-                &&
-                (!Chapter.OBJECT_TYPE.equals (ar.getIcon ()))
-               )
+            if (project != null)
             {
 
-                h = IconBox.builder ()
-                    .binder (binder)
-                    .image (t.icon24x24Property ())
-                    .build ();
+                UserConfigurableObjectType t = project.getUserConfigurableObjectType (ar.getIcon ());
 
-            } else {
+                if ((t != null)
+                    &&
+                    (!Chapter.OBJECT_TYPE.equals (ar.getIcon ()))
+                   )
+                {
+
+                    h = IconBox.builder ()
+                        .binder (binder)
+                        .image (t.icon24x24Property ())
+                        .build ();
+
+                }
+
+            }
+
+            if (h == null)
+            {
 
                 h = IconBox.builder ()
                     .iconName (ar.getIcon ())
@@ -65,21 +74,10 @@ public class AchievementView extends HBox
         }
 
         g.getChildren ().add (h);
-/*
-        ImageView image = new ImageView ();
-        image.getStyleClass ().add (StyleClassNames.ICON);
-        image.managedProperty ().bind (image.visibleProperty ());
-*/
         Pane ach = new Pane ();
         ach.getStyleClass ().add (StyleClassNames.ACHIEVED);
         ach.managedProperty ().bind (ach.visibleProperty ());
-/*
-        ImageView image2 = new ImageView ();
-        image2.getStyleClass ().add (StyleClassNames.ACHIEVED);
-        image2.managedProperty ().bind (image2.visibleProperty ());
-*/
         g.setBlendMode (BlendMode.SRC_OVER);
-        //g.getChildren ().add (image);
         g.getChildren ().add (ach);
 
         Label title = new Label ();
@@ -88,13 +86,8 @@ public class AchievementView extends HBox
 
         HBox.setHgrow (title,
                        Priority.ALWAYS);
-/*
-        tb.getChildren ().addAll (g, title);
-        tb.getStyleClass ().add (StyleClassNames.HEADER);
-*/
 
         BasicHtmlTextFlow rt = BasicHtmlTextFlow.builder ()
-        //QuollTextView rt = QuollTextView.builder ()
             .text (ar.descriptionProperty ())
             .styleClassName (StyleClassNames.DESCRIPTION)
             .build ();

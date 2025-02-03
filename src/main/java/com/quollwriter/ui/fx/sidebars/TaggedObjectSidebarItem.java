@@ -48,7 +48,7 @@ public class TaggedObjectSidebarItem extends ProjectObjectsSidebarItem<ProjectVi
 
         this.tag = tag;
 
-        this.sorter = NamedObjectSorter.getInstance ();
+        this.sorter = new NamedObjectSorter (pv.getProject ());
 
         ObservableSet<NamedObject> its = this.viewer.getProject ().getAllObjectsWithTag (this.tag);
 
@@ -312,6 +312,8 @@ public class TaggedObjectSidebarItem extends ProjectObjectsSidebarItem<ProjectVi
 
         super.init (ss);
 
+        final TaggedObjectSidebarItem _this = this;
+
         if (ss != null)
         {
 
@@ -359,7 +361,7 @@ public class TaggedObjectSidebarItem extends ProjectObjectsSidebarItem<ProjectVi
                            )
                         {
 
-                            return NamedObjectSorter.getInstance ().compare (o1, o2);
+                            return new NamedObjectSorter (_this.viewer.getProject ()).compare (o1, o2);
 
                         }
 
@@ -462,7 +464,7 @@ public class TaggedObjectSidebarItem extends ProjectObjectsSidebarItem<ProjectVi
                                         try
                                         {
 
-                                            Environment.deleteTag (_this.tag);
+                                            _this.viewer.deleteTag (_this.tag);
 
                                             _this.viewer.getPopupById (pid).close ();
 

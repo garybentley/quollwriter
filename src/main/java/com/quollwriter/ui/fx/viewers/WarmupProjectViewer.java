@@ -327,14 +327,7 @@ public class WarmupProjectViewer extends AbstractProjectViewer
                         String n = c.getName ().substring (ind + 1,
                                                            ind2);
                                                            System.out.println ("N: " + n);
-/*
-                    n = Utils.replaceString (n,
-                                                   "(",
-                                                   "");
-                    n = Utils.replaceString (n,
-                                                   ")",
-                                                   "");
-*/
+
                         try
                         {
 
@@ -896,44 +889,4 @@ public class WarmupProjectViewer extends AbstractProjectViewer
 
     }
 
-/*
-    @Override
-    public Supplier<Set<Node>> getTitleHeaderControlsSupplier ()
-    {
-
-        Set<Node> pcons = super.getTitleHeaderControlsSupplier ().get ();
-
-        return () ->
-        {
-
-            Set<Node> controls = new LinkedHashSet<> ();
-
-            controls.add (QuollButton.builder ()
-                .tooltip (LanguageStrings.warmups,title,toolbar,buttons,_new,tooltip)
-                .iconName (StyleClassNames.WARMUP)
-                .buttonId ("dowarmup")
-                .onAction (ev ->
-                {
-
-                    this.runCommand (CommandId.warmup);
-
-                })
-                .build ());
-
-            this.wordCountTimerButton = WordCountTimerButton.builder ()
-                .inViewer (this)
-                .buttonTooltip (getUILanguageStringProperty (LanguageStrings.warmups,title,toolbar,buttons,wordcounttimer,tooltip))
-                .buttonId ("timer")
-                .build ();
-
-            controls.add (this.wordCountTimerButton);
-
-            controls.addAll (pcons);
-
-            return controls;
-
-        };
-
-    }
-*/
 }

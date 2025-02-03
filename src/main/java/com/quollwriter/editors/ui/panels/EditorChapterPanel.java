@@ -136,112 +136,6 @@ public class EditorChapterPanel extends ChapterEditorWithMarginPanelContent<Edit
 
                                               }));
 
-/*
-        this.iconColumn = new IconColumn<EditorProjectViewer> (this,
-                                                               c,
-                                                               this.projectViewer.getIconProvider (),
-                                                               this.projectViewer.getChapterItemViewPopupProvider ());
-
-        this.iconColumn.addMouseListener (new MouseEventHandler ()
-        {
-
-            public void handleDoublePress (MouseEvent ev)
-            {
-
-               _this.getActionListenerForTextPosition (NEW_COMMENT_ACTION_NAME,
-                                                       ev.getPoint ()).actionPerformed (new ActionEvent (_this, 1, "show"));
-
-            }
-
-        });
-*/
-
-        //this.chItemTransferHandler = new ChapterItemTransferHandler (this.getIconColumn ());
-
-        //this.setTransferHandler (this.chItemTransferHandler);
-/*
-        this.actions.put (REMOVE_EDIT_POINT_ACTION_NAME,
-                          new ActionAdapter ()
-                          {
-
-                             public void actionPerformed (ActionEvent ev)
-                             {
-
-                                 _this.removeEditPosition ();
-
-                             }
-
-                          });
-
-        this.actions.put (SET_EDIT_COMPLETE_ACTION_NAME,
-                          new ActionAdapter ()
-                          {
-
-                             public void actionPerformed (ActionEvent ev)
-                             {
-
-                                 _this.setEditComplete (true);
-
-                             }
-
-                          });
-
-        this.actions.put (NEW_COMMENT_ACTION_NAME,
-                          new ActionAdapter ()
-                          {
-
-                              public void actionPerformed (ActionEvent ev)
-                              {
-
-                                  _this.performAction (ev,
-                                                       NEW_COMMENT_ACTION_NAME,
-                                                       -1);
-
-                              }
-
-                          });
-
-        this.actions.put (CHAPTER_INFO_ACTION_NAME,
-                          new ActionAdapter ()
-                          {
-
-                              public void actionPerformed (ActionEvent ev)
-                              {
-
-                                  try
-                                  {
-
-                                      _this.projectViewer.viewEditorChapterInformation (_this.obj);
-
-                                  } catch (Exception e)
-                                  {
-
-                                      Environment.logError ("Unable to show chapter information for: " +
-                                                            _this.obj,
-                                                            e);
-
-                                      UIUtils.showErrorMessage (_this,
-                                                                getUIString (editors,project,LanguageStrings.actions,showchapterinfo,actionerror));
-                                                                //Environment.replaceObjectNames ("Unable to show {chapter}."));
-
-                                  }
-
-                              }
-
-                          });
-*/
-/*
-        InputMap im = this.editor.getInputMap (JComponent.WHEN_IN_FOCUSED_WINDOW);
-
-        // Remove ctrl+shift+O from the when_focused set since it conflicts.
-        this.editor.getInputMap (JComponent.WHEN_FOCUSED).put (KeyStroke.getKeyStroke ("ctrl shift O"),
-                                                               "none");
-
-        im.put (KeyStroke.getKeyStroke ("ctrl shift C"),
-                NEW_COMMENT_ACTION_NAME);
-
-        this.highlight = new BlockPainter (UIUtils.getHighlightColor ());
-*/
     }
 
     public void recreateVisibleParagraphs ()
@@ -278,100 +172,7 @@ public class EditorChapterPanel extends ChapterEditorWithMarginPanelContent<Edit
          return this.chapterItemEditVisible;
 
     }
-/*
-    public int getTextPositionForMousePosition (Point p)
-    {
 
-       Point pp = p;
-
-       if (this.iconColumn.getMousePosition () != null)
-       {
-
-          pp = new Point (0,
-                          p.y);
-
-       }
-
-       return this.editor.viewToModel (pp);
-
-    }
-*/
-/*
-    public ActionListener getActionListenerForTextPosition (final String actionName,
-                                                            final Point  p)
-    {
-
-         final EditorChapterPanel _this = this;
-
-         final int pos = this.getTextPositionForMousePosition (p);
-
-         return new ActionAdapter ()
-         {
-
-            public void actionPerformed (ActionEvent ev)
-            {
-
-               _this.performAction (ev,
-                                    actionName,
-                                    pos);
-
-            }
-
-         };
-
-    }
-*/
-/*
-    public ChapterItemTransferHandler getChapterItemTransferHandler ()
-    {
-
-        return this.chItemTransferHandler;
-
-    }
-*/
-/*
-   public int getIconColumnXOffset (ChapterItem i)
-   {
-
-      int xOffset = 22;
-
-      if (i instanceof OutlineItem)
-      {
-
-          xOffset = 22;
-
-      }
-
-      return xOffset;
-
-   }
-*/
-/*
-    public JComponent getEditorWrapper (QTextEditor q)
-    {
-
-        Box b = new Box (BoxLayout.X_AXIS);
-        b.add (this.iconColumn);
-        b.add (q);
-        q.setMaximumSize (new Dimension (Integer.MAX_VALUE, Integer.MAX_VALUE));
-
-        q.setMinimumSize (new Dimension (200, 200));
-        q.setAlignmentY (Component.TOP_ALIGNMENT);
-        q.setAlignmentX (Component.LEFT_ALIGNMENT);
-
-        this.iconColumn.setAlignmentY (Component.TOP_ALIGNMENT);
-        this.iconColumn.setAlignmentX (Component.LEFT_ALIGNMENT);
-        this.iconColumn.setMinimumSize (new Dimension (32, 200));
-        this.iconColumn.setPreferredSize (new Dimension (32, 200));
-        this.iconColumn.setMaximumSize (new Dimension (32, Integer.MAX_VALUE));
-
-        JPanel p = new ScrollablePanel (new BorderLayout ());
-        p.add (b);
-
-        return p;
-
-    }
-*/
     @Override
     public Set<Node> getToolBarItems ()
     {
@@ -418,44 +219,7 @@ public class EditorChapterPanel extends ChapterEditorWithMarginPanelContent<Edit
         return its;
 
     }
-/*
-    public void removeItem (ChapterItem c)
-    {
 
-        this.iconColumn.removeItem (c);
-
-    }
-
-    public void addItem (ChapterItem c)
-                  throws GeneralException
-    {
-
-        this.iconColumn.addItem (c);
-
-    }
-
-    public void scrollToItem (ChapterItem i)
-                       throws GeneralException
-    {
-
-        this.scrollToPosition (i.getPosition ());
-
-    }
-*/
-/*
-    public void editNote (Note n)
-                   throws GeneralException
-    {
-
-        this.scrollToNote (n);
-
-        new CommentActionHandler (n,
-                                  this).actionPerformed (new ActionEvent (this,
-                                                                          0,
-                                                                          "edit"));
-
-    }
-*/
     @Override
     public void showItem (ChapterItem item,
                           boolean     showAllForLine)
@@ -524,15 +288,6 @@ public class EditorChapterPanel extends ChapterEditorWithMarginPanelContent<Edit
 
    }
 
-/*
-    public void scrollToNote (Note n)
-                       throws GeneralException
-    {
-
-        this.scrollToPosition (n.getPosition ());
-
-    }
-*/
    @Override
    public void init (State s)
               throws GeneralException
@@ -545,63 +300,6 @@ public class EditorChapterPanel extends ChapterEditorWithMarginPanelContent<Edit
         this.setReadyForUse ();
 
    }
-/*
-    public void restoreBackgroundColor ()
-    {
-
-        super.restoreBackgroundColor ();
-
-        //this.iconColumn.setBackground (IconColumn.defaultBGColor);
-
-    }
-*/
-    //public void setBackgroundColor (Color c)
-    //{
-
-    //    super.setBackgroundColor (c);
-/*
-        if (c.equals (Color.white))
-        {
-
-            this.iconColumn.setBackground (IconColumn.defaultBGColor);
-
-        } else
-        {
-
-            this.iconColumn.setBackground (c);
-
-        }
-*/
-    //}
-/*
-    private void setContextMenu ()
-    {
-
-        Set<MenuItem> items = new LinkedHashSet<> ();
-
-        if (this.editor.getProperties ().get ("context-menu") != null)
-        {
-
-            ((ContextMenu) this.editor.getProperties ().get ("context-menu")).hide ();
-
-        }
-
-        ContextMenu cm = new ContextMenu ();
-        cm.getItems ().addAll (items);
-
-        boolean compress = UserProperties.getAsBoolean (Constants.COMPRESS_CHAPTER_CONTEXT_MENU_PROPERTY_NAME);
-
-        cm.getItems ().addAll (this.getContextMenuItems (compress));
-
-        this.editor.setContextMenu (cm);
-
-        this.editor.getProperties ().put ("context-menu", cm);
-        cm.setAutoFix (true);
-        cm.setAutoHide (true);
-        cm.setHideOnEscape (true);
-
-    }
-*/
 
     @Override
     public Boolean canDrag (ChapterItem ci)

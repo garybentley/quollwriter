@@ -70,6 +70,9 @@ public abstract class AbstractUserConfigurableObjectFieldViewEditHandler<E exten
 
         this.field.setValue (this.valueToString (this.getInputSaveValue ()));
 
+        this.viewer.saveObject (this.field,
+                                true);
+
     }
 
     @Override

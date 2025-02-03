@@ -2,7 +2,6 @@ package com.quollwriter.ui.fx.components;
 
 import java.util.function.*;
 
-import javafx.embed.swing.*;
 import javafx.beans.property.*;
 import javafx.scene.layout.*;
 import javafx.scene.image.*;

@@ -5,19 +5,11 @@ import java.util.*;
 import javafx.beans.value.*;
 import javafx.beans.property.*;
 
-import javax.swing.text.Position;
-
 import com.quollwriter.data.comparators.*;
 
 public abstract class ChapterItem extends NamedObject
 {
 
-    //private int       position = -1;
-    //private int       endPosition = -1;
-    private Position  textPos = null;
-    private Position  endTextPos = null;
-    //private com.quollwriter.ui.fx.components.TextEditor.Position textPos2 = null;
-    //private com.quollwriter.ui.fx.components.TextEditor.Position endTextPos2 = null;
     protected Chapter chapter = null;
     private SimpleIntegerProperty positionProp = new SimpleIntegerProperty (0);
     private SimpleIntegerProperty endPositionProp = new SimpleIntegerProperty (-1);
@@ -62,28 +54,6 @@ public abstract class ChapterItem extends NamedObject
 
     }
 
-    //public void dispose ()
-    //{
-
-        //this.positionProp.unbind ();
-        //this.endPositionProp.unbind ();
-/*
-        if (this.textPos2 != null)
-        {
-
-            this.textPos2.dispose ();
-
-        }
-
-        if (this.endTextPos2 != null)
-        {
-
-            this.endTextPos2.dispose ();
-
-        }
-*/
-    //}
-
     public SimpleIntegerProperty positionProperty ()
     {
 
@@ -110,14 +80,6 @@ public abstract class ChapterItem extends NamedObject
         this.addToStringProperties (props,
                                     "endPosition",
                                     this.endPositionProp.getValue ());
-                                    /*
-        this.addToStringProperties (props,
-                                    "textPosition",
-                                    (this.textPos != null ? this.textPos.getOffset () : null));
-        this.addToStringProperties (props,
-                                    "endTextPosition",
-                                    (this.endTextPos != null ? this.endTextPos.getOffset () : null));
-                                    */
         this.addToStringProperties (props,
                                     "chapter",
                                     this.chapter);
@@ -176,92 +138,6 @@ public abstract class ChapterItem extends NamedObject
         this.chapter.addChapterItem (this);
 
     }
-/*
-    public void bindPosition (com.quollwriter.ui.fx.components.TextEditor.Position t)
-    {
-
-        this.unbindPosition ();
-        this.positionProp.bindBidirectional (t.positionProperty ());
-
-    }
-
-    public void unbindPosition ()
-    {
-
-        this.positionProp.unbindBidirectional ();
-
-    }
-
-    public void bindEndPosition (com.quollwriter.ui.fx.components.TextEditor.Position t)
-    {
-
-        this.unbindBidirectional ();
-        this.endPositionProp.bindBidirectional (t.positionProperty ());
-
-    }
-
-
-    public void unbindEndPosition ()
-    {
-
-        this.endPositionProp.unbindBidirectional ();
-
-    }
-*/
-/*
-    public void setTextPosition2 (com.quollwriter.ui.fx.components.TextEditor.Position t)
-    {
-
-        if (this.textPos2 != null)
-        {
-
-            this.textPos2.dispose ();
-
-        }
-
-        this.textPos2 = t;
-        this.positionProp.unbindBidirectional ();
-        this.positionProp.bindBidirectional (t.positionProperty ());
-
-    }
-*/
-
-    public void setTextPosition (Position t)
-    {
-
-        this.textPos = t;
-
-    }
-
-    public void setEndTextPosition (Position t)
-    {
-
-        this.endTextPos = t;
-
-    }
-/*
-    public void setEndTextPosition2 (com.quollwriter.ui.fx.components.TextEditor.Position t)
-    {
-
-        if (this.endTextPos2 != null)
-        {
-
-            this.endTextPos2.dispose ();
-
-        }
-
-        this.endTextPos2 = t;
-        this.endPositionProp.unbindBidirectional ();
-        this.endPositionProp.bindBidirectional (t.positionProperty ());
-
-    }
-*/
-    public Position getTextPosition ()
-    {
-
-        return this.textPos;
-
-    }
 
     public void setEndPosition (int p)
     {
@@ -270,9 +146,6 @@ public abstract class ChapterItem extends NamedObject
         {
 
             this.endPositionProp.setValue (-1);
-            //this.endPosition = -1;
-
-            //this.endTextPos = null;
 
             return;
 
@@ -290,20 +163,11 @@ public abstract class ChapterItem extends NamedObject
 
         }
 
-        //this.endTextPos = null;
-
     }
 
     public int getEndPosition ()
     {
-/*
-        if (this.endTextPos != null)
-        {
 
-            return this.endTextPos.getOffset ();
-
-        }
-*/
         return this.endPositionProp.getValue ();
 
     }
@@ -317,9 +181,6 @@ public abstract class ChapterItem extends NamedObject
 
     public void setPosition (int p)
     {
-
-        //this.position = p;
-        //this.positionProp.unbind ();
 
         if (p < 0)
         {
@@ -352,14 +213,7 @@ public abstract class ChapterItem extends NamedObject
 
     public int getPosition ()
     {
-/*
-        if (this.textPos2 != null)
-        {
 
-            return this.textPos2.getOffset ();
-
-        }
-*/
         return this.positionProp.getValue ();
 
     }

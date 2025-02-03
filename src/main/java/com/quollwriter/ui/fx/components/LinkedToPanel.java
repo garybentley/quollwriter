@@ -182,7 +182,7 @@ TODO The add is really complex... need to find the parent and the right position
                                               links,
                                               exclude);
 
-        Set<UserConfigurableObjectType> assetTypes = Environment.getAssetUserConfigurableObjectTypes (true);
+        Set<UserConfigurableObjectType> assetTypes = proj.getAssetUserConfigurableObjectTypes (true);
 
         for (UserConfigurableObjectType t : assetTypes)
         {
@@ -237,7 +237,7 @@ TODO The add is really complex... need to find the parent and the right position
                                     proj,
                                     links);
 
-        Set<UserConfigurableObjectType> assetTypes = Environment.getAssetUserConfigurableObjectTypes (true);
+        Set<UserConfigurableObjectType> assetTypes = proj.getAssetUserConfigurableObjectTypes (true);
 
         for (UserConfigurableObjectType t : assetTypes)
         {

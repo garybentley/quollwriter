@@ -229,7 +229,7 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
 
             long userObjTypeKey = rs.getLong (ind++);
 
-            Chapter c = new Chapter ();
+            Chapter c = new Chapter (book);
             c.setKey (key);
 
             // Load the object fields.
@@ -990,9 +990,8 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
                 } else {
 
                     // Create an entirely new chapter.
-                    Chapter newc = new Chapter ();
+                    Chapter newc = new Chapter (b);
 
-                    newc.setBook (b);
                     newc.setName (c.getName ());
                     newc.setDescription (c.getDescription ());
                     newc.setId (c.getId ());
@@ -1065,9 +1064,8 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
 
         }
 
-        Chapter newc = new Chapter ();
+        Chapter newc = new Chapter (newVer.getBook ());
 
-        newc.setBook (newVer.getBook ());
         newc.setName (newVer.getName ());
         newc.setDescription (newVer.getDescription ());
         newc.setId (newVer.getId ());
@@ -1112,7 +1110,7 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
 
         }
 
-        Book b = new Book ()
+        Book b = new Book (c.getBook ().getProject ())
         {
 
             public int getChapterIndex (Chapter chap)
@@ -1126,7 +1124,7 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
 
         b.setKey (c.getBook ().getKey ());
 
-        Chapter newc = new Chapter ();
+        Chapter newc = new Chapter (b);
         newc.setBook (b);
         newc.setName (c.getName ());
         newc.setDescription (c.getDescription ());

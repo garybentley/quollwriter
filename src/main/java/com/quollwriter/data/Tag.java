@@ -31,4 +31,12 @@ public class Tag extends NamedObject
 
     }
 
+    @Override
+    public boolean supportsLinks ()
+    {
+
+        return false;
+
+    }
+
 }

@@ -23,20 +23,7 @@ public class WebpageUserConfigurableObjectTypeField extends UserConfigurableObje
     }
 
     @Override
-    public com.quollwriter.ui.userobjects.UserConfigurableObjectFieldViewEditHandler getViewEditHandler (UserConfigurableObject      obj,
-                                                                          UserConfigurableObjectField field,
-                                                                          com.quollwriter.ui.AbstractProjectViewer       viewer)
-    {
-
-        return new com.quollwriter.ui.userobjects.WebpageUserConfigurableObjectFieldViewEditHandler (this,
-                                                                      obj,
-                                                                      field,
-                                                                      viewer);
-
-    }
-
-    @Override
-    public UserConfigurableObjectFieldViewEditHandler getViewEditHandler2 (UserConfigurableObject      obj,
+    public UserConfigurableObjectFieldViewEditHandler getViewEditHandler (UserConfigurableObject      obj,
                                                                           UserConfigurableObjectField field,
                                                                           IPropertyBinder             binder,
                                                                           AbstractProjectViewer       viewer)
@@ -50,15 +37,7 @@ public class WebpageUserConfigurableObjectTypeField extends UserConfigurableObje
     }
 
     @Override
-    public com.quollwriter.ui.userobjects.UserConfigurableObjectTypeFieldConfigHandler getConfigHandler ()
-    {
-
-        return new com.quollwriter.ui.userobjects.WebpageUserConfigurableObjectTypeFieldConfigHandler (this);
-
-    }
-
-    @Override
-    public UserConfigurableObjectTypeFieldConfigHandler getConfigHandler2 ()
+    public UserConfigurableObjectTypeFieldConfigHandler getConfigHandler ()
     {
 
         return new WebpageUserConfigurableObjectTypeFieldConfigHandler (this);

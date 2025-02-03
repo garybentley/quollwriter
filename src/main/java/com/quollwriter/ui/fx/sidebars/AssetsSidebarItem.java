@@ -330,7 +330,8 @@ public class AssetsSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer>
             try
             {
 
-                this.sortBy (Environment.getUserConfigurableObjectTypeField (sortFieldKey.longValue ()));
+                this.sortBy (this.objType.getField (sortFieldKey.longValue ()));
+                //Environment.getUserConfigurableObjectTypeField (sortFieldKey.longValue ()));
 
             } catch (Exception e) {
 
@@ -570,8 +571,33 @@ public class AssetsSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer>
 
                 }
 
-                Object v1 = o1.getValueForField (f);
-                Object v2 = o2.getValueForField (f);
+                Object v1 = null;
+
+                try
+                {
+
+                    v1 = o1.getValueForField (f);
+
+                } catch (Exception e) {
+
+                    Environment.logError ("Unable to get value for field: " + f,
+                                          e);
+
+                }
+
+                Object v2 = null;
+
+                try
+                {
+
+                    v2 = o2.getValueForField (f);
+
+                } catch (Exception e) {
+
+                    Environment.logError ("Unable to get value for field: " + f,
+                                          e);
+
+                }
 
                 if ((v1 != null)
                     &&

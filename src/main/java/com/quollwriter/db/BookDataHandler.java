@@ -35,7 +35,7 @@ public class BookDataHandler implements DataHandler<Book, Project>
 
             long key = rs.getLong (ind++);
 
-            Book b = new Book ();
+            Book b = new Book (p);
 
             b.setName (rs.getString (ind++));
             b.setKey (key);

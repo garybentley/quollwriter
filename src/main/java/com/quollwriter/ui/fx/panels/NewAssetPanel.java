@@ -240,29 +240,6 @@ xxx
 
         }
 */
-        if (!this.layout.updateFields ())
-        {
-
-            return false;
-
-        }
-
-        try
-        {
-
-            //this.nameFieldHandler.updateFieldFromInput ();
-
-        } catch (Exception e) {
-
-            Environment.logError ("Unable to add asset for type: " + this.object.getUserConfigurableObjectType (),
-                                  e);
-
-            ComponentUtils.showErrorMessage (this.viewer,
-                                             getUILanguageStringProperty (assets,add,actionerror));
-
-            return false;
-
-        }
 
         String name = this.object.getName ();
 
@@ -285,6 +262,30 @@ xxx
 
             ComponentUtils.showErrorMessage (this.viewer,
                                              getUILanguageStringProperty (assets,add,actionerror));
+
+        }
+
+        if (!this.layout.updateFields ())
+        {
+
+            return false;
+
+        }
+
+        try
+        {
+
+            //this.nameFieldHandler.updateFieldFromInput ();
+
+        } catch (Exception e) {
+
+            Environment.logError ("Unable to add asset for type: " + this.object.getUserConfigurableObjectType (),
+                                  e);
+
+            ComponentUtils.showErrorMessage (this.viewer,
+                                             getUILanguageStringProperty (assets,add,actionerror));
+
+            return false;
 
         }
 

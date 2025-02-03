@@ -7,8 +7,6 @@ import org.dom4j.*;
 import com.quollwriter.*;
 import com.quollwriter.text.*;
 
-import com.quollwriter.ui.forms.*;
-
 import com.quollwriter.ui.fx.components.Form;
 
 public class DoubleWordRule extends AbstractSentenceRule
@@ -220,17 +218,7 @@ public class DoubleWordRule extends AbstractSentenceRule
     }
 
     @Override
-    public Set<FormItem> getFormItems ()
-    {
-
-        Set<FormItem> items = new LinkedHashSet<> ();
-
-        return items;
-
-    }
-
-    @Override
-    public Set<Form.Item> getFormItems2 ()
+    public Set<Form.Item> getFormItems ()
     {
 
         Set<Form.Item> items = new LinkedHashSet<> ();
@@ -240,21 +228,7 @@ public class DoubleWordRule extends AbstractSentenceRule
     }
 
     @Override
-    public String getFormError ()
-    {
-
-        return null;
-
-    }
-
-    @Override
     public void updateFromForm ()
-    {
-
-    }
-
-    @Override
-    public void updateFromForm2 ()
     {
 
     }

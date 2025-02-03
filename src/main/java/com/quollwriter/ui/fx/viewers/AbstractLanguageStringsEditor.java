@@ -25,7 +25,6 @@ import com.quollwriter.ui.fx.panels.*;
 import com.quollwriter.text.*;
 import com.quollwriter.db.*;
 import com.quollwriter.ui.fx.sidebars.*;
-import com.quollwriter.achievements.ui.*;
 import com.quollwriter.ui.fx.*;
 import com.quollwriter.uistrings.*;
 

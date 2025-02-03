@@ -8,7 +8,6 @@ import java.io.*;
 import java.nio.file.*;
 
 import java.awt.image.*;
-//import java.awt.Desktop;
 
 import javafx.application.*;
 import javafx.beans.property.*;
@@ -107,6 +106,18 @@ public class UIUtils
             return null;
 
         }
+
+    }
+
+    public static String rgbToHex (int r,
+                                   int g,
+                                   int b)
+    {
+
+        return String.format("#%02X%02X%02X",
+                             r,
+                             g,
+                             b);
 
     }
 
@@ -1060,6 +1071,13 @@ public class UIUtils
                                              Runnable  r)
     {
 
+        if (r == null)
+        {
+
+            return;
+
+        }
+
         f.addEventHandler (KeyEvent.KEY_PRESSED,
                            ev ->
         {
@@ -1078,6 +1096,13 @@ public class UIUtils
     public static void addDoOnReturnPressed (TextArea f,
                                              Runnable r)
     {
+
+        if (r == null)
+        {
+
+            return;
+
+        }
 
         f.addEventHandler (KeyEvent.KEY_PRESSED,
                            ev ->
@@ -1100,6 +1125,13 @@ public class UIUtils
     public static void addDoOnReturnPressed (QuollTextArea f,
                                              Runnable      r)
     {
+
+        if (r == null)
+        {
+
+            return;
+
+        }
 
         f.getTextEditor ().addEventHandler (KeyEvent.KEY_PRESSED,
                                           ev ->
@@ -3308,12 +3340,12 @@ TODO Remove
         return () ->
         {
 
-            Set<Tag> allTags = null;
+            Set<Tag> tags = null;
 
             try
             {
 
-                allTags = Environment.getAllTags ();
+                tags = viewer.getProject ().getAllTags ();
 
             } catch (Exception e) {
 
@@ -3323,6 +3355,11 @@ TODO Remove
                 return null;
 
             }
+
+            List<Tag> allTags = new ArrayList<> (tags);
+
+            Collections.sort (allTags,
+                              new NamedObjectSorter (viewer.getProject ()));
 
             Set<MenuItem> items = new LinkedHashSet<> ();
 
@@ -3359,7 +3396,7 @@ TODO Remove
                                               e);
 
                         ComponentUtils.showErrorMessage (viewer,
-                                                         getUILanguageStringProperty (tags,actions,apply,actionerror));
+                                                         getUILanguageStringProperty (LanguageStrings.tags,actions,apply,actionerror));
                                                   //"Unable to add/remove tag.");
 
                         return;
@@ -3381,7 +3418,7 @@ TODO Remove
 
             items.add (QuollMenuItem.builder ()
                 .iconName (StyleClassNames.ADD)
-                .label (getUILanguageStringProperty (tags,popupmenu,_new))
+                .label (getUILanguageStringProperty (LanguageStrings.tags,popupmenu,_new))
                 .onAction (ev ->
                 {
 
@@ -3504,7 +3541,7 @@ TODO Remove
         String pref = getUIString (general,shortcut);
         //"Shortcut: ";
 
-        Set<UserConfigurableObjectType> types = Environment.getAssetUserConfigurableObjectTypes (true);
+        Set<UserConfigurableObjectType> types = viewer.getProject ().getAssetUserConfigurableObjectTypes (true);
 
         Set<MenuItem> ret = new LinkedHashSet<> ();
 
@@ -3917,6 +3954,7 @@ TODO
 
         List<TreeItem<NamedObject>> its = assets.stream ()
             .filter (a -> (exclude == null ? true : !exclude.contains (a)))
+            .sorted (new NamedObjectSorter (type.getProject ()))
             .map (a ->
             {
 
@@ -5438,6 +5476,42 @@ TODO
             n.pseudoClassStateChanged (StyleClassNames.LAST_PSEUDO_CLASS, true);
 
         }
+
+    }
+
+    public static int getSelectedCount (TreeItem<NamedObject> item)
+    {
+
+        int c = 0;
+
+        if (item instanceof CheckBoxTreeItem)
+        {
+
+            c += ((CheckBoxTreeItem<NamedObject>) item).isSelected () ? 1 : 0;
+
+        }
+
+        c += item.getChildren ().stream ()
+            .mapToInt (it ->
+            {
+
+                int _c = 0;
+
+                if (it instanceof CheckBoxTreeItem)
+                {
+
+                    CheckBoxTreeItem<NamedObject> cit = (CheckBoxTreeItem<NamedObject>) it;
+
+                    _c = cit.isSelected () ? 1 : 0 + UIUtils.getSelectedCount (cit);
+
+                }
+
+                return _c;
+
+            })
+            .sum ();
+
+        return c;
 
     }
 

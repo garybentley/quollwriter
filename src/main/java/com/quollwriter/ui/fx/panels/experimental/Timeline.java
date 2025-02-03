@@ -34,7 +34,8 @@ import java.util.ArrayList;
 import java.text.*;
 
 import com.quollwriter.*;
-import com.quollwriter.ui.*;
+import com.quollwriter.ui.fx.*;
+import com.quollwriter.ui.fx.panels.*;
 import com.quollwriter.data.*;
 import com.quollwriter.ui.components.Header;
 import com.quollwriter.ui.components.QPopup;
@@ -44,7 +45,7 @@ import com.quollwriter.ui.components.DragEvent;
 import com.quollwriter.ui.components.ImagePanel;
 import com.quollwriter.ui.components.ActionAdapter;
 
-public class Timeline extends QuollPanel<AbstractViewer>
+public class Timeline extends PanelContent<ProjectViewer>
 {
 
     public static final String SCALE_WEEKLY = "weekly";
@@ -1172,10 +1173,10 @@ System.out.println ("DX: " + sd);
         {
 
             SimpleDateFormat sdf = new SimpleDateFormat ("HH:mm:ss dd MMM yyyy");
-
+/*
             this.setContent (UIUtils.createHelpTextPane ((this.startDate != null ? sdf.format (this.startDate) : "") + " : " + (this.endDate != null ? sdf.format (this.endDate) : ""),
                                                          Timeline.this.viewer));
-
+*/
         }
 
         public String toString ()
@@ -1274,7 +1275,7 @@ System.out.println ("DX: " + sd);
 
                         Insets ttIns = tt.getInsets ();
 
-                        int h = tt.getPreferredSize ().height;
+                        int h = 0; //tt.getPreferredSize ().height;
 
                         //public int getWidth (TimelineThread tt)
                         Point p = null;
@@ -1523,7 +1524,7 @@ System.out.println ("VXW: " + this.timeline.getViewWidth ());
             g2.setStroke (st);
 
             float y = 0;
-
+/*
             for (int i = 0; i < this.getComponentCount (); i++)
             {
 
@@ -1551,7 +1552,7 @@ System.out.println ("VXW: " + this.timeline.getViewWidth ());
                 }
 
             }
-
+*/
         }
 
     }

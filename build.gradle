@@ -18,10 +18,6 @@ plugins {
 
 version '3.0.2'
 
-sourceSets {
-    main {
-    }
-}
 /*
 javafx {
     version = '12'
@@ -176,6 +172,15 @@ dependencies {
 
 compileJava {
 
+    // Exclude the exerimental stuff
+    sourceSets {
+        main {
+            java {
+                exclude 'com/quollwriter/ui/fx/panels/experimental/**'
+            }
+        }
+    }
+
     options.incremental = true
 
     options.compilerArgs =
@@ -199,6 +204,16 @@ compileJava {
 }
 
 jar {
+
+    // Exclude the exerimental stuff
+    sourceSets {
+        main {
+            java {
+                exclude 'com/quollwriter/ui/fx/panels/experimental/**'
+            }
+        }
+    }
+
     doFirst {
         file("${sourceSets.main.output.resourcesDir}/data/version.txt").text = "$version"
     }
@@ -268,3 +283,22 @@ configurations.all {
           'pull-parser:pull-parser:2.1.10'
   }
 }
+/*
+task printCompileClasspath {
+    def compileClasspath = sourceSets.main.compileClasspath
+    inputs.files( compileClasspath )
+    doLast {
+        println compileClasspath.join( File.pathSeparator )
+    }
+}
+*/
+/*
+task printSrcDirs {
+    sourceSets.each {
+        println(it)
+        it.allSource.each {
+            println(it)
+        }
+    }
+}
+*/

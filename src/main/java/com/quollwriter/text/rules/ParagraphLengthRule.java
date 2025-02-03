@@ -8,7 +8,6 @@ import javafx.scene.control.SpinnerValueFactory.*;
 import com.quollwriter.*;
 import com.quollwriter.text.*;
 
-import com.quollwriter.ui.forms.*;
 import com.quollwriter.ui.fx.components.Form;
 import com.quollwriter.ui.fx.components.*;
 
@@ -30,8 +29,6 @@ public class ParagraphLengthRule extends AbstractParagraphRule
 
     private int sentenceCount = 0;
     private int wordCount = 0;
-    private javax.swing.JSpinner sentCountF = null;
-    private javax.swing.JSpinner wordCountF = null;
 
     private Spinner<Integer> sentCountF2 = null;
     private Spinner<Integer> wordCountF2 = null;
@@ -209,65 +206,7 @@ public class ParagraphLengthRule extends AbstractParagraphRule
     }
 
     @Override
-    public String getFormError ()
-    {
-
-        return null;
-
-    }
-
-    @Override
-    public Set<com.quollwriter.ui.forms.FormItem> getFormItems ()
-    {
-
-        List<String> pref = new ArrayList<> ();
-        pref.add (LanguageStrings.problemfinder);
-        pref.add (LanguageStrings.config);
-        pref.add (LanguageStrings.rules);
-        pref.add (LanguageStrings.paragraphlength);
-        pref.add (LanguageStrings.labels);
-
-        Set<com.quollwriter.ui.forms.FormItem> items = new LinkedHashSet ();
-
-        this.wordCountF = new javax.swing.JSpinner (new javax.swing.SpinnerNumberModel (this.wordCount,
-                                                                1,
-                                                                500,
-                                                                1));
-
-        javax.swing.Box b = new javax.swing.Box (javax.swing.BoxLayout.X_AXIS);
-        b.add (this.wordCountF);
-        b.add (javax.swing.Box.createHorizontalGlue ());
-
-        this.wordCountF.setMaximumSize (this.wordCountF.getPreferredSize ());
-
-        items.add (new com.quollwriter.ui.forms.AnyFormItem (Environment.getUIString (pref,
-                                                             LanguageStrings.words),
-                                    //"Words",
-                                    b));
-
-        this.sentCountF = new javax.swing.JSpinner (new javax.swing.SpinnerNumberModel (this.sentenceCount,
-                                                                1,
-                                                                500,
-                                                                1));
-
-        b = new javax.swing.Box (javax.swing.BoxLayout.X_AXIS);
-
-        b.add (this.sentCountF);
-        b.add (javax.swing.Box.createHorizontalGlue ());
-
-        this.sentCountF.setMaximumSize (this.sentCountF.getPreferredSize ());
-
-        items.add (new com.quollwriter.ui.forms.AnyFormItem (Environment.getUIString (pref,
-                                                             LanguageStrings.sentences),
-                                    //"Sentences",
-                                    b));
-
-        return items;
-
-    }
-
-    @Override
-    public Set<Form.Item> getFormItems2 ()
+    public Set<Form.Item> getFormItems ()
     {
 
         List<String> pref = Arrays.asList (problemfinder,config,rules,paragraphlength,labels);
@@ -289,20 +228,11 @@ public class ParagraphLengthRule extends AbstractParagraphRule
     }
 
     @Override
-    public void updateFromForm2 ()
+    public void updateFromForm ()
     {
 
         this.sentenceCount = this.sentCountF2.getValue ();
         this.wordCount = this.wordCountF2.getValue ();
-
-    }
-
-    @Override
-    public void updateFromForm ()
-    {
-
-        this.sentenceCount = ((javax.swing.SpinnerNumberModel) this.sentCountF.getModel ()).getNumber ().intValue ();
-        this.wordCount = ((javax.swing.SpinnerNumberModel) this.wordCountF.getModel ()).getNumber ().intValue ();
 
     }
 

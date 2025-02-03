@@ -271,7 +271,7 @@ public class Project extends NamedObject
             }
 
         });
-
+/*
         this.userConfigObjTypes.stream ()
             .forEach (t ->
             {
@@ -280,7 +280,7 @@ public class Project extends NamedObject
                                  FXCollections.observableSet (new LinkedHashSet<> ()));
 
             });
-
+*/
         this.addSetChangeListener (this.tags,
                                    ev ->
         {
@@ -295,8 +295,9 @@ public class Project extends NamedObject
             }
 
         });
-
-        this.addSetChangeListener (Environment.getUserConfigurableObjectTypes (),
+/*
+        this.addSetChangeListener (this.userConfigObjTypes,
+        //Environment.getUserConfigurableObjectTypes (),
                                    ev ->
         {
 
@@ -316,8 +317,8 @@ public class Project extends NamedObject
             }
 
         });
-
-        Environment.getUserConfigurableObjectTypes ().stream ()
+*/
+        this.userConfigObjTypes.stream ()
             .forEach (t ->
             {
 
@@ -325,21 +326,6 @@ public class Project extends NamedObject
                                  FXCollections.observableSet (new LinkedHashSet<> ()));
 
             });
-
-        this.addSetChangeListener (Environment.getAllTags (),
-                                   ev ->
-        {
-
-            Tag t = ev.getElementRemoved ();
-
-            if (t != null)
-            {
-
-                this.taggedObjects.remove (t);
-
-            }
-
-        });
 
         this.lastEditedProp = new SimpleObjectProperty<> ();
 
@@ -1031,7 +1017,7 @@ public class Project extends NamedObject
                                                          Project p)
     {
 
-        Set<NamedObject> ret = new TreeSet (NamedObjectSorter.getInstance ());
+        Set<NamedObject> ret = new TreeSet (new NamedObjectSorter (p));
 
         for (NamedObject n : p.getAllNamedChildObjects ())
         {
@@ -1052,7 +1038,7 @@ public class Project extends NamedObject
     public Set<Asset> getAssetsContaining (String  s)
     {
 
-        Set<Asset> ret = new TreeSet<> (NamedObjectSorter.getInstance ());
+        Set<Asset> ret = new TreeSet<> (new NamedObjectSorter (this));
 
         for (NamedObject n : this.getAllNamedChildObjects (Asset.class))
         {
@@ -1074,7 +1060,7 @@ public class Project extends NamedObject
                                            UserConfigurableObjectType limitTo)
     {
 
-        Set<Asset> ret = new TreeSet<> (NamedObjectSorter.getInstance ());
+        Set<Asset> ret = new TreeSet<> (new NamedObjectSorter (this));
 
         if (limitTo != null)
         {
@@ -1107,7 +1093,7 @@ public class Project extends NamedObject
     public Set<Note> getNotesContaining (String  s)
     {
 
-        Set<Note> ret = new TreeSet (NamedObjectSorter.getInstance ());
+        Set<Note> ret = new TreeSet (new NamedObjectSorter (this));
 
         for (NamedObject n : this.getAllNamedChildObjects (Note.class))
         {
@@ -1128,7 +1114,7 @@ public class Project extends NamedObject
     public Set<OutlineItem> getOutlineItemsContaining (String  s)
     {
 
-        Set<OutlineItem> ret = new TreeSet (NamedObjectSorter.getInstance ());
+        Set<OutlineItem> ret = new TreeSet (new NamedObjectSorter (this));
 
         for (NamedObject n : this.getAllNamedChildObjects (OutlineItem.class))
         {
@@ -1149,7 +1135,7 @@ public class Project extends NamedObject
     public Set<Scene> getScenesContaining (String  s)
     {
 
-        Set<Scene> ret = new TreeSet (NamedObjectSorter.getInstance ());
+        Set<Scene> ret = new TreeSet (new NamedObjectSorter (this));
 
         for (NamedObject n : this.getAllNamedChildObjects (Scene.class))
         {
@@ -1252,7 +1238,7 @@ public class Project extends NamedObject
     public Set<NamedObject> getAllNamedChildObjects ()
     {
 
-        Set<NamedObject> ret = new TreeSet (NamedObjectSorter.getInstance ());
+        Set<NamedObject> ret = new TreeSet (new NamedObjectSorter (this));
 
         for (Book b : this.books)
         {
@@ -2030,9 +2016,14 @@ public class Project extends NamedObject
 
             Set<Asset> as = this.assets.get (t);
 
-            this.addToStringProperties (props,
-                                        t.getObjectTypeId (),
-                                        as.size ());
+            if (as != null)
+            {
+
+                this.addToStringProperties (props,
+                                            t.getObjectTypeId (),
+                                            as.size ());
+
+            }
 
         }
 
@@ -2620,6 +2611,28 @@ public class Project extends NamedObject
 
     }
 
+    public void setTags (Collection<Tag> tags)
+    {
+
+        this.tags.clear ();
+        this.tags.addAll (tags);
+
+    }
+
+    public void addNewTag (Tag tag)
+    {
+
+        this.tags.add (tag);
+
+    }
+
+    public void removeExistingTag (Tag tag)
+    {
+
+        this.tags.remove (tag);
+
+    }
+
     public void addTagToObject (Tag         tag,
                                 NamedObject n)
     {
@@ -2655,7 +2668,34 @@ public class Project extends NamedObject
 
     }
 
-    // NEW STUFF FOR PUTTING ASSET TYPES AND TAGS IN PROJECT, COPIED FROM Environment.
+    public boolean hasUserConfigurableObjectType (String userObjType)
+    {
+
+        return this.getUserConfigurableObjectType (userObjType) != null;
+
+    }
+
+    public boolean hasUserConfigurableObjectType (UserConfigurableObjectType t)
+    {
+
+        return this.userConfigObjTypes.contains (t);
+
+    }
+
+    public void addUserConfigurableObjectType (UserConfigurableObjectType t)
+    {
+
+        this.userConfigObjTypes.add (t);
+
+    }
+
+    public void removeUserConfigurableObjectType (UserConfigurableObjectType t)
+    {
+
+        this.userConfigObjTypes.remove (t);
+
+    }
+
     public Set<UserConfigurableObjectType> getAssetUserConfigurableObjectTypes (boolean sortOnName)
     {
 
@@ -2689,34 +2729,6 @@ public class Project extends NamedObject
 
     }
 
-    public boolean hasUserConfigurableObjectType (String userObjType)
-    {
-
-        return this.getUserConfigurableObjectType (userObjType) != null;
-
-    }
-
-    public boolean hasUserConfigurableObjectType (UserConfigurableObjectType t)
-    {
-
-        return this.userConfigObjTypes.contains (t);
-
-    }
-
-    public void addUserConfigurableObjectType (UserConfigurableObjectType t)
-    {
-
-        this.userConfigObjTypes.add (t);
-
-    }
-
-    public void removeUserConfigurableObjectType (UserConfigurableObjectType t)
-    {
-
-        this.userConfigObjTypes.remove (t);
-
-    }
-
     public ObservableSet<UserConfigurableObjectType> getUserConfigurableObjectTypes ()
     {
 
@@ -2724,25 +2736,71 @@ public class Project extends NamedObject
 
     }
 
-    public UserConfigurableObjectType getUserConfigurableObjectType (String userObjType)
+    public UserConfigurableObjectType getUserConfigurableObjectType (long key)
     {
 
-        for (UserConfigurableObjectType t : this.userConfigObjTypes)
+        UserConfigurableObjectType t = this.userConfigObjTypes.stream ()
+            .filter (f -> f.getKey () == key)
+            .findFirst ()
+            .orElse (null);
+
+        if (t == null)
         {
 
-            if ((t.getUserObjectType () != null)
-                &&
-                (t.getUserObjectType ().equals (userObjType))
-               )
+            // See if we have a mapping.
+            String prop = this.getProperty ("userConfigObjTypesEnvToProjKeyMap");
+
+            if (prop != null)
             {
 
-                return t;
+                Map m = (Map) JSONDecoder.decode (prop);
+
+                Double v = (Double) m.get (String.valueOf (key));
+
+                if (v == null)
+                {
+
+                    return null;
+
+                }
+
+                long nkey = v.longValue ();
+
+                t = this.userConfigObjTypes.stream ()
+                    .filter (f -> f.getKey () == nkey)
+                    .findFirst ()
+                    .orElse (null);
 
             }
 
         }
 
-        return null;
+        return t;
+
+    }
+
+    public UserConfigurableObjectType getUserConfigurableObjectType (String userObjType)
+    {
+
+        return this.userConfigObjTypes.stream ()
+            .filter (t -> t.getUserObjectType () != null
+                          &&
+                          t.getUserObjectType ().equals (userObjType))
+            .findFirst ()
+            .orElse (null);
+
+    }
+
+    /**
+     * Find the config object type by name (ignoring case)
+     */
+    public UserConfigurableObjectType getUserConfigurableObjectTypeByName (String name)
+    {
+
+        return this.userConfigObjTypes.stream ()
+            .filter (t -> name.equalsIgnoreCase (t.getObjectTypeName ()))
+            .findFirst ()
+            .orElse (null);
 
     }
 
@@ -2803,8 +2861,47 @@ public class Project extends NamedObject
 
         }
 
+        // See if the tag key is in the env - proj tag key mapping
+        String km = this.getProperty ("tagKeyMapping");
+
+        if (km != null)
+        {
+
+            Map m = (Map) JSONDecoder.decode (km);
+
+            Long v = (Long) m.get (key);
+
+            if (v != null)
+            {
+
+                return this.tags.stream ()
+                    .filter (t -> t.getKey () == v)
+                    .findFirst ()
+                    .orElse (null);
+
+            }
+
+        }
+
         return null;
 
     }
+
+    @Override
+    public Project getProject ()
+    {
+
+        throw new IllegalStateException ("A project does not have a project.");
+
+    }
+
+    @Override
+    public Set<NamedObject> getOtherObjectsInLinks ()
+    {
+
+        return new HashSet<> ();
+
+    }
+
 
 }

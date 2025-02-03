@@ -16,7 +16,6 @@ import com.quollwriter.data.editors.*;
 import com.quollwriter.ui.fx.*;
 import com.quollwriter.ui.fx.viewers.*;
 import com.quollwriter.ui.fx.components.*;
-import com.quollwriter.ui.fx.swing.QTextEditor;
 
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 import static com.quollwriter.LanguageStrings.*;

@@ -226,7 +226,7 @@ public class ProjectEditorsAccordionItem extends ProjectObjectsSidebarItem<Proje
 
             if (oldv && !newv)
             {
-System.out.println ("CHANGED REMOVING");
+
                 for (Node n : this.currentEditors.getChildren ())
                 {
 
@@ -544,100 +544,12 @@ System.out.println ("CHANGED REMOVING");
         return b;
 
     }
-/*
-TODO?
-    public void XupdateItemCount ()
-    {
 
-        Set<ProjectEditor> pes = this.viewer.getCurrentEditors ();
-
-        String title = String.format ("%s (%s)",
-                                      this.getTitle (),
-                                      Environment.formatNumber (pes.size ()));
-
-        // Set the title on the header directly.
-        this.header.setTitle (title);
-
-    }
-    */
-/*
-TODO?
-    @Override
-    public void setContentVisible (boolean v)
-    {
-
-        Set<ProjectEditor> cpes = this.getCurrentEditors ();
-
-        Set<ProjectEditor> ppes = this.getPreviousEditors ();
-
-        this.currentEditors.setVisible (cpes.size () > 0);
-        this.previousEditors.setVisible ((this.showPreviousEditors && ppes.size () > 0));
-
-        super.setContentVisible (this.currentEditors.isVisible () || this.previousEditors.isVisible ());
-
-        this.updateItemCount ();
-
-    }
-*/
     private void showPreviousEditors ()
     {
 
         this.previousEditors.setVisible (this.showPreviousEditors);
 
     }
-/*
-TODO Remove?  put check on header for register or handle better?
-    @Override
-    public void init ()
-    {
 
-        if (this.inited)
-        {
-
-            return;
-
-        }
-
-        this.inited = true;
-
-        super.init ();
-
-        final ProjectEditorsAccordionItem _this = this;
-
-        this.getHeader ().addMouseListener (new MouseEventHandler ()
-        {
-
-            @Override
-            public void handlePress (MouseEvent ev)
-            {
-
-                // TODO: Make this nicer
-                if (!EditorsEnvironment.hasRegistered ())
-                {
-
-                    if (EditorsEnvironment.isEditorsServiceAvailable ())
-                    {
-
-                        try
-                        {
-
-                            EditorsUIUtils.showRegister (_this.viewer);
-
-                        } catch (Exception e) {
-
-                            Environment.logError ("Unable to show editors service register",
-                                                  e);
-
-                        }
-
-                    }
-
-                }
-
-            }
-
-        });
-
-    }
-*/
 }

@@ -28,7 +28,7 @@ public abstract class AbstractParagraphRule extends AbstractRule<Paragraph> impl
         return this.desc;
 
     }
-
+/*
     @Override
     public String getEditFormTitle (boolean add)
     {
@@ -42,5 +42,5 @@ public abstract class AbstractParagraphRule extends AbstractRule<Paragraph> impl
                 : null);
 
     }
-
+*/
 }

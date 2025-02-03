@@ -157,12 +157,12 @@ public class NewUserConfigurableTypeFieldPanel extends VBox
 
             UserConfigurableObjectTypeField _field = UserConfigurableObjectTypeField.Type.getNewFieldForType (newv);
 
-            UserConfigurableObjectType fakeType = new UserConfigurableObjectType ();
+            UserConfigurableObjectType fakeType = new UserConfigurableObjectType (null);
             fakeType.setObjectTypeName (type.getObjectTypeName ());
 
             _field.setUserConfigurableObjectType (fakeType);
 
-            final UserConfigurableObjectTypeFieldConfigHandler handler = _field.getConfigHandler2 ();
+            final UserConfigurableObjectTypeFieldConfigHandler handler = _field.getConfigHandler ();
 
             Set<Form.Item> nitems = handler.getExtraFormItems ();
 

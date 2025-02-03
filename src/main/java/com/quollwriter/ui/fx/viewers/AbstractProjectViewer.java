@@ -1,6 +1,7 @@
 package com.quollwriter.ui.fx.viewers;
 
 import java.io.*;
+import java.sql.Connection;
 import java.util.*;
 import java.util.stream.*;
 import java.util.function.*;
@@ -194,39 +195,6 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
         this.tabs.setSide (UserProperties.tabsLocationProperty ().getValue ().equals (Constants.TOP) ? Side.TOP : Side.BOTTOM);
         this.tabs.setTabDragPolicy (TabPane.TabDragPolicy.REORDER);
 
-        this.tabs.getTabs ().addListener ((ListChangeListener<Tab>) ch ->
-        {
-
-            while (ch.next ())
-            {
-
-                if (ch.wasRemoved ())
-                {
-
-
-
-                }
-
-            }
-/*
-            if (this.tabs.getSelectionModel ().getSelectedIndex () < 0)
-            {
-
-                return;
-
-            }
-
-            Tab t = _this.tabs.getTabs ().get (_this.tabs.selectionModelProperty ().getValue ().getSelectedIndex ());
-
-            Panel qp = (Panel) t.getContent ();
-
-            // Add the action mappings.
-            this.getScene ().getAccelerators ().putAll (qp.getActionMappings ());
-
-            this.currentPanelProp.setValue (qp);
-*/
-        });
-
         this.tabs.getSelectionModel ().selectedItemProperty ().addListener ((pr, oldi, newi) ->
         {
 
@@ -295,8 +263,6 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 
                                  });
 
-        //this.toolbarWrapper = new VBox ();
-
         this.initActionMappings ();
 
     }
@@ -360,6 +326,31 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
     {
 
         return this.dBMan;
+
+    }
+
+    public void doAsTransaction (Consumer<Connection> doSomething)
+    {
+
+        Connection conn = null;
+
+        try
+        {
+
+            conn = this.getObjectManager ().getConnection ();
+
+            doSomething.accept (conn);
+
+        } catch (Exception e) {
+
+            Environment.logError ("Unable to do as transaction, why wasn't this caught?",
+                                  e);
+
+        } finally {
+
+            this.getObjectManager ().releaseConnection (conn);
+
+        }
 
     }
 
@@ -567,14 +558,7 @@ TODO
         Book b = this.project.getBooks ().get (0);
 
         ObservableList<Chapter> chapters = b.getChapters ();
-/*
-		for (Chapter c : chapters)
-		{
 
-			this.initChapterCounts (c);
-
-		}
-*/
         this.addListChangeListener (chapters,
                                     ev ->
         {
@@ -615,8 +599,6 @@ TODO
             }
 
         });
-
-        //this.scheduleSpellingReadabilityUpdate ();
 
         this.startWordCounts = new ChapterCounts ();
 
@@ -681,64 +663,6 @@ TODO
 
         this.updateAllChapterCounts ();
 
-/*
-
-        // This updates the chapter word counts.
-        this.scheduleImmediately (() ->
-        {
-
-            this.startWordCounts = new ChapterCounts ();
-
-            for (Chapter c : chapters)
-    		{
-
-                String t = c.getText ().getText ();
-
-                ChapterCounts ncc = new ChapterCounts (t);
-
-                this.startWordCounts.add (ncc);
-
-    		}
-
-    		for (Chapter c : chapters)
-    		{
-
-                ChapterCounts cc = this.chapterCounts.get (c);
-
-                if (cc == null)
-                {
-
-                    cc = new ChapterCounts ();
-
-                    this.chapterCounts.put (c,
-                                            cc);
-
-                }
-
-                final String t = this.getCurrentChapterText (c);
-
-                final ChapterCounts ncc = new ChapterCounts (t);
-                cc.setWordCount (ncc.getWordCount ());
-
-                cc.setSentenceCount (ncc.getSentenceCount ());
-                cc.setParagraphCount (ncc.getParagraphCount ());
-                cc.setStandardPageCount (UIUtils.getA4PageCountForChapter (c,
-                                                                           t));
-                this.scheduleSpellingReadabilityUpdate (c);
-
-            }
-
-            this.updateAllChapterCounts ();
-
-            UIUtils.runLater (() ->
-            {
-
-                this.checkForChaptersOverWordCountCheck ();
-
-            });
-
-        });
-*/
 	}
 
     private void initChapterCounts (Chapter c)
@@ -877,8 +801,6 @@ TODO
 
             }
 
-            //this.scheduleSpellingReadabilityUpdate ();
-
         },
         1 * Constants.SEC_IN_MILLIS,
         -1);
@@ -912,6 +834,27 @@ TODO
     {
 
         final AbstractProjectViewer _this = this;
+
+        this.addActionMapping (() ->
+        {
+
+            QuollPopup qp = this.getPopupById (TagsManager.POPUP_ID);
+
+            if (qp != null)
+            {
+
+                qp.toFront ();
+                return;
+
+            }
+
+            new TagsManager (this).show ();
+
+            this.fireProjectEvent (ProjectEvent.Type.tags,
+                                   ProjectEvent.Action.edit);
+
+        },
+        CommandId.edittags);
 
         this.addActionMapping (() ->
         {
@@ -1359,6 +1302,7 @@ TODO
         if (f != null)
         {
 /*
+TODO?
             java.awt.Font ft = new java.awt.Font (f,
                                 java.awt.Font.PLAIN,
                                 12);
@@ -1862,11 +1806,11 @@ TODO
     }
 
     public void saveObject (NamedObject o,
-                            boolean     doInTransaction)
+                            Connection  conn)
                      throws GeneralException
     {
 
-		if (o == null)
+        if (o == null)
 		{
 
 			return;
@@ -1883,9 +1827,67 @@ TODO
         }
 
         this.dBMan.saveObject (o,
-                               null);
+                               conn);
 
-        // TODO Needed? this.refreshObjectPanels (otherObjects);
+    }
+
+    public void saveObject (NamedObject o,
+                            boolean     doInTransaction)
+                     throws GeneralException
+    {
+
+        this.saveObject (o,
+                         null);
+
+    }
+
+    public void deleteObject (NamedObject o,
+                              boolean     deleteChildObjects)
+                       throws GeneralException
+    {
+
+        if (o == null)
+		{
+
+			return;
+
+		}
+
+        if (this.dBMan == null)
+        {
+
+            throw new IllegalStateException ("No object manager available.");
+
+        }
+
+        this.dBMan.deleteObject (o,
+                                 deleteChildObjects);
+
+    }
+
+    public void deleteObject (NamedObject o,
+                              boolean     deleteChildObjects,
+                              Connection  conn)
+                       throws GeneralException
+    {
+
+        if (o == null)
+		{
+
+			return;
+
+		}
+
+        if (this.dBMan == null)
+        {
+
+            throw new IllegalStateException ("No object manager available.");
+
+        }
+
+        this.dBMan.deleteObject (o,
+                                 deleteChildObjects,
+                                 conn);
 
     }
 
@@ -1920,63 +1922,6 @@ TODO
         this.dBMan.updateChapterIndexes (b);
 
     }
-/*
-TODO Remove handed by the project now instead.
-    public void setLinks (NamedObject o)
-    {
-
-        try
-        {
-
-            this.dBMan.getLinks (o);
-
-        } catch (Exception e)
-        {
-
-            Environment.logError ("Unable to set links for: " +
-                                  o,
-                                  e);
-
-        }
-
-    }
-*/
-
-/*
-TODO Needed?
-    public void refreshObjectPanels (final Set<NamedObject> objs)
-    {
-
-        final AbstractProjectViewer _this = this;
-
-        if ((objs != null) &&
-            (objs.size () > 0))
-        {
-
-            UIUtils.runLater (() ->
-            {
-
-				// For each one determine if it is visible.
-				for (NamedObject n : objs)
-				{
-
-					NamedObjectPanelContent qp = _this.getPanelForObject (n);
-
-					if (qp != null)
-					{
-
-						qp.refresh ();
-
-					}
-
-				}
-
-            });
-
-        }
-
-    }
-*/
 
     public Set<ChapterEditorPanelContent> getEditorsTextModifiedSince (long t)
     {
@@ -2234,15 +2179,7 @@ TODO
     public Tab addPanel (final Panel qp)
                   throws GeneralException
     {
-/*
-This causes issues for adding new assets.
-        if (this.panels.containsKey (qp.getPanelId ()))
-        {
 
-            throw new GeneralException ("Already have a panel with id: " + qp.getPanelId ());
-
-        }
-*/
         final AbstractProjectViewer _this = this;
 
         Tab tab = new Tab ();
@@ -2470,61 +2407,7 @@ TODO Remove?
 
                 })
                 .build ();
-/*
-            ComponentUtils.createQuestionPopup (getUILanguageStringProperty (closepanel,confirmpopup,title),
-                                                //"Save before closing?",
-                                                StyleClassNames.SAVE,
-                                                getUILanguageStringProperty (Arrays.asList (closepanel,confirmpopup,text),
-                                                                             p.getPanel ().titleProperty ().getValue ()),
-                                                        //"The %s has unsaved changes.  Save before closing?",
-                                                        //Environment.getObjectTypeName (p.getForObject ())),
-                                                getUILanguageStringProperty (closepanel,confirmpopup,buttons,save),
-                                                //"Yes, save the changes",
-                                                getUILanguageStringProperty (closepanel,confirmpopup,buttons,discard),
-                                                //"No, discard the changes",
-                                                fev ->
-                                                {
 
-                                                    try
-                                                    {
-
-                                                        p.saveObject ();
-
-                                                    } catch (Exception e)
-                                                    {
-
-                                                        // What the hell to do here???
-                                                        Environment.logError ("Unable to save: " +
-                                                                              p.getObject (),
-                                                                              e);
-
-                                                        ComponentUtils.showErrorMessage (_this,
-                                                                                         getUILanguageStringProperty (closepanel,actionerror));
-                                                                                  //"Unable to save " +
-                                                                                  //Environment.getObjectTypeName (p.getForObject ()));
-
-                                                        return;
-
-                                                    }
-
-                                                    if (p.unsavedChangesProperty ().getValue ())
-                                                    {
-
-                                                        ComponentUtils.showErrorMessage (_this,
-                                                                                         getUILanguageStringProperty (closepanel,actionerror));
-                                                                                  //"Unable to save " +
-                                                                                  //Environment.getObjectTypeName (p.getForObject ()));
-
-                                                        return;
-
-                                                    }
-
-                                                    _this.closePanel (p.getPanel (),
-                                                                      onClose);
-
-                                                },
-                                                _this);
-*/
             return;
 
         }
@@ -2732,42 +2615,6 @@ TODO Remove?
 
         return this.allChapterCounts.getReadabilityIndices ();
 
-/*
-        if (this.project == null)
-        {
-
-            return null;
-
-        }
-
-        Book b = this.project.getBooks ().get (0);
-
-        java.util.List<Chapter> chapters = b.getChapters ();
-
-        ReadabilityIndices ri = new ReadabilityIndices ();
-
-        for (Chapter c : chapters)
-        {
-
-            ChapterCounts cc = this.chapterCounts.get (c);
-
-            if (cc == null)
-            {
-
-                continue;
-
-            }
-
-            ri.add (cc.getReadabilityIndices ());
-
-            //ri.add (this.getReadabilityIndices (c));
-
-        }
-
-        this.allReadabilityIndices.updateFrom (ri);
-
-        return ri;
-*/
     }
 
     public ReadabilityIndices getReadabilityIndices (String  text)
@@ -2800,42 +2647,7 @@ TODO Remove?
         }
 
         return cc.getReadabilityIndices ();
-/*
-        ChapterEditorPanelContent qep = this.getEditorForChapter (c);
 
-        ReadabilityIndices ri = null;
-
-        if (qep != null)
-        {
-
-            ri = qep.getReadabilityIndices ();
-
-            if (ri != null)
-            {
-
-                this.noEditorReadabilityIndices.remove (c);
-
-                return ri;
-
-            }
-
-        }
-
-        ri = this.noEditorReadabilityIndices.get (c);
-
-        if (ri == null)
-        {
-
-            // Cache the value.
-            ri = this.getReadabilityIndices (c.getChapterText ());
-
-            this.noEditorReadabilityIndices.put (c,
-                                                 ri);
-
-        }
-
-        return ri;
-*/
     }
 
 	public int getChapterA4PageCount (Chapter c)
@@ -3119,7 +2931,6 @@ TODO Remove?
      *   * Set the last opened tab (after opening it).
      */
     protected void restoreTabs ()
-                         //throws GeneralException
     {
 
         ProjectVersion pv = this.project.getProjectVersion ();
@@ -3167,7 +2978,6 @@ TODO Remove?
      * @param ids The object ids, comma separated.
      */
     public void openPanelsFromObjectIdList (String ids)
-                                    // throws GeneralException
     {
 
         if ((ids == null)
@@ -3556,9 +3366,6 @@ TODO Remove?
                                                                       ComponentUtils.showErrorMessage (_this,
                                                                                                        getUILanguageStringProperty (Arrays.asList (spellchecker,unabletosetlanguage),
                                                                                                                                     lang));
-                                                                                                //"Unable to set spell check language to <b>" +
-                                                                                                //lang +
-                                                                                                //"</b>.<br /><br />Please contact Quoll Writer support for assistance.");
 
                                                                   }
 
@@ -3578,60 +3385,7 @@ TODO Remove?
         }
 
     }
-/*
-TODO REmove
-    public void saveDefaultProjectProperty (String name,
-                                            String value)
-    {
 
-        try
-        {
-
-            Environment.saveDefaultProperty (Project.OBJECT_TYPE,
-                                              name,
-                                              value);
-
-        } catch (Exception e)
-        {
-
-            Environment.logError ("Unable to save default " + Project.OBJECT_TYPE + " properties",
-                                  e);
-
-            ComponentUtils.showErrorMessage (this,
-                                      getUILanguageStringProperty (options,savepropertyerror));
-                                      //"Unable to save default project properties");
-
-        }
-
-
-    }
-
-    public void saveDefaultProjectProperty (String  name,
-                                            Boolean value)
-    {
-
-        try
-        {
-
-            Environment.saveDefaultProperty (Project.OBJECT_TYPE,
-                                              name,
-                                              value);
-
-        } catch (Exception e)
-        {
-
-            Environment.logError ("Unable to save default " + Project.OBJECT_TYPE + " properties",
-                                  e);
-
-            ComponentUtils.showErrorMessage (this,
-                                      getUILanguageStringProperty (options,savepropertyerror));
-                                      //"Unable to save default project properties");
-
-        }
-
-
-    }
-*/
     public boolean isHighlightWritingLine ()
     {
 
@@ -3647,8 +3401,6 @@ TODO REmove
      */
     public TextProperties getTextProperties ()
     {
-
-        //return Environment.getProjectTextProperties ();
 
         return (this.isInFullScreenMode () ? Environment.getFullScreenTextProperties () : Environment.getProjectTextProperties ());
 
@@ -3712,12 +3464,6 @@ TODO REmove
             VBox c = new VBox ();
 
             AtomicBoolean hasChanges = new AtomicBoolean (false);
-/*
-            c.getChildren ().add (BasicHtmlTextFlow.builder ()
-                .text (getUILanguageStringProperty (closeproject,confirmpopup,prefix))
-                .withHandler (this)
-                .build ());
-*/
 
             String b = this.panels.values ().stream ()
                 // We are only interested in named object panels.
@@ -4103,10 +3849,21 @@ TODO REmove
                                       String      m)
     {
 
+        this.createActionLogEntry (n,
+                                   m,
+                                   null);
+
+    }
+
+    public void createActionLogEntry (NamedObject n,
+                                      String      m,
+                                      Connection  conn)
+    {
+
         this.dBMan.createActionLogEntry (n,
                                          m,
                                          null,
-                                         null);
+                                         conn);
 
     }
 
@@ -4415,10 +4172,6 @@ TODO REmove
                        wTop);
                 s.set (Constants.WINDOW_LEFT_LOCATION_PROPERTY_NAME,
                        wLeft);
-                       /*
-                s.set (Constants.SPLIT_PANE_DIVIDER_LOCATION_PROPERTY_NAME,
-                       this.project.getPropertyAsInt (Constants.SPLIT_PANE_DIVIDER_LOCATION_PROPERTY_NAME));
-    */
                 this.project.removeProperty (Constants.WINDOW_HEIGHT_PROPERTY_NAME);
                 this.project.removeProperty (Constants.WINDOW_WIDTH_PROPERTY_NAME);
                 this.project.removeProperty (Constants.WINDOW_TOP_LOCATION_PROPERTY_NAME);
@@ -4455,54 +4208,8 @@ TODO REmove
 
         }
 
-        // We ignore the state and use the state inside the project instead.
-/*
-        // Handle the legacy properties.
-        if (this.project.getProperty (Constants.PROJECT_STATE_PROPERTY_NAME) == null)
-        {
-
-            s = new State ();
-
-            if (this.project.getProperty (Constants.WINDOW_HEIGHT_PROPERTY_NAME) != null)
-            {
-
-                int wHeight = this.project.getPropertyAsInt (Constants.WINDOW_HEIGHT_PROPERTY_NAME);
-                int wWidth = this.project.getPropertyAsInt (Constants.WINDOW_WIDTH_PROPERTY_NAME);
-                int wTop = this.project.getPropertyAsInt (Constants.WINDOW_TOP_LOCATION_PROPERTY_NAME);
-                int wLeft = this.project.getPropertyAsInt (Constants.WINDOW_LEFT_LOCATION_PROPERTY_NAME);
-
-                s.set (Constants.WINDOW_HEIGHT_PROPERTY_NAME,
-                       wHeight);
-                s.set (Constants.WINDOW_WIDTH_PROPERTY_NAME,
-                       wWidth);
-                s.set (Constants.WINDOW_TOP_LOCATION_PROPERTY_NAME,
-                       wTop);
-                s.set (Constants.WINDOW_LEFT_LOCATION_PROPERTY_NAME,
-                       wLeft);
-                this.project.removeProperty (Constants.WINDOW_HEIGHT_PROPERTY_NAME);
-                this.project.removeProperty (Constants.WINDOW_WIDTH_PROPERTY_NAME);
-                this.project.removeProperty (Constants.WINDOW_TOP_LOCATION_PROPERTY_NAME);
-                this.project.removeProperty (Constants.WINDOW_LEFT_LOCATION_PROPERTY_NAME);
-
-            }
-
-        } else {
-
-            s = new State (this.project.getProperty (Constants.PROJECT_STATE_PROPERTY_NAME));
-
-        }
-*/
         super.init (s);
-/*
-        this.getWindowedContent ().getHeader ().getControls ().setVisibleItems (UserProperties.projectViewerHeaderControlButtonIds ());
 
-        this.getWindowedContent ().getHeader ().getControls ().setOnConfigurePopupClosed (ev ->
-        {
-
-            UserProperties.setProjectViewerHeaderControlButtonIds (this.getWindowedContent ().getHeader ().getControls ().getVisibleItemIds ());
-
-        });
-*/
         this.initProperties ();
 
         // Needs to happen before initing th echapter counts since the chapter counts may need to do a spell check count.
@@ -4744,14 +4451,7 @@ TODO REmove
         {
 
             TextProperties props = this.getTextProperties ();
-/*
-            if (this.fsf != null)
-            {
 
-                props = Environment.getFullScreenTextProperties ();
-
-            }
-*/
             this.addSideBar (new TextPropertiesSideBar (this,
                                                         props));
 
@@ -5221,104 +4921,11 @@ TODO
 
     }
 
-/*
-TODO Needed?
-    public void showInFullScreen (DataObject n)
-                           throws GeneralException
-    {
-
-        // Are we already in fs mode?
-        if (this.fsf != null)
-        {
-
-            if (this.fsf.getCurrentForObject () == n)
-            {
-
-                // Nothing to do, it's already showing, maybe bring to front.
-                this.fsf.toFront ();
-
-                return;
-
-            } else
-            {
-
-                this.viewObject (n);
-
-            }
-
-        }
-
-        if (this.fullScreenOverlay == null)
-        {
-
-            this.fullScreenOverlay = new FullScreenOverlay (this);
-
-            this.setGlassPane (this.fullScreenOverlay);
-
-        }
-
-        this.fullScreenOverlay.setVisible (true);
-
-        this.lastDividerLocation = this.splitPane.getDividerLocation ();
-
-        AbstractEditorPanel qep = this.getEditorForChapter ((Chapter) n);
-
-        if (qep != null)
-        {
-
-            FullScreenQuollPanel fs = new FullScreenQuollPanel (qep);
-
-            // Need to set the component, otherwise it will be removed.
-            this.tabs.setComponentAt (this.getTabIndexForPanelId (qep.getPanelId ()),
-                                      fs);
-
-            if (this.fsf != null)
-            {
-
-                this.fsf.switchTo (fs);
-
-            } else
-            {
-
-                this.fsf = new FullScreenFrame (fs,
-												this);
-
-                this.fsf.init ();
-
-            }
-
-            //this.fsf.toFront ();
-
-            this.tabs.revalidate ();
-            this.tabs.repaint ();
-            this.validate ();
-            this.repaint ();
-
-        }
-
-        this.setVisible (false);
-
-        this.fireFullScreenEnteredEvent ();
-
-    }
-*/
-
     @Override
     public void showSideBar (String   id,
                              Runnable doAfterView)
     {
-/*
-TODO Remove?
-        if (this.fsf != null)
-        {
 
-            this.fsf.showSideBar (id,
-                                  doAfterView);
-
-            return;
-
-        }
-*/
         super.showSideBar (id,
                            doAfterView);
 
@@ -5499,6 +5106,8 @@ TODO Remove?
 
                 Set<String> ntags = tags.apply (tf.getText ());
 
+                Set<Tag> newTags = new HashSet<> ();
+
                 for (String s : ntags)
                 {
 
@@ -5507,7 +5116,7 @@ TODO Remove?
                     try
                     {
 
-                        ot = Environment.getTagByName (s);
+                        ot = this.project.getTagByName (s);
 
                     } catch (Exception e) {
 
@@ -5532,7 +5141,12 @@ TODO Remove?
                     try
                     {
 
-                        Environment.saveTag (tag);
+                        this.saveObject (tag,
+                                         true);
+
+                        this.project.addNewTag (tag);
+
+                        newTags.add (tag);
 
                     } catch (Exception e) {
 
@@ -5549,7 +5163,8 @@ TODO Remove?
 
                     }
 
-                    addTo.addTag (tag);
+                    this.project.addTagToObject (tag,
+                                                 addTo);
 
                 }
 
@@ -5573,10 +5188,89 @@ TODO Remove?
 
                 }
 
+                newTags.stream ()
+                    .forEach (t ->
+                    {
+
+                        this.fireProjectEvent (ProjectEvent.Type.tag,
+                                               ProjectEvent.Action._new,
+                                               t);
+
+                    });
+
             })
             .showAt (showAt,
                      Side.BOTTOM)
             .build ();
+
+    }
+
+    /**
+     * Save a tag, this will either create or update it.
+     *
+     * @param tag The tag.
+     * @throws GeneralException If the tag can't be saved.
+     */
+    public void saveTag (Tag tag)
+                  throws GeneralException
+    {
+
+        ProjectEvent.Action ev = ProjectEvent.Action.changed;
+
+        if (tag.getKey () == null)
+        {
+
+            ev = ProjectEvent.Action._new;
+
+        }
+
+        this.dBMan.saveObject (tag);
+
+        if (ev.equals (ProjectEvent.Action._new))
+        {
+
+            this.project.addNewTag (tag);
+
+        }
+
+        // Tell all projects about it.
+        this.fireProjectEvent (ProjectEvent.Type.tag,
+                               ev,
+                               tag);
+
+    }
+
+    /**
+     * Delete a tag.
+     *
+     * @param tag The tag to delete.
+     * @throws GeneralException If the delete goes wrong.
+     */
+    public void deleteTag (Tag tag)
+                    throws GeneralException
+    {
+
+        this.dBMan.deleteObject (tag,
+                                 true);
+
+        this.project.removeTag (tag);
+
+        // Tell all projects about it.
+        this.fireProjectEvent (ProjectEvent.Type.tag,
+                               ProjectEvent.Action.delete,
+                               tag);
+
+    }
+
+    /**
+     * Get a tag by name.
+     *
+     * @return The tag, if found.
+     */
+    public Tag getTagByName (String name)
+    {
+
+        return this.project.getTagByName (name);
 
     }
 
@@ -5851,6 +5545,122 @@ TODO Remove?
 
         return ch.snapshot (chapters,
                             pv);
+
+    }
+
+    public void showDeleteUserConfigurableType (UserConfigurableObjectType type)
+    {
+
+        String pid = "deleteall" + type.getObjectReference ().asString ();
+
+        QuollPopup.yesConfirmTextEntryBuilder ()
+            .withViewer (this)
+            .title (getUILanguageStringProperty (Arrays.asList (assets,deleteall,title),
+                                                 type.objectTypeNamePluralProperty ()))
+            .popupId (pid)
+            .styleClassName (StyleClassNames.DELETE)
+            .description (getUILanguageStringProperty (Arrays.asList (assets,deleteall,text),
+                                                       type.objectTypeNamePluralProperty ()))
+            .confirmButtonLabel (assets,deleteall,buttons,confirm)
+            .cancelButtonLabel (assets,deleteall,buttons,cancel)
+            .onConfirm (eev ->
+            {
+
+                try
+                {
+
+                    this.deleteAllObjectsForType (type);
+
+                } catch (Exception e) {
+
+                    Environment.logError ("Unable to remove all: " +
+                                          type,
+                                          e);
+
+                    ComponentUtils.showErrorMessage (this,
+                                                     getUILanguageStringProperty (assets,deleteall,actionerror));
+                                              //String.format ("Unable to remove all %1$s.",
+                                                //             type.getObjectTypeNamePlural ()));
+
+                    return;
+
+                }
+
+                try
+                {
+
+                    this.project.removeUserConfigurableObjectType (type);
+
+                    this.deleteObject (type,
+                                       true);
+
+                } catch (Exception e) {
+
+                    Environment.logError ("Unable to remove user object type: " +
+                                          type,
+                                          e);
+
+                    ComponentUtils.showErrorMessage (this,
+                                                     getUILanguageStringProperty (assets,deleteall,actionerror));
+                                              //"Unable to remove object.");
+
+                    return;
+
+                }
+
+                this.getPopupById (pid).close ();
+
+            })
+            .build ();
+
+    }
+
+    public void showImportUserConfigurableTypes ()
+    {
+
+        String pid = ImportUserConfigurableObjectTypes.POPUP_ID;
+
+        if (this.getPopupById (pid) != null)
+        {
+
+            return;
+
+        }
+
+        new ImportUserConfigurableObjectTypes (this).show ();
+
+    }
+
+    public void showAddNewUserConfigurableType ()
+    {
+
+        String pid = AddEditUserConfigurableObjectType.POPUP_ID;
+
+        if (this.getPopupById (pid) != null)
+        {
+
+            return;
+
+        }
+
+        new AddEditUserConfigurableObjectType (this).show ();
+
+    }
+
+    public void showEditUserConfigurableType (UserConfigurableObjectType t)
+    {
+
+        String pid = AddEditUserConfigurableObjectType.getPopupIdForType (t);
+
+        if (this.getPopupById (pid) != null)
+        {
+
+            return;
+
+        }
+
+        new AddEditUserConfigurableObjectType (t,
+                                               this).show ();
 
     }
 

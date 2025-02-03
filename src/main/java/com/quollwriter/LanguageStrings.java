@@ -17,6 +17,7 @@ public class LanguageStrings
     public static final String nightmode = "nightmode";
     public static final String configure = "configure";
     public static final String autonightmode = "autonightmode";
+    public static final String nightmodebgcolor = "nightmodebgcolor";
     public static final String range = "range";
     public static final String between = "between";
     public static final String and = "and";
@@ -109,6 +110,7 @@ public class LanguageStrings
     public static final String importfile = "importfile";
     public static final String options = "options";
     public static final String importfromproject = "importfromproject";
+    public static final String importtypes = "importtypes";
     public static final String selectfile = "selectfile";
     public static final String decide = "decide";
     public static final String textextra = "textextra";

@@ -11,6 +11,7 @@ import java.util.stream.*;
 import javax.sql.*;
 
 import javafx.collections.*;
+import javafx.scene.image.*;
 
 import com.quollwriter.*;
 
@@ -18,8 +19,6 @@ import com.quollwriter.data.*;
 import com.quollwriter.data.editors.*;
 
 import com.quollwriter.editors.messages.*;
-
-import com.quollwriter.ui.*;
 
 import org.apache.commons.dbcp2.PoolingDataSource;
 import org.apache.commons.dbcp2.PoolableConnection;
@@ -2113,33 +2112,6 @@ TODO REmove
         }
 
         DataHandler dh = this.getHandler (d.getClass ());
-        /*
-        Class c = d.getClass ();
-
-        while (true)
-        {
-
-            dh = this.getHandler (c);
-
-            if (dh != null)
-            {
-
-                break;
-
-            }
-
-            c = c.getSuperclass ();
-
-            if (c == null)
-            {
-
-                break;
-
-            }
-
-        }
-        */
-        //DataHandler dh = this.handlers.get (d.getClass ().getName ());
 
         if (dh == null)
         {
@@ -2358,12 +2330,29 @@ TODO REmove
                         params = new ArrayList ();
                         params.add (n.getName ());
                         params.add (n.getLastModified ());
+/*
+yyy
+                        if (n instanceof UserConfigurableObject)
+                        {
+
+                            UserConfigurableObject o = (UserConfigurableObject) n;
+
+                            UserConfigurableObjectType t = o.getUserConfigurableObjectType ();
+
+                            params.add (t.getKey ());
+
+                        } else {
+
+                            params.add (null);
+
+                        }
+*/
                         params.add (desc);
                         params.add (markup);
                         params.add (Utils.getFilesAsXML (n.getFiles ()));
                         params.add (n.getKey ());
 
-                        this.executeStatement ("UPDATE namedobject SET name = ?, lastmodified = ?, description = ?, markup = ?, files = ? WHERE dbkey = ?",
+                        this.executeStatement ("UPDATE namedobject SET name = ?, lastmodified = ?," + /* userobjecttypedbkey = ?,*/ " description = ?, markup = ?, files = ? WHERE dbkey = ?",
                                                params,
                                                conn);
 
@@ -2394,7 +2383,7 @@ TODO REmove
                     }
 
                 }
-
+/*
                 if (d instanceof UserConfigurableObject)
                 {
 
@@ -2404,7 +2393,7 @@ TODO REmove
                                       conn);
 
                 }
-
+*/
             }
 
             if (create)
@@ -2550,8 +2539,16 @@ TODO REmove
 
             this.project = proj;
 
+            // YYY
             // For v3+ we move the user object type fields into each project.
-            // NO!!! this.checkAndImportUserObjectFields (conn);
+            if (this.initUserConfigurableObjectTypes (conn,
+                                                      proj))
+            {
+
+                // Need to reload the project.
+                this.project = pdh.getProject (conn);
+
+            }
 
         } catch (Exception e)
         {
@@ -2573,34 +2570,16 @@ TODO REmove
     // A method for moving the user object type definitions into the local project, introduced in v3.
     /* YYY
     */
-    private void checkAndImportUserObjectFields (Connection conn)
-                                          throws GeneralException
+    private boolean initUserConfigurableObjectTypes (Connection conn,
+                                                     Project    project)
+                                              throws Exception
     {
 
-        // XXX Experimental, would add user config types to a project.
-        // May be needed if types go into a single proejct.
-
-        if (true)
+        if (project.getUserConfigurableObjectType (Chapter.OBJECT_TYPE) == null)
         {
 
-            return;
-
-        }
-
-        boolean close = false;
-
-        try
-        {
-
-            if (conn == null)
-            {
-
-                conn = this.getConnection ();
-                close = true;
-
-            }
-
-            if (this.project.getUserConfigurableObjectType (Chapter.OBJECT_TYPE) == null)
+            // Can we init from the environment types?
+            if (Environment.getUserConfigurableObjectType (Chapter.OBJECT_TYPE) != null)
             {
 
                 // This means we don't have the user config types set up.
@@ -2616,14 +2595,16 @@ TODO REmove
                 for (UserConfigurableObjectType t : objTypes)
                 {
 
-                    UserConfigurableObjectType nt = new UserConfigurableObjectType ();
-                    nt.setName (t.getName ());
+                    String layoutInfo = t.getProperty (Constants.USER_CONFIGURABLE_OBJECT_TYPE_SORTABLE_FIELDS_LAYOUT_PROPERTY_NAME);
+
+                    UserConfigurableObjectType nt = new UserConfigurableObjectType (project);
+                    nt.setObjectTypeName (t.getName ());
                     nt.setDescription (t.getDescription ());
                     nt.setObjectTypeNamePlural (t.getObjectTypeNamePlural ());
                     nt.setIcon16x16 (t.getIcon16x16 ());
                     nt.setIcon24x24 (t.getIcon24x24 ());
                     nt.setLayout (t.getLayout ());
-                    nt.setUserObjectType (t.getUserObjectType ());
+                    //nt.setUserObjectType (t.getUserObjectType ());
                     nt.setAssetObjectType (t.isAssetObjectType ());
                     nt.setCreateShortcutKeyStroke (t.getCreateShortcutKeyStroke ());
                     nt.setIgnoreFieldsState (true);
@@ -2632,8 +2613,34 @@ TODO REmove
                     this.saveObject (nt,
                                      conn);
 
+                    String objId = "";
+
                     tmappings.put (t,
                                    nt);
+
+                    UserConfigurableObjectTypeField oldnamefield = t.getPrimaryNameField ();
+                    if (oldnamefield != null)
+                    {
+
+                        objId = "\"" + oldnamefield.getObjectReference ().asString () + "\"";
+
+                        // Add the primary name field.
+                        ObjectNameUserConfigurableObjectTypeField newnamefield = (ObjectNameUserConfigurableObjectTypeField) UserConfigurableObjectTypeField.Type.getNewFieldForType (UserConfigurableObjectTypeField.Type.objectname);
+
+                        newnamefield.setFormName (oldnamefield.getFormName ());
+                        newnamefield.setUserConfigurableObjectType (nt);
+
+                        Map<String, Object> ndefs = new HashMap<> ();
+                        ndefs.putAll (oldnamefield.getDefinition ());
+                        newnamefield.setDefinition (ndefs);
+
+                        nt.setPrimaryNameField (newnamefield);
+
+                        layoutInfo = Utils.replaceString (layoutInfo,
+                                                          objId,
+                                                          "\"" + newnamefield.getObjectReference ().asString () + "\"");
+
+                    }
 
                     // Get the fields and create them.
                     for (UserConfigurableObjectType.FieldsColumn fc : t.getSortableFieldsColumns ())
@@ -2644,6 +2651,8 @@ TODO REmove
                         // Clone/create fields.
                         for (UserConfigurableObjectTypeField fft : fc.fields ())
                         {
+
+                            objId = "\"" + fft.getObjectReference ().asString () + "\"";
 
                             // Get the field.
                             UserConfigurableObjectTypeField nft = fmappings.get (fft);
@@ -2674,6 +2683,10 @@ TODO REmove
 
                             nfcfields.add (nft);
 
+                            layoutInfo = Utils.replaceString (layoutInfo,
+                                                              objId,
+                                                              "\"" + nft.getObjectReference ().asString () + "\"");
+
                         }
 
                         UserConfigurableObjectType.FieldsColumn nfc = nt.addNewColumn (nfcfields);
@@ -2683,12 +2696,16 @@ TODO REmove
                     }
 
                     nt.setIgnoreFieldsState (false);
+                    nt.updateSortableFieldsState ();
+
+                    nt.setProperty (Constants.USER_CONFIGURABLE_OBJECT_TYPE_SORTABLE_FIELDS_LAYOUT_PROPERTY_NAME,
+                                    layoutInfo);
 
                     // Save the type again.
                     this.saveObject (nt,
                                      conn);
 
-                    Set<Asset> assets = this.project.getAssets (t);
+                    Set<Asset> assets = project.getAssets (t);
 
                     for (Asset a : assets)
                     {
@@ -2698,8 +2715,6 @@ TODO REmove
 
                         UserConfigurableObjectType nat = tmappings.get (at);
 
-                        System.out.println ("ASSET TYPE: " + nat);
-
                         for (UserConfigurableObjectField f : a.getFields ())
                         {
 
@@ -2708,19 +2723,13 @@ TODO REmove
                             // Get our new field.
                             UserConfigurableObjectTypeField nf = fmappings.get (tf);
 
-                            if (nf == null)
+                            // Update the field.
+                            if (nf != null)
                             {
 
-                                System.out.println ("CANT FIND FOR: " + tf.getKey ());
-
-                            } else {
-
-                                System.out.println ("GOT: " + nf + " ::: " + tf);
+                                f.setUserConfigurableObjectTypeField (nf);
 
                             }
-
-                            // Update the field.
-                            f.setUserConfigurableObjectTypeField (nf);
 
                         }
 
@@ -2733,30 +2742,497 @@ TODO REmove
 
                     }
 
-                    // Run this to set up the foreign key
-                    //   ALTER TABLE userobjectfield ADD CONSTRAINT userobjfield_userobjecttypefielddbkey___userobjecttypefield_dbkey_fk FOREIGN KEY(dbkey) REFERENCES userobjecttypefield(dbkey)
-
                 }
 
+                // Map the type keys
+                Map<Long, Long> tkmappings = new HashMap<> ();
+
+                // k -> env key
+                // v -> proj key
+                tmappings.forEach ((k, v) ->
+                {
+
+                    tkmappings.put (k.getKey (),
+                                    v.getKey ());
+
+                });
+
+                project.setProperty ("userConfigObjTypesEnvToProjKeyMap",
+                                     JSONEncoder.encode (tkmappings));
+
+                // Map the field keys
+                Map<Long, Long> fkmappings = new HashMap<> ();
+
+                // k -> env key
+                // v -> proj key
+                fmappings.forEach ((k, v) ->
+                {
+
+                    fkmappings.put (k.getKey (),
+                                    v.getKey ());
+
+                });
+
+                this.saveObject (project,
+                                 conn);
+
+                conn.commit ();
+
+                return true;
+
             }
 
-        } catch (Exception e) {
+            // Init the legacy object types.
+            this.initLegacyObjectTypes (project);
 
-            throw new GeneralException ("Unable to update schema for userobjecttype tables/fields.",
-                                        e);
+            this.saveObject (project,
+                             conn);
 
-        } finally {
+            conn.commit ();
 
-            if (close)
-            {
-
-                this.releaseConnection (conn);
-
-            }
+            return true;
 
         }
 
+        return false;
+
     }
+
+    /**
+    * Create the user configurable object types we need, namely for:
+    *   - Chapter
+    *   - QCharacter
+    *   - QObject
+    *   - ResearchItem
+    *   - Location
+    *
+    * It will create each object and the minimum required fields.
+    */
+    public void initLegacyObjectTypes (Project project)
+                                throws Exception
+    {
+
+       // If we have no user config object types then create the ones we need.
+       // We should always have at least the chapter type!
+
+       // Check to make sure that the legacy types have their icons setup.
+       UserConfigurableObjectType assT = project.getUserConfigurableObjectType (QCharacter.OBJECT_TYPE);
+
+       if (assT != null)
+       {
+
+           if (assT.icon16x16Property ().getValue () == null)
+           {
+
+               assT.setIcon16x16 (new Image (Utils.getResourceStream (Constants.LEGACY_CHARACTER_SMALL_ICON_IMAGE_NAME)));
+
+           }
+
+           if (assT.icon24x24Property ().getValue () == null)
+           {
+
+               assT.setIcon24x24 (new Image (Utils.getResourceStream (Constants.LEGACY_CHARACTER_LARGE_ICON_IMAGE_NAME)));
+
+           }
+
+       }
+
+       assT = project.getUserConfigurableObjectType (Location.OBJECT_TYPE);
+
+       if (assT != null)
+       {
+
+           if (assT.icon16x16Property ().getValue () == null)
+           {
+
+               assT.setIcon16x16 (new Image (Utils.getResourceStream (Constants.LEGACY_LOCATION_SMALL_ICON_IMAGE_NAME)));
+
+           }
+
+           if (assT.icon24x24Property ().getValue () == null)
+           {
+
+               assT.setIcon24x24 (new Image (Utils.getResourceStream (Constants.LEGACY_LOCATION_LARGE_ICON_IMAGE_NAME)));
+
+           }
+
+       }
+
+       assT = project.getUserConfigurableObjectType (QObject.OBJECT_TYPE);
+
+       if (assT != null)
+       {
+
+           if (assT.icon16x16Property ().getValue () == null)
+           {
+
+               assT.setIcon16x16 (new Image (Utils.getResourceStream (Constants.LEGACY_OBJECT_SMALL_ICON_IMAGE_NAME)));
+
+           }
+
+           if (assT.icon24x24Property ().getValue () == null)
+           {
+
+               assT.setIcon24x24 (new Image (Utils.getResourceStream (Constants.LEGACY_OBJECT_LARGE_ICON_IMAGE_NAME)));
+
+           }
+
+       }
+
+       assT = project.getUserConfigurableObjectType (ResearchItem.OBJECT_TYPE);
+
+       if (assT != null)
+       {
+
+           if (assT.icon16x16Property ().getValue () == null)
+           {
+
+               assT.setIcon16x16 (new Image (Utils.getResourceStream (Constants.LEGACY_RESEARCHITEM_SMALL_ICON_IMAGE_NAME)));
+
+           }
+
+           if (assT.icon24x24Property ().getValue () == null)
+           {
+
+               assT.setIcon24x24 (new Image (Utils.getResourceStream (Constants.LEGACY_RESEARCHITEM_LARGE_ICON_IMAGE_NAME)));
+
+           }
+
+       }
+
+       Set<UserConfigurableObjectTypeField> fields = new LinkedHashSet<> ();
+
+       // Create the chapter type.
+       UserConfigurableObjectType chapterType = new UserConfigurableObjectType (project);
+
+       //chapterType.setObjectTypeName (Environment.getObjectTypeName (Chapter.OBJECT_TYPE));
+       //chapterType.setObjectTypeNamePlural (Environment.getObjectTypeNamePlural (Chapter.OBJECT_TYPE));
+       chapterType.setLayout (null);
+       // TODO DO! chapterType.setCreateShortcutKeyStroke (KeyStroke.getKeyStroke ("ctrl shift H"));
+       /*
+       TODO
+       chapterType.setIcon24x24 (Environment.getObjectIcon (Chapter.OBJECT_TYPE,
+                                                            Constants.ICON_TITLE));
+       chapterType.setIcon16x16 (Environment.getObjectIcon (Chapter.OBJECT_TYPE,
+                                                            Constants.ICON_SIDEBAR));
+       */
+       chapterType.setUserObjectType (Chapter.OBJECT_TYPE);
+
+       // Add the fields.
+       // The chapter doesn't have a name field.
+
+       // Description
+       ObjectDescriptionUserConfigurableObjectTypeField descF = new ObjectDescriptionUserConfigurableObjectTypeField ();
+
+       descF.setUserConfigurableObjectType (chapterType);
+
+       descF.setSearchable (true);
+       /*
+       descF.setFormName (Environment.getUIString (LanguageStrings.chapters,
+                                                   LanguageStrings.fields,
+                                                   LanguageStrings.description));
+       */
+                       //LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_FORM_NAME);
+       descF.setLegacyFieldId (LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_ID);
+
+       // Plan
+       MultiTextUserConfigurableObjectTypeField planF = new MultiTextUserConfigurableObjectTypeField ();
+
+       planF.setUserConfigurableObjectType (chapterType);
+       planF.setSearchable (true);
+       planF.setDisplayAsBullets (true);
+       /*
+       planF.setFormName (Environment.getUIString (LanguageStrings.chapters,
+                                                   LanguageStrings.fields,
+                                                   LanguageStrings.plan));
+       */
+                       //Chapter.PLAN_LEGACY_FIELD_FORM_NAME);
+       planF.setLegacyFieldId (Chapter.PLAN_LEGACY_FIELD_ID);
+
+       MultiTextUserConfigurableObjectTypeField goalsF = new MultiTextUserConfigurableObjectTypeField ();
+
+       goalsF.setUserConfigurableObjectType (chapterType);
+       goalsF.setSearchable (true);
+       goalsF.setDisplayAsBullets (true);
+       /*
+       goalsF.setFormName (Environment.getUIString (LanguageStrings.chapters,
+                                                    LanguageStrings.fields,
+                                                    LanguageStrings.goals));
+       */
+                           //Chapter.GOALS_LEGACY_FIELD_FORM_NAME);
+       goalsF.setLegacyFieldId (Chapter.GOALS_LEGACY_FIELD_ID);
+
+       chapterType.setConfigurableFields (Arrays.asList (descF, planF, goalsF));
+
+       project.addUserConfigurableObjectType (chapterType);
+
+       // Now characters.
+       UserConfigurableObjectType characterType = new UserConfigurableObjectType (project);
+
+       //characterType.setObjectTypeName (Environment.getObjectTypeName (QCharacter.OBJECT_TYPE));
+       //characterType.setObjectTypeNamePlural (Environment.getObjectTypeNamePlural (QCharacter.OBJECT_TYPE));
+       characterType.setLayout (null);
+       characterType.setAssetObjectType (true);
+       // TODO DO! characterType.setCreateShortcutKeyStroke (KeyStroke.getKeyStroke ("ctrl shift C"));
+       characterType.setIcon16x16 (new Image (Utils.getResourceStream (Constants.LEGACY_CHARACTER_SMALL_ICON_IMAGE_NAME)));
+       characterType.setIcon24x24 (new Image (Utils.getResourceStream (Constants.LEGACY_CHARACTER_LARGE_ICON_IMAGE_NAME)));
+
+       /*
+       TODO
+       characterType.setIcon24x24 (Environment.getObjectIcon (QCharacter.OBJECT_TYPE,
+                                                              Constants.ICON_TITLE));
+       characterType.setIcon16x16 (Environment.getObjectIcon (QCharacter.OBJECT_TYPE,
+                                                              Constants.ICON_SIDEBAR));
+       */
+       characterType.setUserObjectType (QCharacter.OBJECT_TYPE);
+
+       // Name
+       ObjectNameUserConfigurableObjectTypeField nameF = new ObjectNameUserConfigurableObjectTypeField ();
+
+       nameF.setUserConfigurableObjectType (characterType);
+
+       /*
+       nameF.setFormName (Environment.getUIString (LanguageStrings.assets,
+                                                   LanguageStrings.legacyfields,
+                                                   LanguageStrings.name));
+       */
+       //LegacyUserConfigurableObject.NAME_LEGACY_FIELD_FORM_NAME);
+       nameF.setLegacyFieldId (LegacyUserConfigurableObject.NAME_LEGACY_FIELD_ID);
+
+       // Aliases
+       UserConfigurableObjectTypeField aliasesF = UserConfigurableObjectTypeField.Type.getNewFieldForType (UserConfigurableObjectTypeField.Type.multitext);
+
+       aliasesF.setUserConfigurableObjectType (characterType);
+       aliasesF.setNameField (true);
+       aliasesF.setSearchable (true);
+       /*
+       aliasesF.setFormName (Environment.getUIString (LanguageStrings.assets,
+                                                      LanguageStrings.legacyfields,
+                                                      LanguageStrings.aliases));
+       */
+       //LegacyUserConfigurableObject.ALIASES_LEGACY_FIELD_FORM_NAME);
+       aliasesF.setLegacyFieldId (LegacyUserConfigurableObject.ALIASES_LEGACY_FIELD_ID);
+
+       // Description
+       ObjectDescriptionUserConfigurableObjectTypeField cdescF = new ObjectDescriptionUserConfigurableObjectTypeField ();
+
+       cdescF.setUserConfigurableObjectType (characterType);
+       cdescF.setLegacyFieldId (LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_ID);
+       cdescF.setSearchable (true);
+       /*
+       cdescF.setFormName (Environment.getUIString (LanguageStrings.assets,
+                                                    LanguageStrings.legacyfields,
+                                                    LanguageStrings.description));
+       */
+       //LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_FORM_NAME);
+
+       characterType.setConfigurableFields (Arrays.asList (nameF, aliasesF, cdescF));
+
+       project.addUserConfigurableObjectType (characterType);
+
+       // Now locations.
+       UserConfigurableObjectType locType = new UserConfigurableObjectType (project);
+
+       //locType.setObjectTypeName (Environment.getObjectTypeName (Location.OBJECT_TYPE));
+       //locType.setObjectTypeNamePlural (Environment.getObjectTypeNamePlural (Location.OBJECT_TYPE));
+       locType.setLayout (null);
+       locType.setAssetObjectType (true);
+       // TODO DO! locType.setCreateShortcutKeyStroke (KeyStroke.getKeyStroke ("ctrl shift L"));
+       locType.setIcon16x16 (new Image (Utils.getResourceStream (Constants.LEGACY_LOCATION_SMALL_ICON_IMAGE_NAME)));
+       locType.setIcon24x24 (new Image (Utils.getResourceStream (Constants.LEGACY_LOCATION_LARGE_ICON_IMAGE_NAME)));
+
+       /*
+       TODO?
+       locType.setIcon24x24 (Environment.getObjectIcon (Location.OBJECT_TYPE,
+                                                        Constants.ICON_TITLE));
+       locType.setIcon16x16 (Environment.getObjectIcon (Location.OBJECT_TYPE,
+                                                        Constants.ICON_SIDEBAR));
+       */
+       locType.setUserObjectType (Location.OBJECT_TYPE);
+
+       // Name
+       nameF = new ObjectNameUserConfigurableObjectTypeField ();
+
+       nameF.setUserConfigurableObjectType (locType);
+
+       /*
+       nameF.setFormName (Environment.getUIString (LanguageStrings.assets,
+                                                   LanguageStrings.legacyfields,
+                                                   LanguageStrings.name));
+       */
+       //LegacyUserConfigurableObject.NAME_LEGACY_FIELD_FORM_NAME);
+       nameF.setLegacyFieldId (LegacyUserConfigurableObject.NAME_LEGACY_FIELD_ID);
+
+       // Description
+       cdescF = new ObjectDescriptionUserConfigurableObjectTypeField ();
+
+       cdescF.setUserConfigurableObjectType (locType);
+       cdescF.setSearchable (true);
+       /*
+       cdescF.setFormName (Environment.getUIString (LanguageStrings.assets,
+                                                    LanguageStrings.legacyfields,
+                                                    LanguageStrings.description));
+       */
+       //LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_FORM_NAME);
+       cdescF.setLegacyFieldId (LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_ID);
+
+       locType.setConfigurableFields (Arrays.asList (nameF, cdescF));
+
+       project.addUserConfigurableObjectType (locType);
+
+       // Now qobjects.
+       UserConfigurableObjectType qobjType = new UserConfigurableObjectType (project);
+
+       //qobjType.setObjectTypeName (Environment.getObjectTypeName (QObject.OBJECT_TYPE));
+       //qobjType.setObjectTypeNamePlural (Environment.getObjectTypeNamePlural (QObject.OBJECT_TYPE));
+       qobjType.setLayout (null);
+       qobjType.setAssetObjectType (true);
+       // TODO DO! qobjType.setCreateShortcutKeyStroke (KeyStroke.getKeyStroke ("ctrl shift I"));
+       qobjType.setIcon16x16 (new Image (Utils.getResourceStream (Constants.LEGACY_OBJECT_SMALL_ICON_IMAGE_NAME)));
+       qobjType.setIcon24x24 (new Image (Utils.getResourceStream (Constants.LEGACY_OBJECT_LARGE_ICON_IMAGE_NAME)));
+
+       /*
+       TODO
+       qobjType.setIcon24x24 (Environment.getObjectIcon (QObject.OBJECT_TYPE,
+                                                         Constants.ICON_TITLE));
+       qobjType.setIcon16x16 (Environment.getObjectIcon (QObject.OBJECT_TYPE,
+                                                         Constants.ICON_SIDEBAR));
+       */
+       qobjType.setUserObjectType (QObject.OBJECT_TYPE);
+
+       // Name
+       nameF = new ObjectNameUserConfigurableObjectTypeField ();
+       nameF.setUserConfigurableObjectType (qobjType);
+       /*
+       nameF.setFormName (Environment.getUIString (LanguageStrings.assets,
+                                                   LanguageStrings.legacyfields,
+                                                   LanguageStrings.name));
+       */
+       //LegacyUserConfigurableObject.NAME_LEGACY_FIELD_FORM_NAME);
+       nameF.setLegacyFieldId (LegacyUserConfigurableObject.NAME_LEGACY_FIELD_ID);
+
+       // Type
+       SelectUserConfigurableObjectTypeField typeF = new SelectUserConfigurableObjectTypeField ();
+
+       typeF.setUserConfigurableObjectType (qobjType);
+       typeF.setLegacyFieldId (QObject.TYPE_LEGACY_FIELD_ID);
+       /*
+       typeF.setFormName (Environment.getUIString (LanguageStrings.assets,
+                                                   LanguageStrings.legacyfields,
+                                                   LanguageStrings.type));
+       */
+       //QObject.TYPE_LEGACY_FIELD_FORM_NAME);
+
+       // Get the pre-defined types, they are stored in the user prefs.
+       String nt = UserProperties.get (Constants.OBJECT_TYPES_PROPERTY_NAME);
+
+       List<String> ts = new ArrayList ();
+
+       if (nt != null)
+       {
+
+           StringTokenizer t = new StringTokenizer (nt,
+                                                    "|");
+
+           while (t.hasMoreTokens ())
+           {
+
+               String tok = t.nextToken ().trim ();
+
+               if (!ts.contains (tok))
+               {
+
+                   ts.add (tok);
+
+               }
+
+           }
+
+       }
+
+       Collections.sort (ts);
+
+       typeF.setItems (ts);
+
+       // Description
+       cdescF = new ObjectDescriptionUserConfigurableObjectTypeField ();
+
+       cdescF.setUserConfigurableObjectType (qobjType);
+       cdescF.setSearchable (true);
+       /*
+       cdescF.setFormName (Environment.getUIString (LanguageStrings.assets,
+                                                    LanguageStrings.legacyfields,
+                                                    LanguageStrings.description));
+       */
+       //LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_FORM_NAME);
+       cdescF.setLegacyFieldId (LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_ID);
+
+       qobjType.setConfigurableFields (Arrays.asList (nameF, typeF, cdescF));
+
+       project.addUserConfigurableObjectType (qobjType);
+
+       // Research items
+       UserConfigurableObjectType riType = new UserConfigurableObjectType (project);
+
+       //riType.setObjectTypeName (Environment.getObjectTypeName (ResearchItem.OBJECT_TYPE));
+       //riType.setObjectTypeNamePlural (Environment.getObjectTypeNamePlural (ResearchItem.OBJECT_TYPE));
+       riType.setLayout (null);
+       riType.setAssetObjectType (true);
+       // TODO DO! riType.setCreateShortcutKeyStroke (KeyStroke.getKeyStroke ("ctrl shift R"));
+       riType.setIcon16x16 (new Image (Utils.getResourceStream (Constants.LEGACY_RESEARCHITEM_SMALL_ICON_IMAGE_NAME)));
+       riType.setIcon24x24 (new Image (Utils.getResourceStream (Constants.LEGACY_RESEARCHITEM_LARGE_ICON_IMAGE_NAME)));
+
+       /*
+       TODO
+       riType.setIcon24x24 (Environment.getObjectIcon (ResearchItem.OBJECT_TYPE,
+                                                       Constants.ICON_TITLE));
+       riType.setIcon16x16 (Environment.getObjectIcon (ResearchItem.OBJECT_TYPE,
+                                                       Constants.ICON_SIDEBAR));
+       */
+       riType.setUserObjectType (ResearchItem.OBJECT_TYPE);
+
+       // Name
+       nameF = new ObjectNameUserConfigurableObjectTypeField ();
+
+       nameF.setUserConfigurableObjectType (riType);
+       /*
+       nameF.setFormName (Environment.getUIString (LanguageStrings.assets,
+                                                   LanguageStrings.legacyfields,
+                                                   LanguageStrings.name));
+       */
+       //LegacyUserConfigurableObject.NAME_LEGACY_FIELD_FORM_NAME);
+       nameF.setLegacyFieldId (LegacyUserConfigurableObject.NAME_LEGACY_FIELD_ID);
+
+       // Web link
+       WebpageUserConfigurableObjectTypeField webF = new WebpageUserConfigurableObjectTypeField ();
+
+       webF.setUserConfigurableObjectType (riType);
+       webF.setLegacyFieldId (ResearchItem.WEB_PAGE_LEGACY_FIELD_ID);
+       /*
+       webF.setFormName (Environment.getUIString (LanguageStrings.assets,
+                                                  LanguageStrings.legacyfields,
+                                                  LanguageStrings.webpage));
+       */
+                         //ResearchItem.WEB_PAGE_LEGACY_FIELD_FORM_NAME);
+
+       // Description
+       cdescF = new ObjectDescriptionUserConfigurableObjectTypeField ();
+
+       cdescF.setUserConfigurableObjectType (riType);
+       cdescF.setSearchable (true);
+       /*
+       cdescF.setFormName (Environment.getUIString (LanguageStrings.assets,
+                                                    LanguageStrings.legacyfields,
+                                                    LanguageStrings.description));
+       */
+       //LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_FORM_NAME);
+       cdescF.setLegacyFieldId (LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_ID);
+
+       riType.setConfigurableFields (Arrays.asList (nameF, webF, cdescF));
+
+       project.addUserConfigurableObjectType (riType);
+
+   }
 
     public ResultSet executeQuery (String     sql,
                                    List       params,

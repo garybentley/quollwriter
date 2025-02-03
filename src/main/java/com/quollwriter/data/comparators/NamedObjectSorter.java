@@ -3,49 +3,24 @@ package com.quollwriter.data.comparators;
 import java.util.*;
 
 import com.quollwriter.*;
-import com.quollwriter.ui.*;
+import com.quollwriter.ui.fx.*;
 import com.quollwriter.data.*;
 
 public class NamedObjectSorter implements Comparator<NamedObject>, ProjectEventListener
 {
 
-    private static NamedObjectSorter sorter = null;
-
     private Map<String, Integer> objectTypeOrder = new HashMap<> ();
 
     private ChapterItemSorter chapterItemComp = new ChapterItemSorter ();
 
-    public static NamedObjectSorter getInstance ()
+    public NamedObjectSorter (Project proj)
     {
 
-        if (NamedObjectSorter.sorter == null)
-        {
-
-            Object o = new Object ();
-
-            synchronized (o)
-            {
-
-                NamedObjectSorter.sorter = new NamedObjectSorter ();
-
-                // TODO Environment.addUserProjectEventListener (NamedObjectSorter.sorter);
-
-            }
-
-        }
-
-        return NamedObjectSorter.sorter;
+        this.initOrder (proj);
 
     }
 
-    protected NamedObjectSorter()
-    {
-
-        this.initOrder ();
-
-    }
-
-    private void initOrder ()
+    private void initOrder (Project proj)
     {
 
         // We lock here on the object we will change, we don't want to be in a situation where
@@ -66,13 +41,18 @@ public class NamedObjectSorter implements Comparator<NamedObject>, ProjectEventL
             m.put (Note.OBJECT_TYPE,
                    ind++);
 
-            Set<UserConfigurableObjectType> assetObjTypes = Environment.getAssetUserConfigurableObjectTypes (true);
-
-            for (UserConfigurableObjectType type : assetObjTypes)
+            if (proj != null)
             {
 
-                m.put (type.getObjectTypeId (),
-                       ind++);
+                Set<UserConfigurableObjectType> assetObjTypes = proj.getAssetUserConfigurableObjectTypes (true);
+
+                for (UserConfigurableObjectType type : assetObjTypes)
+                {
+
+                    m.put (type.getObjectTypeId (),
+                           ind++);
+
+                }
 
             }
 
@@ -94,13 +74,6 @@ public class NamedObjectSorter implements Comparator<NamedObject>, ProjectEventL
     @Override
     public void eventOccurred (ProjectEvent ev)
     {
-
-        if (ev.getType ().equals (ProjectEvent.USER_OBJECT_TYPE))
-        {
-
-            this.initOrder ();
-
-        }
 
     }
 
@@ -194,7 +167,7 @@ public class NamedObjectSorter implements Comparator<NamedObject>, ProjectEventL
                 return 0;
 
             }
-            
+
             if (c1.getBook () == c2.getBook ())
             {
 

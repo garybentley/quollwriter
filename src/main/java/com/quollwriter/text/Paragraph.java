@@ -4,12 +4,11 @@ import java.text.*;
 import java.util.*;
 
 import com.quollwriter.*;
-import com.quollwriter.ui.components.*;
 
 public class Paragraph implements TextBlock<NoTextBlock, Paragraph, Sentence>
 {
 
-    private List<Sentence> sentences = new ArrayList ();
+    private List<Sentence> sentences = new ArrayList<> ();
     private int start = -1;
     private String paragraph = null;
     private Paragraph next = null;

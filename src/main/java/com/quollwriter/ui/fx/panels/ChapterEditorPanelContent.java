@@ -28,7 +28,6 @@ import static com.quollwriter.LanguageStrings.*;
 /**
  * A base class for content that is suitable for display within a panel for a specific named object.
  */
-//public abstract class ChapterEditorPanelContent<E extends AbstractProjectViewer, P extends javax.swing.JComponent> extends NamedObjectPanelContent<E, Chapter>
 public abstract class ChapterEditorPanelContent<E extends AbstractProjectViewer> extends NamedObjectPanelContent<E, Chapter>
 {
 

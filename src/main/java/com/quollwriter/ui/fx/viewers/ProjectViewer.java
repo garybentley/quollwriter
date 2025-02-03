@@ -546,38 +546,6 @@ public class ProjectViewer extends AbstractProjectViewer
         CommandId.editoutlineitem));
 
     }
-/*
-    public void runCommand (String        id,
-                            Runnable      runAfter,
-                            DataObject... context)
-    {
-
-        Command c = this.getActionMapping (id);
-
-        if (c == null)
-        {
-
-            throw new IllegalArgumentException ("Unable to find command with id: " + id);
-
-        }
-
-        if (c instanceof ProjectViewerCommand)
-        {
-
-            ProjectViewerCommand pvc = (ProjectViewerCommand) c;
-
-            pvc.run (context);
-
-            return;
-
-        }
-
-        super.<DataObject>runCommand (id,
-                          runAfter,
-                          context);
-
-    }
-*/
 
     public void createNewScene (Chapter c,
                                 int     pos)
@@ -631,7 +599,7 @@ public class ProjectViewer extends AbstractProjectViewer
 
         this.setMainSideBar (this.sidebar);
 
-        this.addSetChangeListener (Environment.getAllTags (),
+        this.addSetChangeListener (this.getProject ().getAllTags (),
                                    ev ->
         {
 
@@ -1254,26 +1222,6 @@ public class ProjectViewer extends AbstractProjectViewer
                             doAfterView);
 
         }
-/*
-        if (d instanceof Note)
-        {
-
-            this.viewNote ((Note) d);
-
-            return true;
-
-        }
-        */
-/*
-        if (d instanceof OutlineItem)
-        {
-
-            this.viewOutlineItem ((OutlineItem) d);
-
-            return true;
-
-        }
-*/
         // Record the error, then ignore.
         // TODO throw new GeneralException ("Unable to open object");
 
@@ -1436,73 +1384,6 @@ public class ProjectViewer extends AbstractProjectViewer
 
     }
 
-    public void addChapterToTreeAfterX (Chapter newChapter,
-                                       Chapter addAfter)
-    {
-/*
-TODO
-        DefaultTreeModel model = (DefaultTreeModel) this.getChapterTree ().getModel ();
-
-        DefaultMutableTreeNode cNode = new DefaultMutableTreeNode (newChapter);
-
-        if (addAfter == null)
-        {
-
-            // Get the book node.
-            TreePath tp = UIUtils.getTreePathForUserObject ((DefaultMutableTreeNode) model.getRoot (),
-                                                            newChapter.getBook ());
-
-            if (tp != null)
-            {
-
-                DefaultMutableTreeNode node = (DefaultMutableTreeNode) tp.getLastPathComponent ();
-
-                model.insertNodeInto (cNode,
-                                      (MutableTreeNode) node,
-                                      0);
-
-            } else
-            {
-
-                DefaultMutableTreeNode root = (DefaultMutableTreeNode) model.getRoot ();
-
-                model.insertNodeInto (cNode,
-                                      root,
-                                      root.getChildCount ());
-
-            }
-
-        } else
-        {
-
-            // Get the "addAfter" node.
-            DefaultMutableTreeNode node = (DefaultMutableTreeNode) UIUtils.getTreePathForUserObject ((DefaultMutableTreeNode) model.getRoot (),
-                                                                                                     addAfter).getLastPathComponent ();
-
-            model.insertNodeInto (cNode,
-                                  (MutableTreeNode) node.getParent (),
-                                  node.getParent ().getIndex (node) + 1);
-
-        }
-
-        this.getChapterTree ().setSelectionPath (new TreePath (cNode.getPath ()));
-*/
-    }
-
-    public void openObjectSectionX (Asset a)
-    {
-
-        // TODO this.sideBar.setObjectsOpen (a.getUserConfigurableObjectType ().getObjectTypeId ());
-
-    }
-
-    public void openObjectSectionX (String objType)
-    {
-
-        // TODO this.sideBar.setObjectsOpen (objType);
-
-    }
-
     public void showIdeaBoard ()
     {
 
@@ -1604,6 +1485,9 @@ TODO
         }
 
         this.deleteObject (o);
+
+        super.deleteObject (o,
+                            deleteChildObjects);
 
     }
 
@@ -2106,7 +1990,6 @@ TODO
                                              getUILanguageStringProperty (Arrays.asList (assets,delete,actionerror),
                                                                           a.getObjectTypeName (),
                                                                           a.getName ()));
-                                      //"Unable to remove " + Environment.getObjectTypeName (a));
 
             return;
 
@@ -2159,8 +2042,6 @@ TODO
             ComponentUtils.showErrorMessage (this,
                                              getUILanguageStringProperty (Arrays.asList (LanguageStrings.project,actions,deletechapter,actionerror),
                                                                           c.getName ()));
-                                      //"Unable to delete " +
-                                      //Environment.getObjectTypeName (c));
 
             return;
 
@@ -2274,10 +2155,6 @@ TODO
                     l = Utils.stripEnd (p.getEditor ().getText ()).length ();
 
                     _textPos = Math.min (textPos, l);
-
-                    // See if we are on the last line (it may be that the user is in the icon
-                    // column).
-                    //Rectangle2D pp = p.getEditor ().modelToView2D (_textPos);
 
                 } else {
 
@@ -2731,7 +2608,7 @@ TODO
 
         }
 
-        Set<UserConfigurableObjectType> types = Environment.getAssetUserConfigurableObjectTypes (true);
+        Set<UserConfigurableObjectType> types = this.project.getAssetUserConfigurableObjectTypes (true);
 
         for (UserConfigurableObjectType type : types)
         {
@@ -3077,65 +2954,6 @@ TODO
                                           ProjectEvent.Type.userobjecttype,
                                           ProjectEvent.Action.changed,
                                           field.getUserConfigurableObjectType ());
-
-    }
-
-    /**
-     * Save a tag, this will either create or update it.
-     *
-     * @param tag The tag.
-     * @throws GeneralException If the tag can't be saved.
-     */
-    public void saveTag (Tag tag)
-                  throws GeneralException
-    {
-
-        ProjectEvent.Action ev = ProjectEvent.Action.changed;
-
-        if (tag.getKey () == null)
-        {
-
-            ev = ProjectEvent.Action._new;
-
-        }
-
-        this.dBMan.saveObject (tag);
-
-        if (ev.equals (ProjectEvent.Action._new))
-        {
-
-            this.project.addTag (tag);
-
-        }
-
-        // Tell all projects about it.
-        Environment.fireUserProjectEvent (tag,
-                                          ProjectEvent.Type.tag,
-                                          ev,
-                                          tag);
-
-    }
-
-    /**
-     * Delete a tag.
-     *
-     * @param tag The tag to delete.
-     * @throws GeneralException If the delete goes wrong.
-     */
-    public void deleteTag (Tag tag)
-                    throws GeneralException
-    {
-
-        this.dBMan.deleteObject (tag,
-                                 true);
-
-        this.project.removeTag (tag);
-
-        // Tell all projects about it.
-        Environment.fireUserProjectEvent (tag,
-                                          ProjectEvent.Type.tag,
-                                          ProjectEvent.Action.delete,
-                                          tag);
 
     }
 

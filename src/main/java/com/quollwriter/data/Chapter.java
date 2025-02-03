@@ -4,9 +4,6 @@ import java.io.*;
 
 import java.util.*;
 
-import javax.swing.text.Position;
-import javax.swing.text.Document;
-
 import javafx.collections.*;
 import javafx.beans.property.*;
 
@@ -53,10 +50,10 @@ public class Chapter extends LegacyUserConfigurableObject
     private EventSource<ChapterItem.ChapterItemEvent> chapterItemsPositionEventSource = new EventSource<> ();
     private Map<ChapterItem, List<Subscription>> eventSourceSubscriptions = new HashMap<> ();
 
-    public Chapter()
+    public Chapter (Book b)
     {
 
-        super (Chapter.OBJECT_TYPE);
+        super (b.getProject ().getUserConfigurableObjectType (Chapter.OBJECT_TYPE));
 
         this.outlineItems.addListener ((SetChangeListener<OutlineItem>) ev ->
         {
@@ -204,15 +201,6 @@ public class Chapter extends LegacyUserConfigurableObject
 
     }
 
-    public Chapter(Book b)
-    {
-
-        this ();
-
-        this.setBook (b);
-
-    }
-
     public Chapter(Book   b,
                    String name)
     {
@@ -222,14 +210,14 @@ public class Chapter extends LegacyUserConfigurableObject
         this.setName (name);
 
     }
-
+/*
     protected Chapter(String objType)
     {
 
         super (objType);
 
     }
-
+*/
     public EventStream<CollectionEvent<? extends ChapterItem>> chapterItemsEvents ()
     {
 
@@ -262,19 +250,6 @@ public class Chapter extends LegacyUserConfigurableObject
         }
 
         return false;
-
-    }
-
-    public void initProblemFinderIgnoreDocumentPositions (Document doc)
-                                                   throws Exception
-    {
-
-        for (Issue i : this.problemFinderIgnores)
-        {
-
-            i.setStartPosition (doc.createPosition (i.getStartIssuePosition ()));
-
-        }
 
     }
 
@@ -1507,25 +1482,6 @@ TODO Remove
         }
 
         return newNotes;
-
-    }
-
-    /*
-     * Do not use, swing method.
-     */
-    @Deprecated
-    public void setTextEditPosition (Position p)
-    {
-
-        //this.textEditPos = p;
-
-        if (p == null)
-        {
-
-            //this.editPosition = -1;
-            //this.editPositionProp.setValue (-1);
-
-        }
 
     }
 

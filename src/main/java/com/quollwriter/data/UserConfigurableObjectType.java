@@ -41,8 +41,9 @@ public class UserConfigurableObjectType extends NamedObject
     private ObjectNameUserConfigurableObjectTypeField primaryNameField = null;
     private ListChangeListener<UserConfigurableObjectTypeField> fieldsListener = null;
     private boolean ignoreFieldsStateChanges = false;
+    private Project project = null;
 
-    public UserConfigurableObjectType ()
+    public UserConfigurableObjectType (Project forProject)
     {
 
         super (OBJECT_TYPE);
@@ -52,6 +53,7 @@ public class UserConfigurableObjectType extends NamedObject
         this.icon16x16Prop = new SimpleObjectProperty<> ();
         this.icon24x24Prop = new SimpleObjectProperty<> ();
         this.sortableFieldsColumns = FXCollections.observableList (new ArrayList<> ());
+        this.project = forProject;
 
         this.fieldsListener = ch ->
         {
@@ -141,8 +143,6 @@ public class UserConfigurableObjectType extends NamedObject
             this.setProperty (Constants.USER_CONFIGURABLE_OBJECT_TYPE_SORTABLE_FIELDS_LAYOUT_PROPERTY_NAME,
                               this.getSortableFieldsState ().asString ());
 
-            Environment.updateUserConfigurableObjectType (this);
-
         } catch (Exception e) {
 
             Environment.logError ("Unable to set fields layout to: " +
@@ -180,6 +180,21 @@ public class UserConfigurableObjectType extends NamedObject
         this.addToStringProperties (props,
                                     "fields",
                                     this.getConfigurableFields ().size ());
+
+        try
+        {
+
+            this.addToStringProperties (props,
+                                        "columnState",
+                                        this.getSortableFieldsState ().asString ());
+
+        } catch (Exception e) {
+
+            this.addToStringProperties (props,
+                                        "columnState",
+                                        "Unable to encode state: " + e);
+
+        }
 
     }
 
@@ -629,6 +644,44 @@ public class UserConfigurableObjectType extends NamedObject
 
     }
 
+    /**
+     * Get the field by the form name (ignoring case)
+     */
+    public UserConfigurableObjectTypeField getConfigurableFieldByFormName (String formName)
+    {
+
+        return this.getConfigurableFields ().stream ()
+        .filter (t -> name.equalsIgnoreCase (t.getFormName ()))
+        .findFirst ()
+        .orElse (null);
+
+    }
+
+    /**
+     * Get the field by the name (ignoring case)
+     */
+    public UserConfigurableObjectTypeField getConfigurableFieldByName (String name)
+    {
+
+        return this.getConfigurableFields ().stream ()
+        .filter (t ->
+        {
+
+            if (name == null)
+            {
+
+                return false;
+
+            }
+
+            return name.equalsIgnoreCase (t.getName ());
+
+        })
+        .findFirst ()
+        .orElse (null);
+
+    }
+
     public Set<UserConfigurableObjectTypeField> getConfigurableFields ()
     {
 
@@ -642,7 +695,11 @@ public class UserConfigurableObjectType extends NamedObject
         }
 
         this.sortableFieldsColumns.stream ()
-            .forEach (c -> fields.addAll (c.fields ()));
+            .forEach (c ->
+            {
+                fields.addAll (c.fields ());
+
+            });
 
         return fields;
 
@@ -759,35 +816,7 @@ TODO REmove
 
     }
 */
-/*
-TODO Remove
-    public void removeConfigurableField (UserConfigurableObjectTypeField f)
-    {
 
-        if (f instanceof ObjectNameUserConfigurableObjectTypeField)
-        {
-
-            throw new IllegalArgumentException ("Cant remove the object name field.");
-
-        }
-
-        this.fields.remove (f);
-
-        f.setUserConfigurableObjectType (null);
-
-        int i = 0;
-
-        for (UserConfigurableObjectTypeField _f : this.fields)
-        {
-
-            _f.setOrder (i);
-
-            i++;
-
-        }
-
-    }
-    */
 /*
     public void reorderFields ()
     {
@@ -868,6 +897,25 @@ TODO Remove
         }
 
         return c;
+
+    }
+
+    /**
+     * Warning!  This shouldn't really be used.  It is a hack to allow the fields/types to be copied from
+     * one db to another.
+     * The primary name field can only be set if it is currently null, otherwise an IllegalStateException is thrown.
+     */
+    public void setPrimaryNameField (ObjectNameUserConfigurableObjectTypeField f)
+    {
+
+        if (this.primaryNameField != null)
+        {
+
+            throw new IllegalStateException ("Primary name field already set");
+
+        }
+
+        this.primaryNameField = f;
 
     }
 
@@ -1140,6 +1188,49 @@ TODO Remove
 
     }
 
+    public UserConfigurableObjectTypeField getField (long key)
+    {
+
+        UserConfigurableObjectTypeField f = this.getConfigurableFields ().stream ()
+            .filter (l -> l.getKey () == key)
+            .findFirst ()
+            .orElse (null);
+
+        if (f == null)
+        {
+
+            // See if we have a mapping.
+            String prop = this.project.getProperty ("userConfigObjTypeFieldsEnvToProjKeyMap");
+
+            if (prop != null)
+            {
+
+                Map m = (Map) JSONDecoder.decode (prop);
+
+                Double v = (Double) m.get (String.valueOf (key));
+
+                if (v == null)
+                {
+
+                    return null;
+
+                }
+
+                long nkey = v.longValue ();
+
+                f = this.getConfigurableFields ().stream ()
+                    .filter (l -> l.getKey () == nkey)
+                    .findFirst ()
+                    .orElse (null);
+
+            }
+
+        }
+
+        return f;
+
+    }
+
     public String getObjectTypeId ()
     {
 
@@ -1162,6 +1253,14 @@ TODO Remove
             }
 
         }
+
+    }
+
+    public void addFieldToColumn (int                             ind,
+                                  UserConfigurableObjectTypeField f)
+    {
+
+        this.getSortableFieldsColumns ().get (ind).addField (f);
 
     }
 

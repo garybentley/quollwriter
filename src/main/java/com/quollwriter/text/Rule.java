@@ -26,10 +26,6 @@ public interface Rule<E extends TextBlock>
     public String getSummary ();
 
     public void setSummary (String i);
-/*
-    public List<Issue> getIssues (String  sentence,
-                                  boolean inDialogue);
-*/
 
     public List<Issue> getIssues (E block);
 
@@ -48,17 +44,9 @@ public interface Rule<E extends TextBlock>
 
     public boolean isUserRule ();
 
-    public String getEditFormTitle (boolean add);
-
-    public com.quollwriter.ui.forms.Form getEditForm (java.awt.event.ActionListener        onSaveComplete,
-                             java.awt.event.ActionListener        onCancel,
-                             com.quollwriter.ui.AbstractProjectViewer viewer,
-                             boolean               add);
-
     public void updateFromForm ();
-    public void updateFromForm2 ();
 
-    public Set<Form.Item> getFormItems2 ();
-    public StringProperty getFormError2 ();
+    public Set<Form.Item> getFormItems ();
+    public StringProperty getFormError ();
 
 }

@@ -17,10 +17,10 @@ public class QObject extends LegacyAsset
 
     private String type = null;
 
-    public QObject ()
+    public QObject (UserConfigurableObjectType objType)
     {
 
-        super (QObject.OBJECT_TYPE);
+        super (objType);
 
     }
 

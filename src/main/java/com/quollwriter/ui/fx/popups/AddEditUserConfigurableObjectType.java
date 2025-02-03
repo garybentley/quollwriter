@@ -16,7 +16,7 @@ import com.quollwriter.ui.fx.viewers.*;
 import static com.quollwriter.LanguageStrings.*;
 import static com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty;
 
-public class AddEditUserConfigurableObjectType extends PopupContent<AbstractViewer>
+public class AddEditUserConfigurableObjectType extends PopupContent<AbstractProjectViewer>
 {
 
     public static final String POPUP_ID = "userconfigobjtype";
@@ -26,16 +26,16 @@ public class AddEditUserConfigurableObjectType extends PopupContent<AbstractView
     private ImageSelector smallIcon = null;
     private ImageSelector bigIcon = null;
 
-    public AddEditUserConfigurableObjectType (AbstractViewer viewer)
+    public AddEditUserConfigurableObjectType (AbstractProjectViewer viewer)
     {
 
-        this (new UserConfigurableObjectType (),
+        this (new UserConfigurableObjectType (viewer.getProject ()),
               viewer);
 
     }
 
     public AddEditUserConfigurableObjectType (UserConfigurableObjectType type,
-                                              AbstractViewer             viewer)
+                                              AbstractProjectViewer      viewer)
     {
 
         super (viewer);
@@ -276,7 +276,7 @@ public class AddEditUserConfigurableObjectType extends PopupContent<AbstractView
             }
 
             // Check that the name(s) aren't already in use.
-            Set<UserConfigurableObjectType> types = Environment.getAssetUserConfigurableObjectTypes (false);
+            Set<UserConfigurableObjectType> types = this.viewer.getProject ().getAssetUserConfigurableObjectTypes (false);
 
             for (UserConfigurableObjectType t : types)
             {
@@ -342,8 +342,17 @@ public class AddEditUserConfigurableObjectType extends PopupContent<AbstractView
 
                 }
 
-                Environment.updateUserConfigurableObjectType (this.type);
+                // Save the type.
+                this.viewer.saveObject (this.type,
+                                        false);
 
+                this.viewer.getProject ().addUserConfigurableObjectType (this.type);
+
+                this.type.updateSortableFieldsState ();
+
+                this.viewer.saveObject (this.type,
+                                        false);
+                
                 if ((showAdd)
                     &&
                     (this.viewer instanceof ProjectViewer)

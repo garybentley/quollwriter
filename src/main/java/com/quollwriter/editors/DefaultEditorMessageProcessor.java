@@ -1,11 +1,6 @@
 package com.quollwriter.editors;
 
-import java.awt.event.*;
-import java.awt.image.*;
-
 import java.util.*;
-
-//import javafx.embed.swing.*;
 
 import org.bouncycastle.openpgp.*;
 

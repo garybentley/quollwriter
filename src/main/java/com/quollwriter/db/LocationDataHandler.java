@@ -35,7 +35,7 @@ public class LocationDataHandler implements DataHandler<Location, Project>
 
             long key = rs.getLong (ind++);
 
-            Location l = new Location ();
+            Location l = new Location (proj.getUserConfigurableObjectType (Location.OBJECT_TYPE));
             l.setKey (key);
 
             // Load the object fields.

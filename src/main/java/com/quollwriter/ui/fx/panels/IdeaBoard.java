@@ -197,10 +197,10 @@ System.out.println ("HERE");
                                  null,
                                  false);
 
-                for (UserConfigurableObjectType type : Environment.getAssetUserConfigurableObjectTypes (true))
+                for (UserConfigurableObjectType type : this.viewer.getProject ().getAssetUserConfigurableObjectTypes (true))
                 {
 
-                    this.addNewType (Environment.getObjectTypeNamePlural (type).getValue (),
+                    this.addNewType (type.getObjectTypeNamePlural (),
                                      type.getObjectTypeId (),
                                      false);
 
@@ -942,11 +942,13 @@ System.out.println ("HERE");
                         if (type.getIconType ().startsWith ("asset:"))
                         {
 
-                            t = Environment.getUserConfigurableObjectType (Long.parseLong (type.getIconType ().substring ("asset:".length ())));
+                            t = this.board.getViewer ().getProject ().getUserConfigurableObjectType (Long.parseLong (type.getIconType ().substring ("asset:".length ())));
+                            //t = Environment.getUserConfigurableObjectType (Long.parseLong (type.getIconType ().substring ("asset:".length ())));
 
                         } else {
 
-                            t = Environment.getUserConfigurableObjectType (type.getIconType ());
+                            t = this.board.getViewer ().getProject ().getUserConfigurableObjectType (type.getIconType ());
+                            //t = Environment.getUserConfigurableObjectType (type.getIconType ());
 
                         }
 

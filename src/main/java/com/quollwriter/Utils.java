@@ -22,8 +22,6 @@ import javafx.beans.property.*;
 import org.dom4j.*;
 import org.dom4j.tree.*;
 
-import com.quollwriter.ui.*;
-
 import com.quollwriter.data.*;
 import com.quollwriter.events.*;
 
@@ -622,7 +620,7 @@ TODO Remove
         }
 
     }
-
+/*
     public static void getContentFromURL (final URL     url,
                                           final Map<String, String> headers,
                                           final ActionListener      onSuccess,
@@ -782,7 +780,7 @@ TODO Remove
         }).start ();
 
     }
-
+*/
     public static void postToURL (final URL                                      url,
                                   final Map<String, String>                      headers,
                                   final String                                   content,

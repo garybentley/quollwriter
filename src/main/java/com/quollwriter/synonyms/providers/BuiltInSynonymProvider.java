@@ -400,6 +400,13 @@ public class BuiltInSynonymProvider implements SynonymProvider
         StringTokenizer t = new StringTokenizer (line,
                                                  ",");
 
+        if (t.countTokens () == 0)
+        {
+
+            return null;
+
+        }
+
         // First token is the word.
         String w = t.nextToken ();
 

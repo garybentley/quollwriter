@@ -19,8 +19,7 @@ import java.util.Collections;
 import java.util.Collection;
 import java.util.Set;
 import java.util.TreeSet;
-
-import java.awt.event.*;
+import java.nio.charset.Charset;
 
 import javafx.collections.*;
 import javafx.scene.paint.*;
@@ -68,7 +67,6 @@ public class UserProperties
     public static final String DEFAULT_SEPARATOR = "|";
 
     private static com.gentlyweb.properties.Properties props = new com.gentlyweb.properties.Properties ();
-    private static Map<UserPropertyListener, Object> listeners = null;
     private static Path qwDir = null;
 
     private static Map<String, SimpleBooleanProperty> mappedBooleanProperties = new HashMap<> ();
@@ -103,9 +101,6 @@ public class UserProperties
     private static ObservableSet<String> warmupViewerHeaderControlButtonIds = null;
     private static ObservableSet<String> languageStringsEditorHeaderControlButtonIds = null;
 
-    // Just used in the map above as a placeholder for the listeners.
-    private static final Object listenerFillObj = new Object ();
-
     private static SetChangeListener projectStatusesListener = null;
     private static SetChangeListener<Color> userColorsListener = null;
 
@@ -135,13 +130,9 @@ public class UserProperties
     private static SimpleObjectProperty<LocalTime> autoNightModeToProp = null;
     private static SimpleObjectProperty<LocalTime> autoNightModeFromProp = null;
     private static SimpleBooleanProperty permanentNightModeEnabledProp = null;
+    private static SimpleObjectProperty<Color> nightModeBGColorProp = null;
 
-    static
-    {
-
-        UserProperties.listeners = Collections.synchronizedMap (new WeakHashMap<> ());
-
-    }
+    private static Path nightModeBGColorTempStylesheet = null;
 
     private UserProperties ()
     {
@@ -187,7 +178,6 @@ public class UserProperties
         {
 
             UserProperties.setKeyStrokeSoundFilePath ((sf != null ? Paths.get (sf) : null));
-            //Utils.getResourceUrl (sf).toURI ()) : null));
 
         } catch (Exception e) {
 
@@ -273,6 +263,47 @@ public class UserProperties
                                 UIUtils.colorToHex (newv));
 
         });
+
+        UserProperties.nightModeBGColorProp = new SimpleObjectProperty<> ();
+
+        col = UserProperties.get (Constants.NIGHT_MODE_BG_COLOR_PROPERTY_NAME);
+
+        UserProperties.nightModeBGColorProp.setValue (UIUtils.hexToColor (col));
+
+        UserProperties.nightModeBGColorTempStylesheet = Files.createTempFile ("night-mode", ".css");
+        UserProperties.nightModeBGColorTempStylesheet.toFile ().deleteOnExit ();
+
+        UserProperties.nightModeBGColorProp.addListener ((pr, oldv, newv) ->
+        {
+
+            UserProperties.set (Constants.NIGHT_MODE_BG_COLOR_PROPERTY_NAME,
+                                UIUtils.colorToHex (newv));
+
+            try
+            {
+
+                Environment.getStyleSheets ().remove (UserProperties.nightModeBGColorTempStylesheet.toUri ().toURL ());
+
+                Files.writeString (UserProperties.nightModeBGColorTempStylesheet,
+                                   ".root:night{-qw-bg-color: " + UIUtils.colorToHex (UserProperties.nightModeBGColorProp.getValue ()) + ";}",
+                                   Charset.forName ("utf-8"));
+
+                Environment.getStyleSheets ().add (UserProperties.nightModeBGColorTempStylesheet.toUri ().toURL ());
+
+            } catch (Exception e) {
+
+                Environment.logError ("Unable to update night mode bg color",
+                                      e);
+
+            }
+
+        });
+
+        Files.writeString (UserProperties.nightModeBGColorTempStylesheet,
+                           ".root:night{-qw-bg-color: " + UIUtils.colorToHex (UserProperties.nightModeBGColorProp.getValue ()) + ";}",
+                           Charset.forName ("utf-8"));
+
+        Environment.getStyleSheets ().add (UserProperties.nightModeBGColorTempStylesheet.toUri ().toURL ());
 
         UserProperties.permanentNightModeEnabledProp = UserProperties.createMappedBooleanProperty (Constants.NIGHT_MODE_ENABLE_PERMENANTLY_PROPERTY_NAME);
 
@@ -548,23 +579,13 @@ public class UserProperties
 
         String f = UserProperties.get (Constants.UI_BASE_FONT_PROPERTY_NAME);
 
-        //Font font = Font.getDefault ();
-
         if (f != null)
         {
 
-            //font = Font.font (f);
             UserProperties.uiBaseFontProp.setValue (Font.font (f));
 
         }
-/*
-        if (font == null)
-        {
 
-            font = Font.getDefault ();
-
-        }
-*/
         UserProperties.uiBaseFontProp.addListener ((pr, oldv, newv) ->
         {
 
@@ -1369,6 +1390,20 @@ public class UserProperties
     {
 
         return UserProperties.backupsToKeepCountProp;
+
+    }
+
+    public static void setNightModeBGColor (Color c)
+    {
+
+        UserProperties.nightModeBGColorProp.setValue (c);
+
+    }
+
+    public static SimpleObjectProperty<Color> nightModeBGColorProperty ()
+    {
+
+        return UserProperties.nightModeBGColorProp;
 
     }
 
@@ -2283,20 +2318,21 @@ public class UserProperties
         return UserProperties.showEditCompleteIconInChapterListProp;
 
     }
-
+/*
     public static void removeListener (UserPropertyListener l)
     {
 
         UserProperties.listeners.remove (l);
 
     }
-
+*/
     /**
      * Adds a listener for property events.  Warning!  This will be a soft reference that can
      * disappear so make sure you have a strong reference to your listener.
      *
      * @param l The listener.
      */
+     /*
     public static void addListener (UserPropertyListener l)
     {
 
@@ -2304,7 +2340,8 @@ public class UserProperties
                                       UserProperties.listenerFillObj);
 
     }
-
+*/
+/*
     public static void fireUserPropertyEvent (Object                 source,
                                               String                 name,
                                               AbstractProperty       prop,
@@ -2349,17 +2386,17 @@ public class UserProperties
         });
 
     }
-
+*/
     public static void remove (String name)
     {
 
         UserProperties.props.removeProperty (name);
-
+/*
         UserProperties.fireUserPropertyEvent (UserProperties.listenerFillObj,
                                               name,
                                               null,
                                               UserPropertyEvent.Type.removed);
-
+*/
         UserProperties.save ();
 
     }
@@ -2370,12 +2407,12 @@ public class UserProperties
 
         UserProperties.props.setProperty (name,
                                           prop);
-
+/*
         UserProperties.fireUserPropertyEvent (UserProperties.listenerFillObj,
                                               name,
                                               prop,
                                               UserPropertyEvent.Type.changed);
-
+*/
         UserProperties.save ();
 
     }

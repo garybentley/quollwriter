@@ -4,7 +4,6 @@ import java.util.*;
 import java.text.*;
 
 import com.quollwriter.*;
-import com.quollwriter.ui.components.*;
 
 public class Sentence implements TextBlock<Paragraph, Sentence, Word>
 {

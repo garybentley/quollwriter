@@ -389,7 +389,7 @@ public class ProblemFinderRuleConfigPopup extends PopupContent<ProjectViewer>
         b.item (getUILanguageStringProperty (form,labels,LanguageStrings.summary),
                 summary);
 
-        r.getFormItems2 ().stream ()
+        r.getFormItems ().stream ()
             .forEach (i -> b.item (i));
 
         b.item (getUILanguageStringProperty (form,labels,description),
@@ -400,7 +400,7 @@ public class ProblemFinderRuleConfigPopup extends PopupContent<ProjectViewer>
         form.setOnConfirm (ev ->
         {
 
-            StringProperty error = r.getFormError2 ();
+            StringProperty error = r.getFormError ();
 
             if (error != null)
             {
@@ -451,7 +451,7 @@ public class ProblemFinderRuleConfigPopup extends PopupContent<ProjectViewer>
 
             r.setSummary (summ);
 
-            r.updateFromForm2 ();
+            r.updateFromForm ();
 
             try
             {

@@ -1,7 +1,6 @@
 package com.quollwriter.ui.fx;
 
 import java.util.concurrent.*;
-import java.awt.event.*;
 
 import java.io.*;
 import java.util.*;
@@ -18,14 +17,7 @@ import com.quollwriter.text.*;
 public class LanguageStringsImageIdBox extends LanguageStringsIdBox<ImageValue, Path>
 {
 
-    //private AbstractLanguageStringsEditor editor = null;
     private ImageSelector userValue = null;
-    //private ImageValue baseValue = null;
-    //private ImageValue stringsValue = null;
-
-    //private JTextPane errors = null;
-    //private Box errorsWrapper = null;
-    //private JLabel errorsLabel = null;
 
     public LanguageStringsImageIdBox (final ImageValue              baseValue,
                                       final ImageValue              stringsValue,

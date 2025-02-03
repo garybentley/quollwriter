@@ -14,6 +14,13 @@ DROP VIEW IF EXISTS project_v
   </item>
 
   <item>
+    <log>Drop view asset_v</log>
+    <sql>
+DROP VIEW IF EXISTS asset_v
+    </sql>
+  </item>
+
+  <item>
     <log>Drop view chapter_v</log>
     <sql>
 DROP VIEW IF EXISTS chapter_v
@@ -253,7 +260,7 @@ DROP VIEW IF EXISTS namedobject_v
     <log>Create asset_v view</log>
     <sql file="views/asset.v" />
   </item>
-<!--
+
   <item>
     <log>Create userobjecttype_v view</log>
     <sql file="views/userobjecttype.v" />
@@ -268,7 +275,7 @@ DROP VIEW IF EXISTS namedobject_v
     <log>Create tag_v view</log>
     <sql file="views/tag.v" />
   </item>
--->
+
   <item>
     <log>Create userobjectfield_v view</log>
     <sql file="views/userobjectfield.v" />

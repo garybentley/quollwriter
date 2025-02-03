@@ -71,7 +71,7 @@ public class RenameTagPopup extends PopupContent<AbstractProjectViewer>
 
             }
 
-            Tag t = Environment.getTagByName (v);
+            Tag t = viewer.getProject ().getTagByName (v);
 
             if ((t != null)
                 &&
@@ -94,7 +94,7 @@ public class RenameTagPopup extends PopupContent<AbstractProjectViewer>
 
                 this.tag.setName (v.trim ());
 
-                Environment.saveTag (this.tag);
+                viewer.saveTag (this.tag);
 
                 this.close ();
 

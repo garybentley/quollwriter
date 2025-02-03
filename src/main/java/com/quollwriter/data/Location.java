@@ -7,10 +7,10 @@ public class Location extends LegacyAsset
 
     public static final String OBJECT_TYPE = "location";
 
-    public Location ()
+    public Location (UserConfigurableObjectType objType)
     {
 
-        super (Location.OBJECT_TYPE);
+        super (objType);
 
     }
 

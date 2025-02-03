@@ -5,8 +5,6 @@ import java.util.*;
 import javafx.beans.property.*;
 
 import com.quollwriter.*;
-import com.quollwriter.ui.*;
-import com.quollwriter.ui.forms.*;
 import com.quollwriter.text.*;
 
 import com.quollwriter.ui.fx.components.Form;
@@ -43,25 +41,21 @@ public abstract class AbstractRule<E extends TextBlock> implements Rule<E>
 
     }
 
-    public abstract String getEditFormTitle (boolean add);
+    //public abstract String getEditFormTitle (boolean add);
 
-    public abstract Set<com.quollwriter.ui.forms.FormItem> getFormItems ();
-
-    public Set<Form.Item> getFormItems2 ()
+    public Set<Form.Item> getFormItems ()
     {
 
         return null;
 
     }
 
-    public StringProperty getFormError2 ()
+    public StringProperty getFormError ()
     {
 
         return null;
 
     }
-
-    public abstract String getFormError ();
 
     public String getDefaultSummary ()
     {
@@ -197,142 +191,6 @@ public abstract class AbstractRule<E extends TextBlock> implements Rule<E>
         }
 
         return root;
-
-    }
-
-    public com.quollwriter.ui.forms.Form getEditForm (final java.awt.event.ActionListener        onSaveComplete,
-                             final java.awt.event.ActionListener        onCancel,
-                             final AbstractProjectViewer viewer,
-                             final boolean               add)
-    {
-
-        final AbstractRule _this = this;
-
-        Set<FormItem> items = new LinkedHashSet<> ();
-
-        final TextFormItem summary = new TextFormItem (Environment.getUIString (LanguageStrings.form,
-                                                                                LanguageStrings.labels,
-                                                                                LanguageStrings.summary),
-                                                       //"Summary",
-                                                       this.getSummary ());
-
-        items.add (summary);
-
-        items.addAll (this.getFormItems ());
-
-        final MultiLineTextFormItem desc = new MultiLineTextFormItem (Environment.getUIString (LanguageStrings.form,
-                                                                                               LanguageStrings.labels,
-                                                                                               LanguageStrings.description),
-                                                                      //"Description",
-                                                                      viewer,
-                                                                      5);
-        desc.setText (this.getDescription ());
-        desc.setCanFormat (false);
-
-        items.add (desc);
-
-        Map<com.quollwriter.ui.forms.Form.Button, java.awt.event.ActionListener> buttons = new LinkedHashMap<> ();
-
-        buttons.put (com.quollwriter.ui.forms.Form.Button.save,
-                     new java.awt.event.ActionListener ()
-                     {
-
-                        @Override
-                        public void actionPerformed (java.awt.event.ActionEvent ev)
-                        {
-
-                            com.quollwriter.ui.forms.Form f = (com.quollwriter.ui.forms.Form) ev.getSource ();
-
-                            String error = _this.getFormError ();
-
-                            if (error != null)
-                            {
-
-                                f.showError (error);
-
-                                return;
-
-                            }
-
-                            _this.setDescription (desc.getText ().trim ());
-
-                            String summ = summary.getText ();
-
-                            if (summ == null)
-                            {
-
-                                summ = "";
-
-                            } else {
-
-                                summ = summ.trim ();
-
-                            }
-
-                            if (summ.length () == 0)
-                            {
-
-                                summ = _this.getSummary ();
-
-                            }
-
-                            if (summ == null)
-                            {
-
-                                summ = _this.getDefaultSummary ();
-
-                            }
-
-                            if (summ == null)
-                            {
-
-                                f.showError (Environment.getUIString (LanguageStrings.problemfinder,
-                                                                      LanguageStrings.config,
-                                                                      LanguageStrings.entersummaryerror));
-
-                                return;
-
-                            }
-
-                            _this.setSummary (summ);
-
-                            if (onSaveComplete != null)
-                            {
-
-                                onSaveComplete.actionPerformed (new java.awt.event.ActionEvent (_this, 1, "saved"));
-
-                            }
-
-                        }
-
-                     });
-
-        buttons.put (com.quollwriter.ui.forms.Form.Button.cancel,
-                     new java.awt.event.ActionListener ()
-                     {
-
-                        @Override
-                        public void actionPerformed (java.awt.event.ActionEvent ev)
-                        {
-
-                            if (onCancel != null)
-                            {
-
-                                onCancel.actionPerformed (new java.awt.event.ActionEvent (_this, 1, "cancelled"));
-
-                            }
-
-                            return;
-
-                        }
-
-                     });
-
-        com.quollwriter.ui.forms.Form f = new com.quollwriter.ui.forms.Form (com.quollwriter.ui.forms.Form.Layout.stacked,
-                           items,
-                           buttons);
-
-        return f;
 
     }
 

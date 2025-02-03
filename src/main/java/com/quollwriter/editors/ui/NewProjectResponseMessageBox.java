@@ -6,7 +6,6 @@ import javafx.scene.layout.*;
 import javafx.scene.control.*;
 import javafx.scene.*;
 import javafx.scene.image.*;
-import javafx.embed.swing.*;
 
 import com.quollwriter.*;
 import com.quollwriter.data.*;

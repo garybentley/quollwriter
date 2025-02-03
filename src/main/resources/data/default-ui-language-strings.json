@@ -5500,7 +5500,7 @@
                 },
                 "newasset" :
                 {
-                    "text" : "When I add a new ${objectnames.plural.asset} (${objectnames.plural.character}, ${objectnames.plural.location}, etc)",
+                    "text" : "When I add a new ${objectnames.singular.asset} (${objectnames.plural.character}, ${objectnames.plural.location}, etc)",
                     "options" :
                     {
                         "alwayspopup" :

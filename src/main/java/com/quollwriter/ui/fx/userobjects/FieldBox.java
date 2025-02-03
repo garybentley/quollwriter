@@ -85,10 +85,10 @@ public class FieldBox extends VBox
 
         this.getChildren ().add (this.label);
 
-        this.handler = field.getViewEditHandler2 (object,
-                                                  object.getField (field),
-                                                  binder,
-                                                  viewer);
+        this.handler = field.getViewEditHandler (object,
+                                                 object.getField (field),
+                                                 binder,
+                                                 viewer);
 
         this.managedProperty ().bind (this.visibleProperty ());
         this.getStyleClass ().add (StyleClassNames.FIELD);
@@ -471,7 +471,8 @@ public class FieldBox extends VBox
             try
             {
 
-                Environment.updateUserConfigurableObjectTypeField (field);
+                this.viewer.saveObject (field,
+                                        false);
 
             } catch (Exception e) {
 
@@ -504,349 +505,7 @@ public class FieldBox extends VBox
 
         }).show (this.label,
                  Side.BOTTOM);
-/*
-        this.config.setVisible (true);
-        this.view.setVisible (false);
-        List<String> prefix = Arrays.asList (userobjects,fields,LanguageStrings.edit);
-        this.config.getChildren ().clear ();
 
-        Header h = Header.builder ()
-            .title (getUILanguageStringProperty (userobjects,fields,LanguageStrings.edit,title))
-            .build ();
-
-        this.config.getChildren ().add (h);
-
-        UserConfigurableObjectTypeFieldConfigHandler handler = this.field.getConfigHandler2 ();
-
-        QuollTextField nameField = QuollTextField.builder ()
-            .styleClassName (StyleClassNames.NAME)
-            .text (this.field.getName ())
-            .build ();
-
-        Form.Builder fb = Form.builder ()
-            .layoutType (Form.LayoutType.stacked)
-            .item (getUILanguageStringProperty (Utils.newList (prefix,labels,LanguageStrings.name)),
-                   nameField);
-
-        Set<Form.Item> nitems = handler.getExtraFormItems ();
-
-        if ((nitems != null)
-            &&
-            (nitems.size () > 0)
-           )
-        {
-
-            fb.items (nitems);
-
-        }
-
-        Form f = fb.button (getUILanguageStringProperty (buttons,save),
-                            StyleClassNames.SAVE,
-                            ButtonBar.ButtonData.APPLY,
-                            null)
-                   .button (getUILanguageStringProperty (buttons,cancel),
-                            StyleClassNames.CANCEL,
-                            ButtonBar.ButtonData.CANCEL_CLOSE,
-                            ev ->
-                            {
-
-                                this.showView ();
-
-                            })
-                   .build ();
-
-        this.config.getChildren ().add (f);
-
-        f.addEventHandler (Form.FormEvent.CONFIRM_EVENT,
-                           ev ->
-        {
-
-            Set<StringProperty> errs = new LinkedHashSet<> ();
-
-            if (nameField.getText ().trim ().equals (""))
-            {
-
-                errs.add (getUILanguageStringProperty (Utils.newList (prefix,LanguageStrings.errors,LanguageStrings.name,novalue)));
-
-            }
-
-            // Check for the name being the same as another field.
-            String formName = nameField.getText ().trim ();
-            String lformName = formName.toLowerCase ();
-
-            for (UserConfigurableObjectTypeField uf : this.field.getUserConfigurableObjectType ().getConfigurableFields ())
-            {
-
-                if ((!uf.equals (this.field))
-                    &&
-                    (uf.getFormName ().equalsIgnoreCase (lformName))
-                   )
-                {
-
-                    errs.add (getUILanguageStringProperty (Utils.newList (prefix,LanguageStrings.errors,LanguageStrings.name,valueexists),
-                                                           uf.getFormName ()));
-
-                }
-
-            }
-
-            Set<StringProperty> errs2 = handler.getExtraFormItemErrors (this.field.getUserConfigurableObjectType ());
-
-            errs.addAll (errs2);
-
-            if (errs.size () > 0)
-            {
-
-                f.showErrors (errs);
-                return;
-
-            }
-
-            field.setFormName (formName);
-
-            handler.updateFromExtraFormItems ();
-
-        });
-
-*/
-/*
-xxx
-        java.util.List<String> prefix = new ArrayList ();
-        prefix.add (LanguageStrings.userobjects);
-        prefix.add (LanguageStrings.fields);
-        prefix.add (LanguageStrings.edit);
-
-        this.editPanel.removeAll ();
-
-        final FieldsAddEdit _this = this;
-
-        Set<FormItem> items = new LinkedHashSet ();
-
-        final TextFormItem name = new TextFormItem (getUIString (prefix,
-                                                                             LanguageStrings.labels,
-                                                                             LanguageStrings.name),
-                                                                             //"Name",
-                                                    field.getFormName ());
-
-        items.add (name);
-
-        final UserConfigurableObjectTypeFieldConfigHandler handler = field.getConfigHandler ();
-
-        items.add (new AnyFormItem (getUIString (prefix,
-                                                             LanguageStrings.labels,
-                                                             LanguageStrings.name),
-                                                                             //"Type",
-                                    UIUtils.createInformationLabel (field.getType ().getName ())));
-
-        Set<FormItem> nitems = handler.getExtraFormItems ();
-
-        if (nitems == null)
-        {
-
-            nitems = new HashSet ();
-
-        }
-
-        items.addAll (nitems);
-
-        Map<Form.Button, ActionListener> buttons = new LinkedHashMap ();
-
-        buttons.put (Form.Button.save,
-                     new ActionListener ()
-                     {
-
-                        @Override
-                        public void actionPerformed (ActionEvent ev)
-                        {
-
-                            Form f = (Form) ev.getSource ();
-
-                            // Check for the name being the same as another field.
-                            String formName = name.getText ().trim ();
-                            String lformName = formName.toLowerCase ();
-
-                            if (formName.equals (""))
-                            {
-
-                                f.showError (getUIString (prefix,
-                                                                      LanguageStrings.errors,
-                                                                      LanguageStrings.name,
-                                                                      LanguageStrings.novalue));
-                                //f.showError ("The name of the field must be specified.");
-
-                                UIUtils.resizeParent (f);
-
-                                return;
-
-                            }
-
-                            for (UserConfigurableObjectTypeField uf : _this.type.getConfigurableFields ())
-                            {
-
-                                if (!uf.equals (field))
-                                {
-
-                                    if (uf.getFormName ().toLowerCase ().equals (lformName))
-                                    {
-
-                                        f.showError (String.format (getUIString (prefix,
-                                                                                             LanguageStrings.errors,
-                                                                                             LanguageStrings.name,
-                                                                                             LanguageStrings.valueexists),
-                                                                    //"Already have a field called <b>%s</b>.",
-                                                                    uf.getFormName ()));
-
-                                        UIUtils.resizeParent (f);
-
-                                        return;
-
-                                    }
-
-                                }
-
-                            }
-
-                            Set<String> errs = handler.getExtraFormItemErrors (_this.type);
-
-                            if ((errs != null)
-                                &&
-                                (errs.size () > 0)
-                               )
-                            {
-
-                                StringBuilder b = new StringBuilder ();
-
-                                for (String err : errs)
-                                {
-
-                                    if (b.length () > 0)
-                                    {
-
-                                        b.append ("<br />");
-
-                                    }
-
-                                    b.append (err);
-
-                                }
-
-                                f.showError (b.toString ());
-
-                                UIUtils.resizeParent (f);
-
-                                return;
-
-                            }
-
-                            field.setFormName (name.getText ().trim ());
-
-                            handler.updateFromExtraFormItems ();
-
-                            _this.updateField (field);
-
-                            _this.showPanel ("view");
-
-                        }
-
-                     });
-
-        buttons.put (Form.Button.cancel,
-                     new ActionListener ()
-                     {
-
-                        @Override
-                        public void actionPerformed (ActionEvent ev)
-                        {
-
-                            _this.showPanel ("view");
-
-                            return;
-
-                        }
-
-                     });
-
-
-        final Form f = new Form (Form.Layout.stacked,
-                                 items,
-                                 buttons);
-        f.setAlignmentX (Component.LEFT_ALIGNMENT);
-        f.setBorder (UIUtils.createPadding (5, 10, 5, 5));
-
-        if (this.showFormTitles)
-        {
-
-            JComponent h = UIUtils.createBoldSubHeader (getUIString (prefix,
-                                                                                 LanguageStrings.title),
-                                                                                 //"Edit field",
-                                                        null);
-
-            h.setBorder (UIUtils.createPadding (3, 5, 0, 0));
-
-            this.editPanel.add (h);
-
-        }
-
-        this.editPanel.add (f);
-
-        UIUtils.doLater (new ActionListener ()
-        {
-
-            @Override
-            public void actionPerformed (ActionEvent ev)
-            {
-
-                name.requestFocus ();
-
-                UIUtils.resizeParent (_this);
-
-            }
-
-        });
-
-        VBox conf = new VBox ();
-        conf.getStyleClass ().addAll (StyleClassNames.CONFIG);
-        this.getChildren ().clear ();
-        this.getChildren ().add (conf);
-
-        HBox b = new HBox ();
-        VBox v = new VBox ();
-        QuollLabel l = QuollLabel.builder ()
-            .label (this.handler.getField ().nameProperty ())
-            .build ();
-        BasicHtmlTextFlow d = BasicHtmlTextFlow.builder ()
-            .text (this.handler.getField ().getUserConfigurableObjectTypeField ().getConfigHandler ().getConfigurationDescription ())
-            .build ();
-        v.getChildren ().addAll (l, d);
-
-        b.getChildren ().add (v);
-
-        ToolBar tb = new ToolBar ();
-        tb.getStyleClass ().add (StyleClassNames.BUTTONS);
-        tb.getItems ().add (QuollButton.builder ()
-            .styleClassName (StyleClassNames.EDIT)
-            .onAction (ev ->
-            {
-
-                // TODO
-
-            })
-            .build ());
-
-        tb.getItems ().add (QuollButton.builder ()
-            .styleClassName (StyleClassNames.DELETE)
-            .onAction (ev ->
-            {
-
-                // TODO
-
-            })
-            .build ());
-
-        b.getChildren ().add (tb);
-
-        conf.getChildren ().add (b);
-*/
     }
 
     public void showView ()
@@ -911,32 +570,62 @@ xxx
     private void removeField ()
     {
 
-        this.column.getFieldsColumn ().fields ().remove (this.field);
-
-        try
+        this.viewer.doAsTransaction (conn ->
         {
 
-            Environment.removeUserConfigurableObjectTypeField (this.field);
+            this.column.getFieldsColumn ().fields ().remove (this.field);
 
-        } catch (Exception e) {
+            try
+            {
 
-            Environment.logError ("Unable to delete user config object field: " +
-                                  this.field,
-                                  e);
+                // Remove from all assets.
+                Set<Asset> assets = this.viewer.getProject ().getAssets (this.field.getUserConfigurableObjectType ());
 
-            ComponentUtils.showErrorMessage (this.viewer,
-                                             getUILanguageStringProperty (userobjects,fields,delete,actionerror));
-                                      //"Unable to remove the field.");
+                for (Asset a : assets)
+                {
 
-            return;
+                    UserConfigurableObjectField of = a.getField (this.field);
 
-        }
+                    if (of != null)
+                    {
 
-        Environment.fireUserProjectEvent (this.field.getUserConfigurableObjectType (),
-                                          ProjectEvent.Type.userobjecttype,
-                                          ProjectEvent.Action.changed,
-                                          this.field.getUserConfigurableObjectType ());
+                        this.viewer.deleteObject (of,
+                                                  true,
+                                                  conn);
 
+                        a.removeField (of);
+
+                    }
+
+                }
+
+                this.viewer.deleteObject (this.field,
+                                          true,
+                                          conn);
+
+                this.viewer.saveObject (this.field.getUserConfigurableObjectType (),
+                                        conn);
+
+            } catch (Exception e) {
+
+                Environment.logError ("Unable to delete user config object field: " +
+                                      this.field,
+                                      e);
+
+                ComponentUtils.showErrorMessage (this.viewer,
+                                                 getUILanguageStringProperty (userobjects,fields,delete,actionerror));
+                                          //"Unable to remove the field.");
+
+                return;
+
+            }
+
+            Environment.fireUserProjectEvent (this.field.getUserConfigurableObjectType (),
+                                              ProjectEvent.Type.userobjecttype,
+                                              ProjectEvent.Action.changed,
+                                              this.field.getUserConfigurableObjectType ());
+
+        });
 
     }
 

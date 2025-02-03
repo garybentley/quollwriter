@@ -10,8 +10,6 @@ import java.util.Map;
 
 import com.gentlyweb.properties.*;
 
-import com.quollwriter.ui.Stateful;
-import com.quollwriter.ui.AbstractViewer;
 import com.quollwriter.GeneralException;
 import com.quollwriter.data.*;
 

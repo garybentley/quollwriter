@@ -36,7 +36,7 @@ public class UserConfigurableObjectFieldDataHandler implements DataHandler<UserC
                                                             conn);
 
             // Create a fake field.
-            UserConfigurableObjectType _t = new UserConfigurableObjectType ();
+            UserConfigurableObjectType _t = new UserConfigurableObjectType (null);
             _t.setAssetObjectType (true);
             _t.setKey (1l);
             TextUserConfigurableObjectTypeField _tf = new TextUserConfigurableObjectTypeField ();
@@ -79,7 +79,7 @@ public class UserConfigurableObjectFieldDataHandler implements DataHandler<UserC
 
             long typekey = rs.getLong (ind++);
 
-            UserConfigurableObjectTypeField tf = (UserConfigurableObjectTypeField) Environment.getUserConfigurableObjectTypeField (typekey);
+            UserConfigurableObjectTypeField tf = parent.getUserConfigurableObjectType ().getField (typekey);
 
             if (tf == null)
             {
@@ -318,8 +318,11 @@ TODO Remove
                                                                                  null,
                                                                                  null).valueToString ((t != null ? t.getValue (): null));
 */
-        this.objectManager.executeStatement ("UPDATE userobjectfield SET value = ? WHERE dbkey = ?",
-                                             Arrays.asList (t.getValue (), t.getKey ()),
+
+        this.objectManager.executeStatement ("UPDATE userobjectfield SET value = ?, userobjecttypefielddbkey = ? WHERE dbkey = ?",
+                                             Arrays.asList (t.getValue (),
+                                                            t.getUserConfigurableObjectTypeField ().getKey (),
+                                                            t.getKey ()),
                                              conn);
 
     }

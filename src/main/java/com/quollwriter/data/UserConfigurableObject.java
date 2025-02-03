@@ -76,37 +76,9 @@ public class UserConfigurableObject extends NamedObject
     {
 
     }
-/*
-TODO Remove
-    public ObjectNameUserConfigurableObjectFieldViewEditHandler getPrimaryNameViewEditHandler (com.quollwriter.ui.ProjectViewer viewer)
-    {
-
-        return (ObjectNameUserConfigurableObjectFieldViewEditHandler) this.getPrimaryNameTypeField ().getViewEditHandler (this,
-                                                                                                                          null,
-                                                                                                                          viewer);
-
-    }
-*/
-/*
-TODO Remove
-    public ObjectDescriptionUserConfigurableObjectFieldViewEditHandler getObjectDescriptionViewEditHandler (com.quollwriter.ui.ProjectViewer viewer)
-    {
-
-        if (this.getObjectDescriptionTypeField () == null)
-        {
-
-            return null;
-
-        }
-
-        return (ObjectDescriptionUserConfigurableObjectFieldViewEditHandler) this.getObjectDescriptionTypeField ().getViewEditHandler (this,
-                                                                                                                                       null,
-                                                                                                                                       viewer);
-
-    }
-*/
 
     public Object getValueForField (UserConfigurableObjectTypeField f)
+                             throws GeneralException
     {
 
         for (UserConfigurableObjectField field : this.fields)
@@ -117,6 +89,7 @@ TODO Remove
 
                 return field.getUserConfigurableObjectTypeField ().getViewEditHandler (this,
                                                                                        field,
+                                                                                       null,
                                                                                        null).getFieldValue ();
 
             }
@@ -255,7 +228,7 @@ TODO Remove
 
     }
 
-    public Set<com.quollwriter.ui.userobjects.UserConfigurableObjectFieldViewEditHandler> getViewEditHandlers (com.quollwriter.ui.ProjectViewer viewer)
+    public Set<UserConfigurableObjectFieldViewEditHandler> getViewEditHandlers (ProjectViewer viewer)
     {
 
         Map<UserConfigurableObjectTypeField, UserConfigurableObjectField> typeFieldMap = new HashMap<> ();
@@ -268,15 +241,16 @@ TODO Remove
 
         }
 
-        Set<com.quollwriter.ui.userobjects.UserConfigurableObjectFieldViewEditHandler> handlers = new LinkedHashSet<> ();
+        Set<UserConfigurableObjectFieldViewEditHandler> handlers = new LinkedHashSet<> ();
 
         for (UserConfigurableObjectTypeField tf : this.userConfigObjType.getConfigurableFields ())
         {
 
             UserConfigurableObjectField f = typeFieldMap.get (tf);
 
-            com.quollwriter.ui.userobjects.UserConfigurableObjectFieldViewEditHandler h = tf.getViewEditHandler (this,
+            UserConfigurableObjectFieldViewEditHandler h = tf.getViewEditHandler (this,
                                                                                   f,
+                                                                                  viewer.getBinder (),
                                                                                   viewer);
 
             handlers.add (h);

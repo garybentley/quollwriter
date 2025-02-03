@@ -24,7 +24,7 @@ public abstract class AbstractSentenceRule extends AbstractRule<Sentence> implem
         return this.desc;
 
     }
-
+/*
     @Override
     public String getEditFormTitle (boolean add)
     {
@@ -36,5 +36,5 @@ public abstract class AbstractSentenceRule extends AbstractRule<Sentence> implem
                                                LanguageStrings.addtitle) : null);
 
     }
-
+*/
 }

@@ -1,7 +1,5 @@
 package com.quollwriter.data;
 
-import java.awt.Dimension;
-
 import java.time.*;
 import java.util.Date;
 import java.util.Map;
@@ -40,20 +38,7 @@ public class DateUserConfigurableObjectTypeField extends UserConfigurableObjectT
     }
 
     @Override
-    public com.quollwriter.ui.userobjects.UserConfigurableObjectFieldViewEditHandler getViewEditHandler (UserConfigurableObject      obj,
-                                                                          UserConfigurableObjectField field,
-                                                                          com.quollwriter.ui.AbstractProjectViewer       viewer)
-    {
-
-        return new com.quollwriter.ui.userobjects.DateUserConfigurableObjectFieldViewEditHandler (this,
-                                                                   obj,
-                                                                   field,
-                                                                   viewer);
-
-    }
-
-    @Override
-    public UserConfigurableObjectFieldViewEditHandler getViewEditHandler2 (UserConfigurableObject      obj,
+    public UserConfigurableObjectFieldViewEditHandler getViewEditHandler (UserConfigurableObject      obj,
                                                                           UserConfigurableObjectField field,
                                                                           IPropertyBinder             binder,
                                                                           AbstractProjectViewer       viewer)
@@ -67,15 +52,7 @@ public class DateUserConfigurableObjectTypeField extends UserConfigurableObjectT
     }
 
     @Override
-    public com.quollwriter.ui.userobjects.UserConfigurableObjectTypeFieldConfigHandler getConfigHandler ()
-    {
-
-        return new com.quollwriter.ui.userobjects.DateUserConfigurableObjectTypeFieldConfigHandler (this);
-
-    }
-
-    @Override
-    public UserConfigurableObjectTypeFieldConfigHandler getConfigHandler2 ()
+    public UserConfigurableObjectTypeFieldConfigHandler getConfigHandler ()
     {
 
         return new DateUserConfigurableObjectTypeFieldConfigHandler (this);

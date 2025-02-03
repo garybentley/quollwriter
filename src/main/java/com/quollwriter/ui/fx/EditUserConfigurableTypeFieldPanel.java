@@ -34,7 +34,7 @@ public class EditUserConfigurableTypeFieldPanel extends VBox
 
         this.config.getChildren ().add (h);
 */
-        UserConfigurableObjectTypeFieldConfigHandler handler = field.getConfigHandler2 ();
+        UserConfigurableObjectTypeFieldConfigHandler handler = field.getConfigHandler ();
 
         this.nameField = QuollTextField.builder ()
             .styleClassName (StyleClassNames.NAME)

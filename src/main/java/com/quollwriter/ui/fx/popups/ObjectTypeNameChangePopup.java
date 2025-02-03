@@ -227,7 +227,7 @@ public class ObjectTypeNameChangePopup extends PopupContent
             TextField f = this.singular.get (ot);
 
             String s = f.getText ().trim ();
-
+/*
             UserConfigurableObjectType type = Environment.getUserConfigurableObjectType (ot);
 
             if (type != null)
@@ -248,14 +248,12 @@ public class ObjectTypeNameChangePopup extends PopupContent
                 }
 
             } else {
+*/
+            if (!s.equals (Environment.getObjectTypeName (ot)))
+            {
 
-                if (!s.equals (Environment.getObjectTypeName (ot)))
-                {
-
-                    sing.put (ot,
-                              new SimpleStringProperty (s));
-
-                }
+                sing.put (ot,
+                          new SimpleStringProperty (s));
 
             }
 
@@ -267,7 +265,7 @@ public class ObjectTypeNameChangePopup extends PopupContent
             TextField f = this.plural.get (ot);
 
             String p = f.getText ().trim ();
-
+/*
             UserConfigurableObjectType type = Environment.getUserConfigurableObjectType (ot);
 
             if (type != null)
@@ -288,14 +286,12 @@ public class ObjectTypeNameChangePopup extends PopupContent
                 }
 
             } else {
+*/
+            if (!p.equals (Environment.getObjectTypeNamePlural (ot)))
+            {
 
-                if (!p.equals (Environment.getObjectTypeNamePlural (ot)))
-                {
-
-                    plur.put (ot,
-                              new SimpleStringProperty (p));
-
-                }
+                plur.put (ot,
+                          new SimpleStringProperty (p));
 
             }
 

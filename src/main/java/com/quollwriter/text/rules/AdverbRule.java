@@ -1,12 +1,6 @@
 package com.quollwriter.text.rules;
 
-import java.awt.Component;
-import java.awt.event.*;
-
 import java.util.*;
-
-import javax.swing.*;
-import javax.swing.border.*;
 
 import javafx.collections.*;
 import javafx.scene.layout.*;
@@ -19,8 +13,6 @@ import com.quollwriter.*;
 import com.quollwriter.synonyms.*;
 
 import com.quollwriter.text.*;
-import com.quollwriter.ui.*;
-import com.quollwriter.ui.forms.*;
 
 import com.quollwriter.ui.fx.*;
 import com.quollwriter.ui.fx.components.Form;
@@ -42,8 +34,6 @@ public class AdverbRule extends AbstractSentenceRule
     }
 
     private Set<String> speechVerbs = new HashSet<> ();
-    private JTextField          newVerbs = null;
-    private DefaultListModel    listModel = null;
 
     private TextField newVerbs2 = null;
     private ListView<String> verbs2 = null;
@@ -225,7 +215,7 @@ public class AdverbRule extends AbstractSentenceRule
     }
 
     @Override
-    public Set<Form.Item> getFormItems2 ()
+    public Set<Form.Item> getFormItems ()
     {
 
         final AdverbRule _this = this;
@@ -358,163 +348,7 @@ public class AdverbRule extends AbstractSentenceRule
     }
 
     @Override
-    public Set<FormItem> getFormItems ()
-    {
-
-        final AdverbRule _this = this;
-
-        List<String> pref = new ArrayList<> ();
-        pref.add (LanguageStrings.problemfinder);
-        pref.add (LanguageStrings.config);
-        pref.add (LanguageStrings.rules);
-        pref.add (LanguageStrings.adverb);
-        pref.add (LanguageStrings.labels);
-
-        Set<FormItem> items = new LinkedHashSet<> ();
-
-        Box b = new Box (BoxLayout.Y_AXIS);
-
-        this.newVerbs = com.quollwriter.ui.UIUtils.createTextField ();
-
-        b.add (newVerbs);
-
-        JLabel label = new JLabel (Environment.getUIString (pref,
-                                                                LanguageStrings.separate));
-                                   //"(separate with , or ;)");
-        label.setBorder (com.quollwriter.ui.UIUtils.createPadding (0, 5, 0, 0));
-
-        b.add (label);
-
-        items.add (new AnyFormItem (Environment.getUIString (pref,
-                                                             LanguageStrings.newspeechverbs),
-                                    //"New Speech Verbs",
-                                    b));
-
-        Vector v = new Vector<> (this.speechVerbs);
-
-        Collections.sort (v);
-
-        this.listModel = new DefaultListModel ();
-
-        for (int i = 0; i < v.size (); i++)
-        {
-
-            this.listModel.addElement (v.get (i));
-
-        }
-
-        b = new Box (BoxLayout.X_AXIS);
-
-        final JList verbs = new JList<> (this.listModel);
-
-        verbs.setVisibleRowCount (5);
-        verbs.setMaximumSize (verbs.getPreferredSize ());
-
-        b.add (new JScrollPane (verbs));
-
-        b.add (Box.createHorizontalStrut (5));
-
-        Box bb = new Box (BoxLayout.Y_AXIS);
-
-        List<JComponent> buts = new ArrayList<> ();
-
-        buts.add (com.quollwriter.ui.UIUtils.createButton (Constants.DELETE_ICON_NAME,
-                                        Constants.ICON_MENU,
-                                        Environment.getUIString (LanguageStrings.problemfinder,
-                                                                 LanguageStrings.config,
-                                                                 LanguageStrings.rules,
-                                                                 LanguageStrings.adverb,
-                                                                 LanguageStrings.buttons,
-                                                                 LanguageStrings.removespeechverbs,
-                                                                 LanguageStrings.tooltip),
-                                        //"Click to remove the selected Speech Verbs",
-                                        new ActionListener ()
-        {
-
-            @Override
-            public void actionPerformed (ActionEvent ev)
-            {
-
-                // Get the selected items, remove them from the model.
-                int[] inds = verbs.getSelectedIndices ();
-
-                if (inds != null)
-                {
-
-                    for (int i = inds.length - 1; i > -1; i--)
-                    {
-
-                        _this.listModel.remove (inds[i]);
-
-                    }
-
-                }
-
-            }
-
-        }));
-
-/*
-
-        ImagePanel del = new ImagePanel (Environment.getIcon ("delete",
-                                                              Constants.ICON_MENU),
-                                         null);
-        del.setBorder (null);
-        del.setOpaque (false);
-        del.setToolTipText ("Click to remove the selected Speech Verbs");
-        com.quollwriter.ui.UIUtils.setAsButton (del);
-        del.setAlignmentY (Component.TOP_ALIGNMENT);
-
-        del.addMouseListener (new MouseAdapter ()
-            {
-
-                public void mouseReleased (MouseEvent ev)
-                {
-
-                    // Get the selected items, remove them from the model.
-                    int[] inds = verbs.getSelectedIndices ();
-
-                    if (inds != null)
-                    {
-
-                        for (int i = inds.length - 1; i > -1; i--)
-                        {
-
-                            _this.listModel.remove (inds[i]);
-
-                        }
-
-                    }
-
-                }
-
-            });
-*/
-        bb.add (com.quollwriter.ui.UIUtils.createButtonBar (buts));
-        bb.add (Box.createVerticalGlue ());
-
-        b.add (bb);
-        b.add (Box.createHorizontalGlue ());
-
-        items.add (new AnyFormItem (Environment.getUIString (pref,
-                                                             LanguageStrings.speechverbs),
-                                    //"Speech Verbs",
-                                    b));
-
-        return items;
-
-    }
-
-    @Override
-    public String getFormError ()
-    {
-
-        return null;
-
-    }
-
-    @Override
-    public void updateFromForm2 ()
+    public void updateFromForm ()
     {
 
         Set<String> verbs = new HashSet<> ();
@@ -537,42 +371,6 @@ public class AdverbRule extends AbstractSentenceRule
         }
 
         verbs.addAll (this.verbs2.getItems ());
-
-        this.speechVerbs = verbs;
-
-    }
-
-    public void updateFromForm ()
-    {
-
-        // Reset the speech verbs.
-        Set<String> verbs = new HashSet<> ();
-
-        String n = this.newVerbs.getText ();
-
-        if (n != null)
-        {
-
-            StringTokenizer t = new StringTokenizer (n,
-                                                     ";,");
-
-            while (t.hasMoreTokens ())
-            {
-
-                verbs.add (t.nextToken ().trim ().toLowerCase ());
-
-            }
-
-        }
-
-        Enumeration en = this.listModel.elements ();
-
-        while (en.hasMoreElements ())
-        {
-
-            verbs.add ((String) en.nextElement ());
-
-        }
 
         this.speechVerbs = verbs;
 

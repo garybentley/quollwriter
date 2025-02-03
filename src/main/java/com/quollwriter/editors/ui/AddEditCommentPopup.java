@@ -259,54 +259,6 @@ public class AddEditCommentPopup extends PopupContent<EditorProjectViewer>
 
         }
 
-/*
-TODO Needed?
-        try
-        {
-
-            Position pos = this.editor.getDocument ().createPosition (this.item.getPosition ());
-
-            this.item.setTextPosition (pos);
-
-            if (this.item.getEndPosition () > -1)
-            {
-
-                this.item.setEndTextPosition (this.editor.getDocument ().createPosition (this.item.getEndPosition ()));
-
-            }
-
-        } catch (Exception ex) {
-
-            Environment.logError ("Unable to set text position",
-                                  ex);
-
-        }
-*/
-/*
-        if (this.item.isEditNeeded ())
-        {
-
-            try
-            {
-
-                this.item.setTextPosition2 (editor.createTextPosition (this.item.getPosition ()));
-
-                if (this.item.getEndPosition () > -1)
-                {
-
-                    this.item.setEndTextPosition2 (editor.createTextPosition (this.item.getEndPosition ()));
-
-                }
-
-            } catch (Exception e) {
-
-                Environment.logError ("Unable to set text position",
-                                      e);
-
-            }
-
-        }
-*/
         if (this.item.getChapter () != null)
         {
 

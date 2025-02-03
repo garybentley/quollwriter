@@ -27,7 +27,6 @@ public class SentenceLengthRule extends AbstractSentenceRule
     }
 
     private int      wordCount = 0;
-    private javax.swing.JSpinner count = null;
 
     private Spinner<Integer> count2 = null;
 
@@ -134,40 +133,7 @@ public class SentenceLengthRule extends AbstractSentenceRule
     }
 
     @Override
-    public Set<com.quollwriter.ui.forms.FormItem> getFormItems ()
-    {
-
-        List<String> pref = new ArrayList ();
-        pref.add (LanguageStrings.problemfinder);
-        pref.add (LanguageStrings.config);
-        pref.add (LanguageStrings.rules);
-        pref.add (LanguageStrings.sentencelength);
-        pref.add (LanguageStrings.labels);
-
-        Set<com.quollwriter.ui.forms.FormItem> items = new LinkedHashSet ();
-
-        this.count = new javax.swing.JSpinner (new javax.swing.SpinnerNumberModel (this.wordCount,
-                                                           1,
-                                                           200,
-                                                           1));
-
-        javax.swing.Box b = new javax.swing.Box (javax.swing.BoxLayout.X_AXIS);
-        b.add (this.count);
-        b.add (javax.swing.Box.createHorizontalGlue ());
-
-        this.count.setMaximumSize (this.count.getPreferredSize ());
-
-        items.add (new com.quollwriter.ui.forms.AnyFormItem (Environment.getUIString (pref,
-                                                             LanguageStrings.words),
-                                    //"No of Words",
-                                    b));
-
-        return items;
-
-    }
-
-    @Override
-    public Set<Form.Item> getFormItems2 ()
+    public Set<Form.Item> getFormItems ()
     {
 
         List<String> pref = Arrays.asList (problemfinder,config,rules,sentencelength,labels);
@@ -185,22 +151,7 @@ public class SentenceLengthRule extends AbstractSentenceRule
     }
 
     @Override
-    public String getFormError ()
-    {
-
-        return null;
-
-    }
-
     public void updateFromForm ()
-    {
-
-        this.wordCount = ((javax.swing.SpinnerNumberModel) this.count.getModel ()).getNumber ().intValue ();
-
-    }
-
-    @Override
-    public void updateFromForm2 ()
     {
 
         this.wordCount = this.count2.getValue ();

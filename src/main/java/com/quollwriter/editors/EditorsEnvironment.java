@@ -60,7 +60,6 @@ public class EditorsEnvironment
     private static EditorEditor.OnlineStatus lastOnlineStatus = null;
 
     private static Map<EditorChangedListener, Object> editorChangedListeners = null;
-    private static Map<ProjectEditorChangedListener, Object> projectEditorChangedListeners = null;
     private static Map<EditorMessageListener, Object> editorMessageListeners = null;
     private static Map<UserOnlineStatusListener, Object> userStatusListeners = null;
     private static Map<EditorInteractionListener, Object> editorInteractionListeners = null;
@@ -84,8 +83,6 @@ public class EditorsEnvironment
         // that don't have a controlled pre-defined lifecycle (as opposed say to AbstractSideBar)
         // won't leak.
         EditorsEnvironment.editorChangedListeners = Collections.synchronizedMap (new WeakHashMap ());
-
-        EditorsEnvironment.projectEditorChangedListeners = Collections.synchronizedMap (new WeakHashMap ());
 
         EditorsEnvironment.editorMessageListeners = Collections.synchronizedMap (new WeakHashMap ());
 
@@ -846,58 +843,6 @@ public class EditorsEnvironment
 
     }
 
-    public static void fireProjectEditorChangedEvent (ProjectEditor pe,
-                                                      int          changeType)
-    {
-
-        EditorsEnvironment.fireProjectEditorChangedEvent (new ProjectEditorChangedEvent (pe,
-                                                                                         changeType));
-
-    }
-
-    public static void fireProjectEditorChangedEvent (final ProjectEditorChangedEvent ev)
-    {
-
-        // TODO Get rid?
-        UIUtils.runLater (() ->
-        {
-
-            Set<ProjectEditorChangedListener> ls = null;
-
-            // Get a copy of the current valid listeners.
-            synchronized (EditorsEnvironment.projectEditorChangedListeners)
-            {
-
-                ls = new LinkedHashSet (EditorsEnvironment.projectEditorChangedListeners.keySet ());
-
-            }
-
-            for (ProjectEditorChangedListener l : ls)
-            {
-
-                l.projectEditorChanged (ev);
-
-            }
-
-        });
-
-    }
-
-    public static void removeProjectEditorChangedListener (ProjectEditorChangedListener l)
-    {
-
-        EditorsEnvironment.projectEditorChangedListeners.remove (l);
-
-    }
-
-    public static void addProjectEditorChangedListener (ProjectEditorChangedListener l)
-    {
-
-        EditorsEnvironment.projectEditorChangedListeners.put (l,
-                                                              EditorsEnvironment.listenerFillObj);
-
-    }
-
     public static boolean isEditorsServiceAvailable ()
     {
 
@@ -916,21 +861,7 @@ public class EditorsEnvironment
             throw new IllegalStateException ("Editor object manager not inited.");
 
         }
-/*
-TODO Remove
-        if (avatarImage != null)
-        {
 
-            if (avatarImage.getWidth () > 300)
-            {
-
-                avatarImage = UIUtils.getScaledImage (avatarImage,
-                                                      300);
-
-            }
-
-        }
-*/
         EditorsEnvironment.editorAccount.setName (name);
         EditorsEnvironment.editorAccount.setAvatar (avatarImage);
 
@@ -2548,10 +2479,6 @@ TODO Remove
         EditorsEnvironment.editorsManager.saveObject (pe,
                                                       null);
 
-        // Fire an event.
-        EditorsEnvironment.fireProjectEditorChangedEvent (pe,
-                                                          ProjectEditorChangedEvent.PROJECT_EDITOR_ADDED);
-
     }
 
     public static void removeProjectEditors (Project p)
@@ -2569,15 +2496,6 @@ TODO Remove
 
         EditorsEnvironment.editorsManager.deleteObjects (pes,
                                                          null);
-
-        for (ProjectEditor pe : pes)
-        {
-
-            // Fire an event.
-            EditorsEnvironment.fireProjectEditorChangedEvent (pe,
-                                                              ProjectEditorChangedEvent.PROJECT_EDITOR_DELETED);
-
-        }
 
     }
 
@@ -2639,9 +2557,6 @@ TODO Remove
 
         }
   */
-        // Fire an event.
-        EditorsEnvironment.fireProjectEditorChangedEvent (pe,
-                                                          ProjectEditorChangedEvent.PROJECT_EDITOR_DELETED);
 
     }
 
@@ -3001,10 +2916,6 @@ TODO Remove, never used.
 
         EditorsEnvironment.editorsManager.saveObject (pe,
                                                       null);
-
-        // Fire an event.
-        EditorsEnvironment.fireProjectEditorChangedEvent (pe,
-                                                          ProjectEditorChangedEvent.PROJECT_EDITOR_CHANGED);
 
     }
 
