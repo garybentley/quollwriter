@@ -112,6 +112,11 @@
 
 }
 
+*
+{
+    -fx-snap-to-pixel: true;
+}
+
 .root:night
 {
     -fx-text-base-color: #ffffff;
@@ -345,6 +350,20 @@ Text
 .root:night .list-view *:selected
 {
     -fx-background-color: #ffffff;
+}
+
+.root:night .list-view .cell
+{
+    -fx-background-color: -qw-bg-color;
+    -fx-border-width: 0 0 1 0;
+    -fx-border-color: transparent transparent -qw-button-border-color transparent;
+}
+
+.root:night .list-view .cell:hover, .root:night .list-view .cell:selected
+{
+    -fx-background-color: -qw-component-border-color;
+    -fx-text-fill: -qw-bg-color;
+    -fx-fill: -qw-bg-color;
 }
 
 .list-view .text-input.text-field
@@ -2114,6 +2133,11 @@ Text
     -fx-text-fill: red;
 }
 
+.qpopup.readability .scroll-pane, .qpopup.wordcount .scroll-pane
+{
+    -fx-max-height: 30em;
+}
+
 /*
  * Chapters over word count target (ChaptersOverWordCountTargetPopup)
  */
@@ -2767,8 +2791,8 @@ WordCountTimerButton
 
 .radio-button .radio
 {
-    -fx-pref-width: 1.75em;
-    -fx-pref-height: 1.75em;
+    -fx-pref-width: 1.5em;
+    -fx-pref-height: 1.5em;
     -fx-background-color: #dddddd;
     /*-fx-padding: 0.6em;*/
     -fx-snap-to-pixel: true;
@@ -2783,7 +2807,7 @@ WordCountTimerButton
 .radio-button:selected .radio .dot
 {
     -fx-background-color: #4d4d4d;
-    -fx-padding: 0.2em;
+    -fx-padding: 0.1em;
 /*
     -fx-min-width: 0.5em;
     -fx-max-width: 0.5em;
@@ -2803,4 +2827,19 @@ TilePane
 .button:hover .iconbox .icon
 {
     -fx-background-color: -qw-icon-hover-color;
+}
+
+.qwebview, .web-view
+{
+    -fx-cursor: default;
+}
+
+.root:night .caret
+{
+    -fx-stroke: -qw-text-base-color;
+}
+
+.list-view .list-cell:hover
+{
+    -fx-cursor: hand;
 }

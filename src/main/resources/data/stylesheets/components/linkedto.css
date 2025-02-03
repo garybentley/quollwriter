@@ -23,6 +23,7 @@
     -fx-pref-width: 1em;
     -fx-min-width: 1em;
     -fx-max-width: 1em;
+    -fx-max-height: 1em;
 }
 
 .linkedto .tree.view .cell .chapter.label.header .iconbox
@@ -52,6 +53,9 @@
     -fx-pref-width: 1em;
     -fx-min-width: 1em;
     -fx-max-width: 1em;
+    -fx-max-height: 1.33em;
+    -fx-pref-height: 1.33em;
+    -fx-shape:"M 14,0 H 0 V 32 H 24 V 9.998 Z M 4,28 V 4 h 8 v 8 h 8 v 16 z";    
 }
 
 .linkedto .tree .cell .label.scene .iconbox,

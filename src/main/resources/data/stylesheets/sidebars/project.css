@@ -8,6 +8,7 @@
 .content {
     -fx-min-width: 23.7em;
     /*-fx-pref-width: 22em;*/
+    -fx-min-width: 10em;
 }
 .accordion:dragover { -fx-background-color: -qw-dragover-bg; }
 .accordion:dragging {
