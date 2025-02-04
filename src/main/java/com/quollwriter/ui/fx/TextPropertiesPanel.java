@@ -157,7 +157,7 @@ public class TextPropertiesPanel extends VBox
                        Priority.ALWAYS);
         this.fontSize = new Spinner<> (new SpinnerValueFactory.IntegerSpinnerValueFactory (minFontSize, maxFontSize, props.getFontSize ()));
         this.fontSize.setEditable (true);
-        this.fontSize.getStyleClass ().add ("arrows-on-right-vertical");//Spinner.STYLE_CLASS_ARROWS_ON_RIGHT_HORIZONTAL);
+        this.fontSize.getStyleClass ().add ("arrows-on-right-horizontal");//Spinner.STYLE_CLASS_ARROWS_ON_RIGHT_HORIZONTAL);
         HBox.setHgrow (this.fontSize,
                        Priority.NEVER);
 
