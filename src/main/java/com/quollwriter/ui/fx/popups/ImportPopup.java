@@ -635,7 +635,7 @@ public class ImportPopup extends PopupContent<AbstractViewer>
             om.saveObject (nt,
                            conn);
 
-            return type;
+            return nt;
 
         } else {
 
@@ -794,12 +794,12 @@ public class ImportPopup extends PopupContent<AbstractViewer>
                                                          uo,
                                                          thisProj);
 
-                thisProj.addUserConfigurableObjectType (uo);
-
                 this.pv.createActionLogEntry (uo,
                                               prefix + " asset type from: " +
                                               importingFrom,
                                               conn);
+
+                thisProj.addUserConfigurableObjectType (uo);
 
             }
 
@@ -816,12 +816,12 @@ public class ImportPopup extends PopupContent<AbstractViewer>
 
                 // See if we should merge.
                 Asset oa = this.pv.getProject ().getAssetByName (name,
-                                                                 a.getUserConfigurableObjectType ());
+                                                                 this.typeKeyMapping.get (a.getUserConfigurableObjectType ()));
 
                 if (oa != null)
                 {
 
-                    for (Asset pa : this.pv.getProject ().getAssets (a.getUserConfigurableObjectType ()))
+                    for (Asset pa : this.pv.getProject ().getAssets (this.typeKeyMapping.get (a.getUserConfigurableObjectType ())))
                     {
 
                          if (pa.getName ().toLowerCase ().startsWith (name.toLowerCase ()))
@@ -1092,6 +1092,15 @@ public class ImportPopup extends PopupContent<AbstractViewer>
                     Asset a = (Asset) n;
 
                     UserConfigurableObjectType at = a.getUserConfigurableObjectType ();
+
+                    n.setKey (null);
+                    n.setDateCreated (new java.util.Date ());
+                    n.setId (null);
+
+                    this.addUserConfigurableObjectType (conn,
+                                                        om,
+                                                        at,
+                                                        p);
 
                     a.setUserConfigurableObjectType (this.typeKeyMapping.get (at));
 
