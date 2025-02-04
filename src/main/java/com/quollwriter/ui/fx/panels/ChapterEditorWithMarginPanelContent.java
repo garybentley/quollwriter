@@ -249,7 +249,7 @@ TODO
     public void createTextPosition (ChapterItem ci)
     {
 
-        String t = this.object.getChapterText ();
+        String t = this.getText ().getText ();
 
         int l = 0;
 
