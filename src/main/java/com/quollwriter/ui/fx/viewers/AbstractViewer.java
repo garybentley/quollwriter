@@ -3291,7 +3291,10 @@ TODO
 
             }
 
-            if (!ev.isShortcutDown ())
+            if ((!ev.isControlDown ())
+                ||
+                (!ev.isShiftDown ())
+               )
             {
 
                 return;
