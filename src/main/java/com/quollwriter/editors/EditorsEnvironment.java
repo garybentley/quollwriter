@@ -892,6 +892,13 @@ public class EditorsEnvironment
 
     }
 
+    public static int getSchemaVersion ()
+    {
+
+        return EditorsEnvironment.schemaVersion;
+
+    }
+
     public static EditorAccount getUserAccount ()
     {
 
