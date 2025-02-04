@@ -2047,7 +2047,7 @@ Text
 .tab-pane:bottom > .tab-header-area
 {
     -fx-padding: 0 0.1em 0.5em 0.1em;
-    -fx-padding: 0 0em 0.69em 0em;
+    -fx-padding: 0 0em 0.71em 0em;
 }
 
 .tab-pane:top > .tab-header-area
@@ -2747,9 +2747,9 @@ WordCountTimerButton
 
 .check-box .box
 {
-    -fx-pref-width: 1.75em;
-    -fx-pref-height: 1.75em;
-    -fx-padding: 0.3em;
+    -fx-pref-width: 1.5em;
+    -fx-pref-height: 1.5em;
+    -fx-padding: 0.2em;
     -fx-background-radius: 0;
     -fx-background-color: #dddddd;
 }
