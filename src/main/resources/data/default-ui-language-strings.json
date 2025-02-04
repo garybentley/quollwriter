@@ -7672,7 +7672,7 @@
             "title" : "Delete all %1$s",
             ":comment.title" : "%1$s is the plural name of the asset type.",
             ":scount.title" : 1,
-            "text" : "To delete all <b>%1$s</b> please enter the word <b>${form.affirmativevalue}</b> into the box below.<br /><br />Warning!  All <b>%1$s</b> you have created will be deleted and <b>%1$s</b> won't be available in your other ${objectnames.plural.project}.",
+            "text" : "To delete all <b>%1$s</b> please enter the word <b>${form.affirmativevalue}</b> into the box below.",
             ":comment.text" : "%1$s is the object type name plural for the asset type.",
             ":scount.text" : 1,
             "buttons" :
