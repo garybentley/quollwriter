@@ -538,6 +538,20 @@ public class ChaptersSidebarItem extends ProjectObjectsSidebarItem<ProjectViewer
 
                 } else {
 
+                    if ((Environment.isDebugModeEnabled ())
+                        &&
+                        (ev.isControlDown ())
+                        &&
+                        (ev.isAltDown ())
+                       )
+                    {
+
+                        UIUtils.showObjectProperties (n,
+                                                      this.viewer);
+                        return;
+
+                    }
+
                     this.viewer.viewObject (n);
 
                 }

@@ -56,6 +56,11 @@ public class DebugConsolePopup extends PopupContent
 
             AbstractProjectViewer pv = (AbstractProjectViewer) this.viewer;
 
+            tab = new Tab ("Objects");
+            //tab.setContent (this.createObjectsPanel ());
+
+            tabs.getTabs ().add (tab);
+
             tab = new Tab ("SQL Console");
             tab.setContent (this.createSQLConsolePanel ());
 
@@ -95,8 +100,13 @@ public class DebugConsolePopup extends PopupContent
             .confirmButton (getUILanguageStringProperty (buttons,close))
             .item (new SimpleStringProperty ("System Schema version"),
                    QuollLabel.builder ()
-                        .label (new SimpleStringProperty (Environment.getSchemaVersion () + ""))
+                        .label (new SimpleStringProperty (Environment.getProjectInfoSchemaVersion () + ""))
                         .build ());
+
+        fb.item (new SimpleStringProperty ("Editor Schema version"),
+                 QuollLabel.builder ()
+                    .label (new SimpleStringProperty (EditorsEnvironment.getSchemaVersion () + ""))
+                    .build ());
 
         if (this.viewer instanceof AbstractProjectViewer)
         {

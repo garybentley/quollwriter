@@ -10,6 +10,7 @@ import javafx.scene.image.*;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.*;
 
+import com.quollwriter.*;
 import com.quollwriter.data.*;
 import com.quollwriter.ui.fx.*;
 import com.quollwriter.ui.fx.viewers.*;
@@ -124,6 +125,22 @@ public class NamedObjectTree extends QuollTreeView<NamedObject>
 
                     if (b.viewObjectOnClick)
                     {
+
+                        if ((Environment.isDebugModeEnabled ())
+                            &&
+                            (ev.isControlDown ())
+                            &&
+                            (ev.isAltDown ())
+                           )
+                        {
+
+                            UIUtils.showObjectProperties (n,
+                                                          b.viewer);
+                            ev.consume ();
+                            return;
+
+                        }
+
 
                         b.viewer.viewObject (n);
                         ev.consume ();

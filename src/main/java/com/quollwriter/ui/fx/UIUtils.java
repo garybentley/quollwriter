@@ -41,6 +41,7 @@ import com.quollwriter.data.ReadabilityIndices;
 import com.quollwriter.data.Prompt;
 import com.quollwriter.data.ObjectReference;
 import com.quollwriter.data.Project;
+import com.quollwriter.data.DataObject;
 import com.quollwriter.data.ProjectInfo;
 import com.quollwriter.data.Chapter;
 import com.quollwriter.data.UserConfigurableObject;
@@ -5364,7 +5365,10 @@ TODO
 
             }
 
-            if (!eev.isShortcutDown ())
+            if ((!eev.isShortcutDown ())
+                &&
+                (!eev.isShiftDown ())
+               )
             {
 
                 return;
@@ -5512,6 +5516,90 @@ TODO
             .sum ();
 
         return c;
+
+    }
+
+    public static void showObjectProperties (DataObject     d,
+                                             AbstractViewer viewer)
+    {
+
+        String pid = d.getObjectReference ().asString ();
+
+        try
+        {
+
+            QuollPopup qp = viewer.getPopupById (pid);
+
+            if (qp != null)
+            {
+
+                qp.show ();
+                qp.toFront ();
+                return;
+
+            }
+
+            Map<String, Object> props = new LinkedHashMap<> ();
+            d.fillToStringProperties (props);
+
+            Form.Builder fb = Form.builder ()
+                .inViewer (viewer);
+
+            props.keySet ().stream ()
+                .forEach (k ->
+                {
+
+                    Object v = props.get (k);
+
+                    if (v instanceof DataObject)
+                    {
+
+                        DataObject dv = (DataObject) v;
+
+                        fb.item (new SimpleStringProperty (k),
+                                 QuollHyperlink.builder ()
+                                    .label (dv.getObjectReference ().asString ())
+                                    .onAction (ev ->
+                                    {
+
+                                        UIUtils.showObjectProperties (dv,
+                                                                      viewer);
+
+                                    })
+                                    .build ());
+
+                    } else {
+
+                        fb.item (new SimpleStringProperty (k),
+                                 QuollLabel.builder ()
+                                    .label (new SimpleStringProperty ("" + v))
+                                    .build ());
+
+                    }
+
+                });
+
+            Form f = fb.build ();
+
+            QuollPopup.builder ()
+                .popupId (pid)
+                .hideOnEscape (true)
+                .show ()
+                .content (new ScrollPane (f))
+                .withClose (true)
+                .styleClassName ("debugobjectpropertiesviewer")
+                .styleSheet ("debugobjectpropertiesviewer")
+                .headerIconClassName (StyleClassNames.VIEW)
+                .title (new SimpleStringProperty (pid))
+                .withViewer (viewer)
+                .build ();
+
+        } catch (Exception e) {
+
+            Environment.logError ("Unable to show object properties for: " + pid,
+                                  e);
+
+        }
 
     }
 
