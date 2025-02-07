@@ -1097,10 +1097,10 @@ public class SelectBGPopup extends PopupContent
 
         }
 
-        try
+        try (InputStream is = Files.newInputStream (path))
         {
 
-            Image im = new Image (Files.newInputStream (path));
+            Image im = new Image (is);
 
             return new Background (new BackgroundImage (im,
                                                         BackgroundRepeat.NO_REPEAT,
