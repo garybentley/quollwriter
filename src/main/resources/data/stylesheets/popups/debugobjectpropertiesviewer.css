@@ -2,3 +2,8 @@
 {
     -fx-pref-height: 30em;
 }
+
+.debugobjectpropertiesviewer .form:stacked .control .label
+{
+    -fx-font-style: normal;
+}
