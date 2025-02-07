@@ -178,15 +178,18 @@ public class UserConfigurableObjectType extends NamedObject
                                     "createShortcutKey",
                                     this.createShortcutKeyStroke);
         this.addToStringProperties (props,
-                                    "fields",
+                                    "fieldsCount",
                                     this.getConfigurableFields ().size ());
+        this.addToStringProperties (props,
+                                    "fields",
+                                    this.getConfigurableFields ());
 
         try
         {
 
             this.addToStringProperties (props,
                                         "columnState",
-                                        this.getSortableFieldsState ().asString ());
+                                        this.getSortableFieldsState ());
 
         } catch (Exception e) {
 
