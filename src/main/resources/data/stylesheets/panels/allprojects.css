@@ -3,7 +3,7 @@
  */
 .projectslist .project .header .controls { visibility: false; }
 .projectslist .project .header .title {
-    -fx-padding: -0.5em 0 0 0.3em;
+    -fx-padding: -0.4em 0 0 0.3em;
     -fx-font-size: 1.7em;
     -fx-wrap-text: true;
     -fx-text-fill: -fx-text-base-color;
@@ -87,7 +87,7 @@
     -fx-border-color: transparent;
     -fx-pref-width: 25em;
     -fx-min-width: 25em;
-    -fx-background-color: -qw-bg-color;
+    -fx-background-color: -qw-bg-color;    
 }
 .projectslist .project:hover, .projectslist .project:focused {
     -fx-border-width: 1px;
