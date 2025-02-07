@@ -133,10 +133,11 @@ public abstract class DataObject implements IPropertyBinder
         this.addToStringProperties (props,
                                     "dateCreated",
                                     this.dateCreated);
+                                    /*
         this.addToStringProperties (props,
                                     "parent",
                                     this.parent);
-
+*/
     }
 
     public abstract DataObject getObjectForReference (ObjectReference r);
