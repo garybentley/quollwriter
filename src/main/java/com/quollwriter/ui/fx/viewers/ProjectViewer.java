@@ -1951,6 +1951,28 @@ public class ProjectViewer extends AbstractProjectViewer
         try
         {
 
+            // TODO Change to use paths
+            // Remove the files for the fields in the asset.
+            for (UserConfigurableObjectField f : a.getFields ())
+            {
+
+                for (String fn : f.getProjectFileNames ())
+                {
+
+                    if (fn == null)
+                    {
+
+                        continue;
+
+                    }
+
+                    new File (this.project.getFilesDirectory (),
+                              fn).delete ();
+
+                }
+
+            }
+
             // Capture a list of all the object objects in the links, we then need to message
             // the linked to panel of any of those.
             Set<NamedObject> otherObjects = a.getOtherObjectsInLinks ();
