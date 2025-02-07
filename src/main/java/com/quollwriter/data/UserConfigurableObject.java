@@ -37,8 +37,11 @@ public class UserConfigurableObject extends NamedObject
                                     "userConfigObjType",
                                     this.userConfigObjType);
         this.addToStringProperties (props,
-                                    "fields",
+                                    "fieldsCount",
                                     this.fields.size ());
+        this.addToStringProperties (props,
+                                    "fields",
+                                    this.fields);
 
     }
 
