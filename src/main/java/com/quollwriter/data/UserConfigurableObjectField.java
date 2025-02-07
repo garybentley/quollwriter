@@ -25,7 +25,7 @@ public class UserConfigurableObjectField extends NamedObject
     public Set<String> getProjectFileNames ()
     {
 
-        Set<String> files = new LinkedHashSet ();
+        Set<String> files = new LinkedHashSet<> ();
 
         if (this.value == null)
         {
