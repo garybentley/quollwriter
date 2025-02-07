@@ -1514,7 +1514,7 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
                     spac.setLine (java.math.BigInteger.valueOf ((long) (240 * spacing)));
 
                     spac.setLineRule (STLineSpacingRule.valueOf ("AUTO"));
-
+/*
                     // ind - paragraph indentation.
                     if ((indent) &&
                         (UserProperties.getAsBoolean (Constants.EDITOR_INDENT_FIRST_LINE_PROPERTY_NAME)))
@@ -1534,7 +1534,7 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
                         ind.setFirstLine (java.math.BigInteger.valueOf ((long) 30 * 20));
 
                     }
-
+*/
                 } else
                 {
 
