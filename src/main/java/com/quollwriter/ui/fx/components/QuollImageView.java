@@ -254,10 +254,10 @@ public class QuollImageView extends StackPane
                        )
                     {
 
-                        try
+                        try (InputStream is = Files.newInputStream (p))
                         {
 
-                            im = new Image (Files.newInputStream (p));
+                            im = new Image (is);
 
                         } catch (Exception e) {
 
@@ -315,7 +315,12 @@ public class QuollImageView extends StackPane
            )
         {
 
-            im = new Image (Files.newInputStream (p));
+            try (InputStream is = Files.newInputStream (p))
+            {
+
+                im = new Image (is);
+
+            }
 
         }
 
