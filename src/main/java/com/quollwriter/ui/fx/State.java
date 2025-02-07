@@ -459,4 +459,11 @@ public class State
 
     }
 
+    public Map<String, Object> asMap ()
+    {
+
+        return new LinkedHashMap<> (this.state);
+
+    }
+
 }
