@@ -3083,7 +3083,8 @@
             "items" :
             {
                 "new" : "Add a new ${objectnames.singular.ideatype}",
-                "selectbackground" : "${actions.selectbackground}"
+                "selectbackground" : "${actions.selectbackground}",
+                "sortname" : "Sort by Name"
             }
         },
         "headercontrols" :
