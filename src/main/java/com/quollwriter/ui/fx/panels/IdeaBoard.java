@@ -33,6 +33,7 @@ public class IdeaBoard extends PanelContent<ProjectViewer> //implements ToolBarS
     private VerticalLayout categories = null;
     private Map<IdeaType, TypeBox> ideaTypeBoxes = new HashMap<> ();
     private ScrollPane scrollpane = null;
+    private boolean customLayout = false;
 
     public IdeaBoard (ProjectViewer viewer)
     {
@@ -69,28 +70,6 @@ public class IdeaBoard extends PanelContent<ProjectViewer> //implements ToolBarS
         this.categories = new VerticalLayout ();
         this.categories.getStyleClass ().add (StyleClassNames.CATEGORIES);
 
-/*
-        this.categories.setOnMouseClicked (ev ->
-        {
-
-            if (ev.getSource () != this.categories)
-            {
-System.out.println ("RET");
-                return;
-
-            }
-
-            if (ev.getClickCount () == 2)
-            {
-System.out.println ("HERE");
-                this.showAddNewIdeaType ();
-                ev.consume ();
-                return;
-
-            }
-
-        });
-*/
         this.scrollpane = new ScrollPane (this.categories);
 
         this.scrollpane.addEventFilter (DragEvent.ANY,
@@ -141,6 +120,22 @@ System.out.println ("HERE");
 
                 })
                 .build ());
+
+            if (this.customLayout)
+            {
+
+                its.add (QuollMenuItem.builder ()
+                    .label (getUILanguageStringProperty (ideaboard,popupmenu,items,sortname))
+                    .iconName (StyleClassNames.SORT)
+                    .onAction (eev ->
+                    {
+
+                        this.showInAlphaOrder ();
+
+                    })
+                    .build ());
+
+            }
 
             its.add (QuollMenuItem.builder ()
                 .label (getUILanguageStringProperty (ideaboard,popupmenu,items,selectbackground))
@@ -287,10 +282,30 @@ System.out.println ("HERE");
 
         }
 
+        s.set ("customLayout",
+               this.customLayout);
         s.set ("ideatypes",
                refs);
 
         return s;
+
+    }
+
+    private void showInAlphaOrder ()
+    {
+
+        this.customLayout = false;
+
+        this.categories.getChildren ().clear ();
+
+        this.ideaTypeBoxes.keySet ().stream ()
+            .sorted (new NamedObjectSorter (this.viewer.getProject ()))
+            .forEach (it ->
+            {
+
+                this.categories.getChildren ().add (this.ideaTypeBoxes.get (it));
+
+            });
 
     }
 
@@ -303,7 +318,7 @@ System.out.println ("HERE");
 
         ObservableSet<IdeaType> its = this.viewer.getProject ().getIdeaTypes ();
 
-        Map<String, IdeaType> trefs = new HashMap<> ();
+        Map<String, IdeaType> trefs = new LinkedHashMap<> ();
 
         for (IdeaType it : its)
         {
@@ -342,6 +357,56 @@ System.out.println ("HERE");
 
         }
 
+        State st = state;
+
+        if (state.getAsBoolean ("customLayout"))
+        {
+
+            for (String r : refs)
+            {
+
+                IdeaType it = trefs.get (r);
+
+                if (it != null)
+                {
+
+                    TypeBox b = this.addType (it,
+                                              -1);
+                    b.init (state.getAsState (r));
+
+                }
+
+            }
+
+            this.customLayout = true;
+
+        } else {
+
+            refs.stream ()
+                .map (r -> trefs.get (r))
+                .sorted (new NamedObjectSorter (this.viewer.getProject ()))
+                .forEach (it ->
+                {
+
+                    try
+                    {
+
+                        TypeBox b = this.addType (it,
+                                                  -1);
+
+                        b.init (st.getAsState (it.getObjectReference ().asString ()));
+
+                    } catch (Exception e) {
+
+                        Environment.logError ("Unable to add idea type: " + it,
+                                              e);
+
+                    }
+
+                });
+
+        }
+/*
         for (String r : refs)
         {
 
@@ -357,7 +422,7 @@ System.out.println ("HERE");
             }
 
         }
-
+*/
         if (this.scrollpane != null)
         {
 
@@ -372,6 +437,13 @@ System.out.println ("HERE");
             });
 
         }
+
+    }
+
+    public void setCustomLayout (boolean v)
+    {
+
+        this.customLayout = v;
 
     }
 
@@ -554,6 +626,13 @@ System.out.println ("HERE");
 
     }
 
+    public VerticalLayout getLayout ()
+    {
+
+        return this.categories;
+
+    }
+
     @Override
     public Panel createPanel ()
     {
@@ -579,6 +658,8 @@ System.out.println ("HERE");
 
     private static class TypeBox extends VBox implements Stateful
     {
+
+        private static final DataFormat dataformat = new DataFormat ("qw/ideatype");
 
         private VBox view = null;
         private Node helpText = null;
@@ -918,6 +999,102 @@ System.out.println ("HERE");
                 }
 
                 this.showIdeas (!this.view.isVisible ());
+                ev.consume ();
+
+            });
+
+            h.setOnDragDetected (ev ->
+            {
+
+                Dragboard db = this.startDragAndDrop (TransferMode.MOVE);
+                db.setDragView (this.snapshot (null, null));
+                ClipboardContent c = new ClipboardContent ();
+                c.put (TypeBox.dataformat,
+                       this.type.getObjectReference ().asString ());
+                db.setContent (c);
+                this.pseudoClassStateChanged (StyleClassNames.DRAGGING_PSEUDO_CLASS, true);
+                ev.consume ();
+
+            });
+
+            this.setOnDragExited (ev ->
+            {
+
+                this.pseudoClassStateChanged (StyleClassNames.DRAGOVER_PSEUDO_CLASS, false);
+
+            });
+
+            this.setOnDragOver (ev ->
+            {
+
+                this.pseudoClassStateChanged (StyleClassNames.DRAGOVER_PSEUDO_CLASS, false);
+
+                Dragboard db = ev.getDragboard ();
+
+                Object o = db.getContent (TypeBox.dataformat);
+
+                if (o != null)
+                {
+
+                    this.pseudoClassStateChanged (StyleClassNames.DRAGOVER_PSEUDO_CLASS, true);
+
+                    ev.acceptTransferModes (TransferMode.ANY);
+
+                }
+
+                ev.consume ();
+
+            });
+
+            this.setOnDragDropped (ev ->
+            {
+
+                this.pseudoClassStateChanged (StyleClassNames.DRAGOVER_PSEUDO_CLASS, false);
+
+                Dragboard db = ev.getDragboard ();
+
+                Object o = db.getContent (TypeBox.dataformat);
+
+                if (o != null)
+                {
+
+                    for (IdeaType it : this.board.ideaTypeBoxes.keySet ())
+                    {
+
+                        if (it.getObjectReference ().asString ().equals (o.toString ()))
+                        {
+
+                            TypeBox b = this.board.ideaTypeBoxes.get (it);
+
+                            int ind = this.board.getLayout ().getChildren ().indexOf (this);
+
+                            this.board.setCustomLayout (true);
+                            this.board.getLayout ().getChildren ().remove (b);
+
+                            this.board.getLayout ().getChildren ().add (ind,
+                                                                        b);
+
+                        }
+
+                    }
+
+                }
+
+                ev.setDropCompleted (true);
+                ev.consume ();
+
+            });
+
+            this.setOnDragDone (ev ->
+            {
+
+                this.pseudoClassStateChanged (StyleClassNames.DRAGOVER_PSEUDO_CLASS, false);
+
+            });
+
+            this.setOnDragEntered (ev ->
+            {
+
                 ev.consume ();
 
             });
