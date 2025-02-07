@@ -6,6 +6,7 @@ import java.util.function.*;
 import java.util.stream.*;
 import java.io.*;
 import java.nio.file.*;
+import java.util.concurrent.*;
 
 import java.awt.image.*;
 
@@ -912,7 +913,12 @@ public class UIUtils
 
         }
 
-        return new Image (Files.newInputStream (p));
+        try (InputStream is = Files.newInputStream (p))
+        {
+
+            return new Image (is);
+
+        }
 
     }
 
@@ -5105,7 +5111,30 @@ TODO
                     if (u != null)
                     {
 
-                        parent.getStylesheets ().add (u.toExternalForm ());
+                        String ex = u.toExternalForm ();
+
+                        parent.getStylesheets ().add (ex);
+
+                        Path p = Paths.get (u.toURI ());
+
+                        Environment.watchPathForChange (p,
+                                                        path ->
+                        {
+
+                            UIUtils.runLater (() ->
+                            {
+
+                                int ind = parent.getStylesheets ().indexOf (ex);
+
+                                parent.getStylesheets ().remove (ind);
+
+                                parent.getStylesheets ().add (ind,
+                                                              ex);
+
+                            });
+
+
+                        });
 
                     }
 
@@ -5568,14 +5597,41 @@ TODO
                                     })
                                     .build ());
 
-                    } else {
+                        return;
+
+                    }
+
+                    if (v instanceof State)
+                    {
+
+                        String val = "Unable to encode State: " + v;
+
+                        try
+                        {
+
+                            val = JSONEncoder.encodeMap (((State) v).asMap (),
+                                                      true,
+                                                      "");
+
+                        } catch (Exception e) {
+
+
+
+                        }
 
                         fb.item (new SimpleStringProperty (k),
                                  QuollLabel.builder ()
-                                    .label (new SimpleStringProperty ("" + v))
+                                    .label (new SimpleStringProperty (val))
                                     .build ());
 
+                        return;
+
                     }
+
+                    fb.item (new SimpleStringProperty (k),
+                             QuollLabel.builder ()
+                                .label (new SimpleStringProperty ("" + v))
+                                .build ());
 
                 });
 

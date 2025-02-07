@@ -211,12 +211,17 @@ public class BackgroundObject
         }
 
         this.userPath = p;
-        this.bg = new Background (new BackgroundImage (new Image (Files.newInputStream (p)),
-                                                        BackgroundRepeat.NO_REPEAT,
-                                                        BackgroundRepeat.NO_REPEAT,
-                                                        null,
-                                                        new BackgroundSize (100, 100, true, true, true, true)));
-                                                        //null));
+
+        try (InputStream is = Files.newInputStream (p))
+        {
+
+            this.bg = new Background (new BackgroundImage (new Image (is),
+                                                            BackgroundRepeat.NO_REPEAT,
+                                                            BackgroundRepeat.NO_REPEAT,
+                                                            null,
+                                                            new BackgroundSize (100, 100, true, true, true, true)));
+
+        }
 
         this.bgProp.setValue (this.bg);
 

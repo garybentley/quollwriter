@@ -814,15 +814,20 @@ TODO Remove
                            throws IOException
     {
 
-        Utils.postToURL (url,
-                         headers,
-                         "application/octet-steam",
-                         Files.size (file),
-                         Files.newInputStream (file),
-                         onSuccess,
-                         onError,
-                         onFailure,
-                         progressListener);
+        try (InputStream is = Files.newInputStream (file))
+        {
+
+            Utils.postToURL (url,
+                             headers,
+                             "application/octet-steam",
+                             Files.size (file),
+                             is,
+                             onSuccess,
+                             onError,
+                             onFailure,
+                             progressListener);
+
+        }
 
     }
 
@@ -2032,7 +2037,41 @@ TODO REmove
             try (Stream<Path> ls = Files.list (d))
             {
 
-                ls.forEach (f ->
+                ls.sorted ((o1, o2) ->
+                {
+
+                    if (Files.isDirectory (o1))
+                    {
+
+                        if (!Files.isDirectory (o2))
+                        {
+
+                            return 1;
+
+                        }
+
+                        return o1.getFileName ().compareTo (o2.getFileName ());
+
+                    }
+
+                    if (Files.isDirectory (o2))
+                    {
+
+                        if (!Files.isDirectory (o1))
+                        {
+
+                            return 1;
+
+                        }
+
+                        return o2.getFileName ().compareTo (o1.getFileName ());
+
+                    }
+
+                    return 0;
+
+                })
+                .forEach (f ->
                 {
 
                     if (Files.notExists (f))
