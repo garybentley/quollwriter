@@ -124,50 +124,6 @@ public class VerticalLayout extends Pane
 
     }
 
-/*
-    @Override
-    protected double computePrefWidth (double h)
-    {
-
-    }
-*/
-/*
-    @Override
-    protected double computePrefHeight (double v)
-    {
-
-        double lw = this.getParent ().getWidth () - insets.getLeft () - insets.getRight ();
-
-        double rw = 0;
-
-        int col = 0;
-
-        Map<Integer, Set<Node>> cols = new HashSet<> ();
-
-        for (Node n : this.getChildren ())
-        {
-
-            if (!n.isManaged ())
-            {
-
-                continue;
-
-            }
-
-            if (rw < lw)
-            {
-
-                Set<Node> colNodes = cols.get (col);
-
-            }
-
-            visComps.add (n);
-
-        }
-
-    }
-*/
-
     @Override
     protected double computeMinWidth (double _h)
     {
