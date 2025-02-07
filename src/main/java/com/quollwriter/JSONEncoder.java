@@ -561,7 +561,7 @@ public class JSONEncoder
             if (prettyPrint)
             {
 
-                b.append ("\n");
+                //b.append ("\n");
                 b.append (indent);
 
             }
@@ -617,7 +617,10 @@ public class JSONEncoder
                 {
 
                     nindent = indent + "  ";
-
+/*
+                    b.append ("\n");
+                    b.append (indent);
+*/
                 } else {
 
                     nindent = "";
@@ -680,6 +683,19 @@ public class JSONEncoder
     {
 
         StringBuilder b = new StringBuilder ();
+
+        if ((prettyPrint)
+            &&
+            (o.size () > 0)
+           )
+        {
+
+            b.append ("\n");
+            b.append (indent);
+
+            indent += "  ";
+
+        }
 
         b.append ("[");
              /*
@@ -754,6 +770,7 @@ public class JSONEncoder
                 {
 
                     b.append ("\n");
+                    indent += "  ";
 
                 }
 
