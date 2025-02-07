@@ -142,6 +142,10 @@ public class Environment
 
     private static ScheduledFuture autoNightModeSchedule = null;
 
+    private static final Map<FileSystem, WatchService> fileWatchers = new HashMap<> ();
+    private static ScheduledExecutorService fileWatcherWorker = null;
+    private static final Map<Path, Consumer<Path>> pathChangeWatchers = new HashMap<> ();
+
     static
     {
 
@@ -6141,6 +6145,113 @@ Remove
         }
 
         return null;
+
+    }
+
+    public static WatchKey watchPathForChange (Path           p,
+                                               Consumer<Path> onChange)
+                                        throws IOException
+    {
+
+        if (Files.notExists (p))
+        {
+
+            throw new IOException ("Path does not exist: " + p);
+
+        }
+
+        if (Files.isDirectory (p))
+        {
+
+            throw new IOException ("Path is a directory: " + p);
+
+        }
+
+        FileSystem fs = p.getFileSystem ();
+
+        WatchService s = Environment.fileWatchers.get (fs);
+
+        if (s == null)
+        {
+
+            s = fs.newWatchService ();
+            Environment.fileWatchers.put (fs,
+                                          s);
+
+        }
+
+        if (Environment.fileWatcherWorker == null)
+        {
+
+            // Add this sort of incoherent nonsense is why Java is so disliked...
+            Environment.fileWatcherWorker = Executors.newSingleThreadScheduledExecutor (new ThreadFactory ()
+                                                                                    {
+
+                                                                                         public Thread newThread (Runnable r)
+                                                                                         {
+
+                                                                                             Thread t = Executors.defaultThreadFactory ().newThread (r);
+                                                                                             t.setDaemon (true);
+                                                                                             return t;
+
+                                                                                         }
+
+                                                                                    });
+            Environment.fileWatcherWorker.scheduleWithFixedDelay (() ->
+            {
+
+                fileWatchers.values ().stream ()
+                    .forEach (ws ->
+                    {
+
+                        WatchKey k = ws.poll ();
+
+                        if (k != null)
+                        {
+
+                            for (WatchEvent<?> ev : k.pollEvents ())
+                            {
+
+                                Path cp = (Path) ev.context ();
+
+                                Path fp = ((Path) k.watchable ()).resolve (cp);
+
+                                Consumer<Path> c = Environment.pathChangeWatchers.get (fp);
+
+                                if (c != null)
+                                {
+
+                                    c.accept ((Path) ev.context ());
+
+                                }
+
+                            }
+
+                            k.reset ();
+
+                        }
+
+                    });
+
+            },
+            0,
+            500,
+            TimeUnit.MILLISECONDS);
+
+        }
+
+        Environment.pathChangeWatchers.put (p,
+                                            onChange);
+
+        return p.getParent ().register (s,
+                                        StandardWatchEventKinds.ENTRY_MODIFY);
+
+    }
+
+    public static void unwatchPathForChange (Path p)
+    {
+
+        Environment.pathChangeWatchers.remove (p);
 
     }
 
