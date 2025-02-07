@@ -2113,6 +2113,40 @@ System.out.println ("HEREZ: " + cb);
 
     }
 
+    public void print (AbstractViewer v)
+    {
+/*
+Get height/width of page (pixels)
+Create a new TextEditor?  Set current height/width/style etc
+Layout paragraphs that completely fit
+    Need to find paragraphs that partially fit - what if split over a line? - line height?
+    Adjust node size to fit all lines that are fully visible
+    Print
+    Then show next page etc...
+getVisibleParagraphBoundsOnScreen (int)
+
+        PrinterJob printerJob = PrinterJob.createPrinterJob ();
+
+        if (printerJob != null)
+        {
+
+            if (printerJob.showPrintDialog (v))
+            {
+
+            PageLayout pageLayout = Printer.getDefaultPrinter ().createPageLayout (Paper.A4,
+                                                                                   PageOrientation.PORTRAIT,
+                                                                                   20,
+                                                                                   20,
+                                                                                   20,
+                                                                                   20);
+
+          boolean success = printerJob.printPage(pageLayout, this);
+          if (success) {
+            printerJob.endJob();
+          }
+*/
+    }
+
     public void clearAllSpellingErrors ()
     {
 
