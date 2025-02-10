@@ -1336,8 +1336,6 @@ xxx
             this.editMarker.setVisible (true);
 
             // Need to redetermine the bounds here otherwise the height will be wrong, for reasons...
-            //thisb = this.localToScreen (this.getBoundsInLocal ());
-
             this.editMarker.setPrefHeight (cb.getMaxY () - thisb.getMinY ());
 
             this.editMarker.autosize ();

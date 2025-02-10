@@ -293,8 +293,12 @@ public class ExportProjectPopup extends PopupContent<ProjectViewer>
 
             Files.createDirectories (dir);
 
+            Set<NamedObject> selected = new LinkedHashSet<> ();
+            this.getSelectedObjects (this.itemsTree.getRoot (),
+                                     selected);
+
             de.exportProject (dir,
-                              this.getSelectedItems ());
+                              selected);
 
             this.viewer.saveObject (this.proj,
                                     false);
@@ -720,21 +724,13 @@ public class ExportProjectPopup extends PopupContent<ProjectViewer>
 
     }
 
-    private Project getSelectedItems ()
+    private Set<NamedObject> getSelectedItems ()
     {
-
-        Project p = new Project (this.proj.getName ());
-
-        Book b = new Book (p,
-                           null);
-
-        p.addBook (b);
-        b.setName (p.getName ());
 
         Set<NamedObject> selected = new LinkedHashSet<> ();
         this.getSelectedObjects (this.itemsTree.getRoot (),
                                  selected);
-
+/*
         for (NamedObject n : selected)
         {
 
@@ -765,8 +761,8 @@ public class ExportProjectPopup extends PopupContent<ProjectViewer>
             p.getBooks ().remove (b);
 
         }
-
-        return p;
+*/
+        return selected;
 
     }
 

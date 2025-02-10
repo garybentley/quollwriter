@@ -46,11 +46,7 @@ public class Importer
     public static void init ()
     {
 
-        if (true)
-        {
-            // Is this still needed?
-            return;
-        }
+        // Note this is STILL needed, the initial load of a file takes > 1s, this is done in the background at startup to make things 100x faster.
 
         // Create a new instance of each handler.
         Iterator<String> iter = Importer.handlers.keySet ().iterator ();
@@ -62,12 +58,12 @@ public class Importer
 
             Class c = Importer.handlers.get (t);
 
-            try
+            try (InputStream is = Utils.getResourceStream (Importer.initDocs.get (t)))
             {
 
                 DocumentImporter di = (DocumentImporter) c.getDeclaredConstructor ().newInstance ();
 
-                di.convert (Utils.getResourceStream (Importer.initDocs.get (t)),
+                di.convert (is,
                             t);
 
             } catch (Exception e)

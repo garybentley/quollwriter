@@ -152,8 +152,8 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
 
     }
 
-    public void exportProject (Path    dir,
-                               Project itemsToExport)
+    public void exportProject (Path             dir,
+                               Set<NamedObject> itemsToExport)
                         throws GeneralException
     {
 
@@ -220,19 +220,24 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
             book.getResources ().add (new Resource (new ByteArrayInputStream (css.getBytes ("utf-8")),
                                                     "main.css"));
 
-            if (itemsToExport.getBooks ().size () > 0)
+            if (itemsToExport.size () > 0)
             {
-
-                Book b = itemsToExport.getBook (0);
 
                 String cTemp = Utils.getResourceFileAsString ("/data/export/epub/chapter-template.xml");
 
-                List<Chapter> chapters = b.getChapters ();
-
                 int count = 0;
 
-                for (Chapter c : chapters)
+                for (NamedObject n : itemsToExport)
                 {
+
+                    if (!(n instanceof Chapter))
+                    {
+
+                        continue;
+
+                    }
+
+                    Chapter c = (Chapter) n;
 
                     count++;
 
@@ -273,27 +278,44 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
             // TODO Make a constant/property...
             String appendixTemp = Utils.getResourceFileAsString ("/data/export/epub/appendix-template.xml");
 
-            Set<UserConfigurableObjectType> assetTypes = itemsToExport.getAssetUserConfigurableObjectTypes (true);
-
             // Capital A.
             //int apxChar = 65;
 
             char apxChar = 'A';
 
-            for (UserConfigurableObjectType type : assetTypes)
+            Map<UserConfigurableObjectType, Set<Asset>> assets = new LinkedHashMap<> ();
+
+            for (NamedObject n : itemsToExport)
             {
 
-                Set<Asset> as = itemsToExport.getAssets (type);
-
-                if ((as == null)
-                    ||
-                    (as.size () == 0)
-                   )
+                if (!(n instanceof Asset))
                 {
 
                     continue;
 
                 }
+
+                Asset a = (Asset) n;
+
+                Set<Asset> assts = assets.get (a.getUserConfigurableObjectType ());
+
+                if (assts == null)
+                {
+
+                    assts = new LinkedHashSet<> ();
+                    assets.put (a.getUserConfigurableObjectType (),
+                                assts);
+
+                }
+
+                assts.add (a);
+
+            }
+
+            for (UserConfigurableObjectType type : assets.keySet ())
+            {
+
+                Set<Asset> as = assets.get (type);
 
                 String apxC = Character.toString (apxChar);
 

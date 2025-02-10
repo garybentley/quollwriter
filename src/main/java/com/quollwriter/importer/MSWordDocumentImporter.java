@@ -37,6 +37,11 @@ public class MSWordDocumentImporter implements DocumentImporter
 
         this.p = new Project ();
 
+        // Add a dummy chapter user config object type.
+        UserConfigurableObjectType chapterType = new UserConfigurableObjectType (this.p);
+        chapterType.setUserObjectType (Chapter.OBJECT_TYPE);
+        this.p.addUserConfigurableObjectType (chapterType);
+
         Book b = new Book (this.p,
                            null);
 

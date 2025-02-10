@@ -20,6 +20,7 @@ import javafx.scene.layout.*;
 import com.quollwriter.ui.fx.*;
 import com.quollwriter.ui.fx.userobjects.*;
 import com.quollwriter.ui.fx.components.*;
+import com.quollwriter.ui.fx.viewers.*;
 
 import org.docx4j.jaxb.*;
 
@@ -552,7 +553,7 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
         Body b = mp.getContents ().getBody ();
 
         // Get the handlers.
-        Set<UserConfigurableObjectFieldViewEditHandler> handlers = a.getViewEditHandlers (null);
+        Set<UserConfigurableObjectFieldViewEditHandler> handlers = a.getViewEditHandlers ((ProjectViewer) Environment.getProjectViewer (this.proj));
 
         for (UserConfigurableObjectFieldViewEditHandler h : handlers)
         {
@@ -578,9 +579,10 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
             }
 
             mp.addStyledParagraphOfText (SUBTITLE,
-                                         h.getTypeField ().getFormName ());
+                                         h.getField ().getUserConfigurableObjectTypeField ().getFormName ());
 
-            if (h instanceof ImageUserConfigurableObjectFieldViewEditHandler)
+            if (h.getField ().getUserConfigurableObjectTypeField ().getType () == UserConfigurableObjectTypeField.Type.image)
+            // instanceof ImageUserConfigurableObjectFieldViewEditHandler)
             {
 
                 File f = this.proj.getFile (val.toString ());
@@ -642,7 +644,7 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
                 continue;
 
             }
-
+System.out.println ("CLASS: " + sm.getClass ().getName ());
             TextIterator iter = new TextIterator (sm.getText ());
 
             for (Paragraph p : iter.getParagraphs ())
@@ -890,8 +892,8 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
     }
 
     @Override
-    public void exportProject (Path    dir,
-                               Project itemsToExport)
+    public void exportProject (Path             dir,
+                               Set<NamedObject> itemsToExport)
                         throws GeneralException
     {
 
@@ -908,7 +910,7 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
 
         this.lang.setVal (this.getLanguageCode (this.proj));
 
-        Project p = itemsToExport;
+        //Project p = itemsToExport;
 
         try
         {
@@ -924,7 +926,7 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
                                 true);
 
                 mp.addStyledParagraphOfText (TITLE,
-                                             p.getName ());
+                                             this.proj.getName ());
 
                 WordprocessingMLPackage notesWordMLPackage = WordprocessingMLPackage.createPackage ();
 
@@ -938,7 +940,7 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
 
                 notesmp.addStyledParagraphOfText (TITLE,
                                                   String.format (getUIString (exportproject,sectiontitles,notes),
-                                                                 p.getName ()));
+                                                                 this.proj.getName ()));
                                                   //p.getName () + " - Notes");
 
                 boolean hasNotes = false;
@@ -952,7 +954,7 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
 
                 outlinemp.addStyledParagraphOfText (TITLE,
                                                     String.format (getUIString (exportproject,sectiontitles,scenesoutlineitems),
-                                                                   p.getName ()));
+                                                                   this.proj.getName ()));
                                                     //p.getName () + " - Scenes and Plot Outline");
 
                 boolean hasOutline = false;
@@ -966,96 +968,98 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
 
                 chapinfmp.addStyledParagraphOfText (TITLE,
                                                     String.format (getUIString (exportproject,sectiontitles,chapterinfo),
-                                                                   p.getName ()));
+                                                                   this.proj.getName ()));
                                                     //p.getName () + " - Chapter Information");
 
                 boolean hasChapInf = false;
 
-                if (p.getBooks ().size () > 0)
+                for (NamedObject n : itemsToExport)
                 {
 
-                    List<Chapter> chapters = p.getBooks ().get (0).getChapters ();
-
-                    for (Chapter c : chapters)
+                    if (!(n instanceof Chapter))
                     {
 
-                        this.addTo (mp,
-                                    wordMLPackage,
-                                    c);
-
-                        notesmp.addStyledParagraphOfText (HEADING1,
-                                                          c.getName ());
-                        outlinemp.addStyledParagraphOfText (HEADING1,
-                                                            c.getName ());
-                        chapinfmp.addStyledParagraphOfText (HEADING1,
-                                                            c.getName ());
-
-                        this.addChapterItems (c,
-                                              notesmp,
-                                              outlinemp,
-                                              chapinfmp);
-
-                        if ((c.getGoals () != null)
-                            ||
-                            (c.getPlan () != null)
-                           )
-                        {
-
-                            hasChapInf = true;
-
-                        }
-
-                        if (c.getNotes ().size () > 0)
-                        {
-
-                            hasNotes = true;
-
-                        }
-
-                        if ((c.getOutlineItems ().size () > 0)
-                            ||
-                            (c.getScenes ().size () > 0)
-                           )
-                        {
-
-                            hasOutline = true;
-
-                        }
+                        continue;
 
                     }
 
-                    this.save (wordMLPackage,
-                               p.getName ());
+                    Chapter c = (Chapter) n;
 
-                    if (hasNotes)
+                    this.addTo (mp,
+                                wordMLPackage,
+                                c);
+
+                    notesmp.addStyledParagraphOfText (HEADING1,
+                                                      c.getName ());
+                    outlinemp.addStyledParagraphOfText (HEADING1,
+                                                        c.getName ());
+                    chapinfmp.addStyledParagraphOfText (HEADING1,
+                                                        c.getName ());
+
+                    this.addChapterItems (c,
+                                          notesmp,
+                                          outlinemp,
+                                          chapinfmp);
+
+                    if ((c.getGoals () != null)
+                        ||
+                        (c.getPlan () != null)
+                       )
                     {
 
-                        this.save (notesWordMLPackage,
-                                   String.format (getUIString (exportproject,sectiontitles,notes),
-                                                  p.getName ()));
-                                   //p.getName () + " - Notes");
+                        hasChapInf = true;
 
                     }
 
-                    if (hasOutline)
+                    if (c.getNotes ().size () > 0)
                     {
 
-                        this.save (outlineWordMLPackage,
-                                   String.format (getUIString (exportproject,sectiontitles,scenesoutlineitems),
-                                                  p.getName ()));
-                                   //p.getName () + " - Scenes and Plot Outline");
+                        hasNotes = true;
 
                     }
 
-                    if (hasChapInf)
+                    if ((c.getOutlineItems ().size () > 0)
+                        ||
+                        (c.getScenes ().size () > 0)
+                       )
                     {
 
-                        this.save (chapterInfoWordMLPackage,
-                                   String.format (getUIString (exportproject,sectiontitles,chapterinfo),
-                                                  p.getName ()));
-                                   //p.getName () + " - Chapter Information");
+                        hasOutline = true;
 
                     }
+
+                }
+
+                this.save (wordMLPackage,
+                           this.proj.getName ());
+
+                if (hasNotes)
+                {
+
+                    this.save (notesWordMLPackage,
+                               String.format (getUIString (exportproject,sectiontitles,notes),
+                                              this.proj.getName ()));
+                               //p.getName () + " - Notes");
+
+                }
+
+                if (hasOutline)
+                {
+
+                    this.save (outlineWordMLPackage,
+                               String.format (getUIString (exportproject,sectiontitles,scenesoutlineitems),
+                                              this.proj.getName ()));
+                               //p.getName () + " - Scenes and Plot Outline");
+
+                }
+
+                if (hasChapInf)
+                {
+
+                    this.save (chapterInfoWordMLPackage,
+                               String.format (getUIString (exportproject,sectiontitles,chapterinfo),
+                                              this.proj.getName ()));
+                               //p.getName () + " - Chapter Information");
 
                 }
 
@@ -1064,10 +1068,17 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
             if (settings.chapterExportType == ExportSettings.INDIVIDUAL_FILE)
             {
 
-                List<Chapter> chapters = p.getBooks ().get (0).getChapters ();
-
-                for (Chapter c : chapters)
+                for (NamedObject n : itemsToExport)
                 {
+
+                    if (!(n instanceof Chapter))
+                    {
+
+                        continue;
+
+                    }
+
+                    Chapter c = (Chapter) n;
 
                     WordprocessingMLPackage wordMLPackage = WordprocessingMLPackage.createPackage ();
 
@@ -1176,19 +1187,30 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
 
                 mp.addStyledParagraphOfText (TITLE,
                                              String.format (getUIString (exportproject,sectiontitles,assets),
-                                                            p.getName ()));
+                                                            this.proj.getName ()));
                                              //p.getName () + " - Assets");
 
-                List<NamedObject> objs = new ArrayList (p.getAllNamedChildObjects (Asset.class));
-
-                if (objs.size () > 0)
+                if (itemsToExport.size () > 0)
                 {
 
+                    List<NamedObject> objs = new ArrayList<> (itemsToExport);
+
                     Collections.sort (objs,
-                                      new NamedObjectSorter (itemsToExport));
+                                      new NamedObjectSorter (this.proj));
+
+                    int assetCount = 0;
 
                     for (NamedObject n : objs)
                     {
+
+                        if (!(n instanceof Asset))
+                        {
+
+                            continue;
+
+                        }
+
+                        assetCount++;
 
                         this.addTo (mp,
                                     wordMLPackage,
@@ -1196,15 +1218,19 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
 
                     }
 
-                    this.save (wordMLPackage,
-                               String.format (getUIString (exportproject,sectiontitles,assets),
-                                              p.getName ()));
-                               //p.getName () + " - Assets");
+                    if (assetCount > 0)
+                    {
+
+                        this.save (wordMLPackage,
+                                   String.format (getUIString (exportproject,sectiontitles,assets),
+                                                  this.proj.getName ()));
+
+                    }
 
                 }
 
             }
-
+/*
             if (settings.otherExportType == ExportSettings.INDIVIDUAL_FILE)
             {
 
@@ -1219,7 +1245,7 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
                 }
 
             }
-
+*/
         } catch (Exception e)
         {
 

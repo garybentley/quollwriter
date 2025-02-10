@@ -65,7 +65,6 @@ public class ImportPopup extends PopupContent<AbstractViewer>
     private FileChooser.ExtensionFilter fileFilter = null;
     private QuollTreeView<NamedObject> itemsTree = null;
     private VBox projectList = null;
-    private Set<String> filesToCopy = new HashSet<> ();
 
     private Map<String, Wizard.Step> steps = new HashMap<> ();
 
@@ -623,6 +622,7 @@ public class ImportPopup extends PopupContent<AbstractViewer>
                 }
 
                 UserConfigurableObjectType.FieldsColumn nfc = nt.addNewColumn (nfcfields);
+
                 nfc.setTitle (fc.getTitle ());
                 nfc.setShowFieldLabels (fc.isShowFieldLabels ());
 
@@ -755,7 +755,9 @@ public class ImportPopup extends PopupContent<AbstractViewer>
 
         Book b = this.pv.getProject ().getBooks ().get (0);
 
-        Set<NamedObject> selected = new HashSet<> ();
+        Set<String> filesToCopy = new LinkedHashSet<> ();
+
+        Set<NamedObject> selected = new LinkedHashSet<> ();
         this.getSelectedObjects (this.itemsTree.getRoot (),
                                  selected);
 
@@ -928,6 +930,20 @@ public class ImportPopup extends PopupContent<AbstractViewer>
                     of.setId (null);
                     of.setDateCreated (new java.util.Date ());
 
+                    for (String fn : of.getProjectFileNames ())
+                    {
+
+                        if (fn == null)
+                        {
+
+                            continue;
+
+                        }
+
+                        filesToCopy.add (fn);
+
+                    }
+
                     this.pv.saveObject (of,
                                         conn);
 
@@ -946,33 +962,22 @@ public class ImportPopup extends PopupContent<AbstractViewer>
 
             }
 
+        }
+
+        for (String fn : filesToCopy)
+        {
+
             if (this.importFromProj != null)
             {
 
-                if (n instanceof UserConfigurableObject)
+                File file = new File (this.importFromProj.getFilesDirectory (),
+                                      fn);
+
+                if (file.exists ())
                 {
 
-                    UserConfigurableObject uo = (UserConfigurableObject) n;
-
-                    // Get the files that need to be transfered/copied.
-                    for (UserConfigurableObjectField f : uo.getFields ())
-                    {
-
-                        for (String fn : f.getProjectFileNames ())
-                        {
-
-                            if (fn == null)
-                            {
-
-                                continue;
-
-                            }
-
-                            this.filesToCopy.add (fn);
-
-                        }
-
-                    }
+                    thisProj.saveToFilesDirectory (file,
+                                                   fn);
 
                 }
 
@@ -1010,50 +1015,13 @@ public class ImportPopup extends PopupContent<AbstractViewer>
             om.saveObject (b,
                            conn);
 
+            Set<String> filesToCopy = new LinkedHashSet<> ();
             Set<NamedObject> selected = new LinkedHashSet<> ();
             this.getSelectedObjects (this.itemsTree.getRoot (),
                                      selected);
 
             for (NamedObject n : selected)
             {
-
-                HashSet<Path> filesToCopy = new HashSet<> ();
-
-                if (this.importFromProj != null)
-                {
-
-                    if (n instanceof UserConfigurableObject)
-                    {
-
-                        UserConfigurableObject uo = (UserConfigurableObject) n;
-
-                        // Get the files that need to be transfered/copied.
-                        for (UserConfigurableObjectField f : uo.getFields ())
-                        {
-
-                            for (String fn : f.getProjectFileNames ())
-                            {
-
-                                if (fn == null)
-                                {
-
-                                    continue;
-
-                                }
-
-                                p.saveToFilesDirectory (new File (this.importFromProj.getFilesDirectory (),
-                                                                  fn),
-                                                        fn);
-
-                                this.filesToCopy.add (fn);
-
-                            }
-
-                        }
-
-                    }
-
-                }
 
                 if (n instanceof Chapter)
                 {
@@ -1117,10 +1085,27 @@ public class ImportPopup extends PopupContent<AbstractViewer>
 
                         // Update the key of user config object type field.
                         // Set the field key to be null (so a new one is created)
+                        of.setKey (null);
+                        of.setId (null);
+                        of.setDateCreated (new java.util.Date ());
                         of.setUserConfigurableObjectTypeField (this.fieldKeyMapping.get (of.getUserConfigurableObjectTypeField ()));
 
                         om.saveObject (of,
                                        conn);
+
+                        for (String fn : of.getProjectFileNames ())
+                        {
+
+                            if (fn == null)
+                            {
+
+                                continue;
+
+                            }
+
+                            filesToCopy.add (fn);
+
+                        }
 
                     }
 
@@ -1155,10 +1140,27 @@ public class ImportPopup extends PopupContent<AbstractViewer>
                                      this.fileFind.getFile (),
                                      null,
                                      conn);
-/*
-            pj.fireProjectEvent (ProjectEvent.Type._import,
-                                 ProjectEvent.Action.any);
-*/
+
+            for (String fn : filesToCopy)
+            {
+
+                if (this.importFromProj != null)
+                {
+
+                    File file = new File (this.importFromProj.getFilesDirectory (),
+                                          fn);
+
+                    if (file.exists ())
+                    {
+
+                        p.saveToFilesDirectory (file,
+                                                fn);
+
+                    }
+
+                }
+
+            }
 
         } catch (Exception e)
         {
@@ -1269,13 +1271,7 @@ public class ImportPopup extends PopupContent<AbstractViewer>
 
         String fn = p.getFileName ().toString ().toLowerCase ();
 
-        if ((!fn.endsWith (".docx"))
-/*
-TODO Remove
-            &&
-            (!fn.endsWith (".doc"))
-*/
-           )
+        if (!fn.endsWith (".docx"))
         {
 
             throw new IllegalArgumentException ("File type not supported for path: " + p);
@@ -2063,7 +2059,7 @@ TODO Add tool tip?
 
         }
 
-        this.filesToCopy = new HashSet<> ();
+        //this.filesToCopy = new HashSet<> ();
 
         Project p = new Project (projName);
 
@@ -2080,7 +2076,7 @@ TODO Add tool tip?
         p.addBook (b);
         b.setName (projName);
 
-        Set<NamedObject> selected = new HashSet<> ();
+        Set<NamedObject> selected = new LinkedHashSet<> ();
         this.getSelectedObjects (this.itemsTree.getRoot (),
                                  selected);
 
@@ -2172,38 +2168,6 @@ System.out.println ("DONT HAVE FIELD: " + f.getFormName ());
                 }
 
                 p.addAsset (a);
-
-            }
-
-            if (this.importFromProj != null)
-            {
-
-                if (n instanceof UserConfigurableObject)
-                {
-
-                    UserConfigurableObject uo = (UserConfigurableObject) n;
-
-                    // Get the files that need to be transfered/copied.
-                    for (UserConfigurableObjectField f : uo.getFields ())
-                    {
-
-                        for (String fn : f.getProjectFileNames ())
-                        {
-
-                            if (fn == null)
-                            {
-
-                                continue;
-
-                            }
-
-                            this.filesToCopy.add (fn);
-
-                        }
-
-                    }
-
-                }
 
             }
 

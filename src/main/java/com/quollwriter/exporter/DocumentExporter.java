@@ -2,6 +2,7 @@ package com.quollwriter.exporter;
 
 import java.io.*;
 import java.nio.file.*;
+import java.util.*;
 
 import com.quollwriter.*;
 
@@ -12,8 +13,8 @@ import com.quollwriter.ui.fx.components.*;
 public interface DocumentExporter
 {
 
-    public void exportProject (Path    dir,
-                               Project itemsToExport)
+    public void exportProject (Path             dir,
+                               Set<NamedObject> itemsToExport)
                         throws GeneralException;
 
     public String getStartStage ();
