@@ -7,42 +7,28 @@
  */
 
 plugins {
-    // Apply the java plugin to add support for Java
-    id 'java'
 
     // Apply the application plugin to add support for building an application
     id 'application'
 
-    //id 'org.openjfx.javafxplugin' version '0.0.9'
 }
 
 version '3.0.2'
 
-/*
-javafx {
-    version = '12'
-    modules = [ 'javafx.swing', 'javafx.controls', 'javafx.media', 'javafx.web' ]
-    configuration = 'compileOnly'
-}
-*/
 repositories {
-    // Use jcenter for resolving your dependencies.
-    // You can declare any Maven/Ivy/file repository here.
-    //jcenter()
     mavenCentral()
 
     // Needed for the EPUB lib artifact.
-/*
     maven {
-        url 'http://maven.openkm.com/'
+        url 'https://maven.openkm.com/'
     }
-*/
 
+/*
     maven {
         //id 'psiegman-repo'
         url 'https://github.com/psiegman/mvn-repo/raw/master/releases'
     }
-
+*/
     maven {
             url 'https://oss.sonatype.org/content/repositories/snapshots/'
         }
@@ -52,14 +38,7 @@ repositories {
 dependencies {
 
     implementation fileTree('3rd-party-jars') {
-        //include 'jdom-1.0.jar'
-        //include 'jgoodies-forms-1.8.0.jar'
-        //include 'JoSQL-2.2.jar'
         include 'josql-2.3.jar'
-        //include 'gentlyWEB-utils-1.1.jar'
-        //include 'gentlyWEB-xml-1.1.jar'
-        //include 'gentlyWEB-properties-1.2.jar'
-        //include 'gentlyWEB-logging-1.0.jar'
         include 'gentlyweb-properties-3.jar'
         include 'javadiff.jar'
 
@@ -89,7 +68,7 @@ dependencies {
     implementation 'pull-parser:pull-parser:2.1.10'
 
     // Docx4J
-    implementation 'org.docx4j:docx4j-JAXB-ReferenceImpl:11.1.8'
+    implementation 'org.docx4j:docx4j-JAXB-ReferenceImpl:11.5.2'
 
     // Bouncy castle crypto
     implementation 'org.bouncycastle:bcprov-jdk15on:1.62'
@@ -102,7 +81,7 @@ dependencies {
     implementation 'org.apache.commons:commons-dbcp2:2.6.0'
 
     // Apache Commons IO
-    implementation 'commons-io:commons-io:2.11.0'
+    implementation 'commons-io:commons-io:2.16.1'
 
     // H2 DB
     implementation 'com.h2database:h2:1.3.175'
@@ -114,10 +93,10 @@ dependencies {
     //implementation 'org.apache.poi:poi-scratchpad:4.1.0'
 
     // JFreeChart
-    implementation 'org.jfree:jfreechart:1.5.0'
+    //implementation 'org.jfree:jfreechart:1.5.0'
 
     // JFreeChart-FX
-    implementation 'org.jfree:jfreechart-fx:1.0.1'
+    //implementation 'org.jfree:jfreechart-fx:1.0.1'
 
     // Smack
     implementation 'org.igniterealtime.smack:smack-core:4.4.4'
@@ -127,9 +106,7 @@ dependencies {
     implementation 'org.igniterealtime.smack:smack-java8:4.4.4'
 
     // RichtextFX
-    implementation 'org.fxmisc.richtext:richtextfx:0.11.0'
-    //implementation 'org.fxmisc.richtext:richtextfx:0.10.9'
-    //implementation 'org.fxmisc.richtext:richtextfx:1.0.0-SNAPSHOT'
+    implementation 'org.fxmisc.richtext:richtextfx:0.11.4'
 
     // This is temporary for testing changes to a local version of richtextfx.  Ignore.
     // TEMP ADD RICHTEXTFX JARS AND DEPS
@@ -144,11 +121,11 @@ dependencies {
     }
 */
     // Flying Saucer (can be removed when no longer using Swing)
-    implementation 'org.xhtmlrenderer:flying-saucer-core:9.1.18'
+    //implementation 'org.xhtmlrenderer:flying-saucer-core:9.1.18'
 
     // JGoodies (remove when no longer using Swing)
-    implementation 'com.jgoodies:jgoodies-looks:2.7.0'
-    implementation 'com.jgoodies:jgoodies-forms:1.9.0'
+    //implementation 'com.jgoodies:jgoodies-looks:2.7.0'
+    //implementation 'com.jgoodies:jgoodies-forms:1.9.0'
 
     // AnimateFX (test)
     //implementation 'io.github.typhon0:AnimateFX:1.2.1'
@@ -267,22 +244,22 @@ run {
     dependsOn jar
 }
 
+configurations.all {
+    resolutionStrategy {
+        force 'commons-io:commons-io:2.16.1',
+          'commons-codec:commons-codec:1.15',
+          'commons-io:commons-io:2.16.1',
+          'org.slf4j:slf4j-api:1.8.0-beta4',
+          'pull-parser:pull-parser:2.1.10'
+    }
+}
+
 task copyToLib(type: Copy) {
     delete "$buildDir/libs"
     into "$buildDir/libs"
     from configurations.runtimeClasspath
 }
 
-configurations.all {
-  resolutionStrategy {
-    //failOnVersionConflict()
-    // This is to try and fix some of the dependency conflicts between siegmann and dom4j.
-    force 'commons-codec:commons-codec:1.15',
-          'commons-io:commons-io:2.11.0',
-          'org.slf4j:slf4j-api:1.8.0-beta4',
-          'pull-parser:pull-parser:2.1.10'
-  }
-}
 /*
 task printCompileClasspath {
     def compileClasspath = sourceSets.main.compileClasspath
