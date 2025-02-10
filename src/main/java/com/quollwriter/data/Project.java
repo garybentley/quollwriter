@@ -1790,7 +1790,8 @@ public class Project extends NamedObject
         {
 
             Files.copy (file.toPath (),
-                        f.toPath ());
+                        f.toPath (),
+                        StandardCopyOption.REPLACE_EXISTING);
 
         } catch (Exception e) {
 
