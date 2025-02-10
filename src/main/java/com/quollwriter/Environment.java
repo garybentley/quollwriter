@@ -717,7 +717,6 @@ System.out.println ("FILEPROPS: " + defUserPropsFile);
 
         }
 
-        // TODO Check to see if can remove
         Environment.schedule (() ->
         {
 

@@ -88,8 +88,6 @@ public class QuollImageView extends StackPane
                        Priority.ALWAYS);
 
         bb.getChildren ().add (this.ib);
-        this.ib.prefWidthProperty ().bind (bb.widthProperty ());
-        this.ib.prefHeightProperty ().bind (bb.heightProperty ());
 
         this.getChildren ().add (bb);//this.ib);
 

@@ -39,6 +39,9 @@ public class IconBox extends HBox
 
         }
         this.getChildren ().add (this.pane);
+
+        //this.pane.prefHeightProperty ().bind (this.heightProperty ());
+        //this.pane.prefWidthProperty ().bind (this.widthProperty ());
         //this.prefHeightProperty ().bind (this.pane.prefHeightProperty ());
         //this.prefWidthProperty ().bind (this.pane.prefWidthProperty ());
         //this.maxWidthProperty ().bind (this.pane.prefWidthProperty ());
@@ -159,6 +162,8 @@ public class IconBox extends HBox
         this.pane.setBackground (new Background (bim));
         this.pane.setPrefHeight (im.getHeight ());
         this.pane.setPrefWidth (im.getWidth ());
+        //this.pane.prefWidthProperty ().bind (this.widthProperty ());
+        //this.pane.prefHeightProperty ().bind (this.heightProperty ());
         /*
         OLD THIS WORKED!
         ImageView iv = new ImageView ();
