@@ -147,9 +147,15 @@ public class ReportBugPopup extends PopupContent<AbstractViewer>
 
                     details.put ("errorLog",
                                  this.getLogFilesAsSingleString (Environment.getLogPaths ()));
-                    details.put ("editorsMessageLog",
-                                 new String (Files.readAllBytes (EditorsEnvironment.getEditorsMessageLogFile ().toPath ()),
-                                             StandardCharsets.UTF_8));
+
+                    if (EditorsEnvironment.getEditorsMessageLogFile ().exists ())
+                    {
+
+                        details.put ("editorsMessageLog",
+                                     new String (Files.readAllBytes (EditorsEnvironment.getEditorsMessageLogFile ().toPath ()),
+                                                 StandardCharsets.UTF_8));
+
+                    }
 
                 }
 
