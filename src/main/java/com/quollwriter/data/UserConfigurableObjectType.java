@@ -1203,7 +1203,14 @@ TODO REmove
         {
 
             // See if we have a mapping.
-            String prop = this.project.getProperty ("userConfigObjTypeFieldsEnvToProjKeyMap");
+            String prop = null;
+
+            if (this.project != null)
+            {
+
+                prop = this.project.getProperty ("userConfigObjTypeFieldsEnvToProjKeyMap");
+
+            }
 
             if (prop != null)
             {

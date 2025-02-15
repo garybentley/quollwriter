@@ -50,10 +50,10 @@ public class Chapter extends LegacyUserConfigurableObject
     private EventSource<ChapterItem.ChapterItemEvent> chapterItemsPositionEventSource = new EventSource<> ();
     private Map<ChapterItem, List<Subscription>> eventSourceSubscriptions = new HashMap<> ();
 
-    public Chapter (Book b)
+    public Chapter (UserConfigurableObjectType type)
     {
 
-        super (b.getProject ().getUserConfigurableObjectType (Chapter.OBJECT_TYPE));
+        super (type);
 
         this.outlineItems.addListener ((SetChangeListener<OutlineItem>) ev ->
         {
@@ -198,6 +198,13 @@ public class Chapter extends LegacyUserConfigurableObject
             }
 
         });
+
+    }
+
+    public Chapter (Book b)
+    {
+
+        this (b.getProject ().getUserConfigurableObjectType (Chapter.OBJECT_TYPE));
 
     }
 
