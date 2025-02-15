@@ -286,16 +286,6 @@ public class EditorsSideBar<E extends AbstractViewer> extends SideBarContent
 
         VBox box = new VBox ();
 
-        QuollTextView hp = QuollTextView.builder ()
-            .text (getUILanguageStringProperty (LanguageStrings.editors,LanguageStrings.sidebar,type,text))
-            .inViewer (this.viewer)
-            .build ();
-
-        //hp.maxWidthProperty ().bind (box.widthProperty ());
-        //hp.prefWidthProperty ().bind (box.widthProperty ());
-
-        box.getChildren ().add (hp);
-
         for (EditorEditor ed : eds)
         {
 
@@ -338,7 +328,7 @@ public class EditorsSideBar<E extends AbstractViewer> extends SideBarContent
                                                  ev ->
         {
 
-            hp.setVisible (eds.size () == 0);
+            //hp.setVisible (eds.size () == 0);
 
             while (ev.next ())
             {
@@ -507,6 +497,7 @@ public class EditorsSideBar<E extends AbstractViewer> extends SideBarContent
 
         UIUtils.setTooltip (this.statusBut,
                             toolTip);
+
         this.statusBut.setIconName (this.getStatusStyleClassName (status));
         this.loginBut.setVisible (!EditorsEnvironment.isUserLoggedIn ());
         this.statusBut.setVisible (!this.loginBut.isVisible ());
