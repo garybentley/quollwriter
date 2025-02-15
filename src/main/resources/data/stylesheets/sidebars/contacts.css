@@ -31,14 +31,16 @@
     -fx-fill-height: false;
 }
 
-.icon.online-icon
+.icon.online-iconX
 {
     -fx-pref-height: 1em;
 }
 
-.contact .controls .iconbox .icon.online-icon
+.contacts .header .controls .iconbox .icon.online-icon
 {
-    -fx-pref-height: 1.000em;
+    -fx-pref-height: 0.888em;
+    -fx-min-height: 0.888em;
+    -fx-max-height: 0.888em;
 }
 
 .tab.contacts .tab-label .icon
