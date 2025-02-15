@@ -120,8 +120,7 @@ public class TypeEncoder
 
     }
 
-    public static Note decodeToNote (Map     m,
-                                      Project p)
+    public static Note decodeToNote (Map     m)
                               throws GeneralException
     {
 
@@ -135,7 +134,11 @@ public class TypeEncoder
                                               false);
 
         // Create a fake chapter to hold the id/version.
-        Chapter c = new Chapter (p.getBook (0));
+        // We use a dummy chapter object type here.
+        UserConfigurableObjectType t = new UserConfigurableObjectType (null);
+        t.setUserObjectType (Chapter.OBJECT_TYPE);
+
+        Chapter c = new Chapter (t);
         c.setId (chid);
         c.setVersion (chver);
         c.setName (cname);
@@ -177,8 +180,7 @@ public class TypeEncoder
 
     }
 
-    public static Chapter decodeToChapter (Map     m,
-                                           Project p)
+    public static Chapter decodeToChapter (Map     m)
                                     throws GeneralException
     {
 
@@ -195,7 +197,11 @@ public class TypeEncoder
                                            m,
                                            false);
 
-        Chapter c = new Chapter (p.getBook (0));
+        // We use a dummy chapter object type here.
+        UserConfigurableObjectType t = new UserConfigurableObjectType (null);
+        t.setUserObjectType (Chapter.OBJECT_TYPE);
+
+        Chapter c = new Chapter (t);
         c.setId (cid);
         c.setName (cname);
 

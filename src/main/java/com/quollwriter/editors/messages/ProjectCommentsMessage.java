@@ -324,8 +324,7 @@ public class ProjectCommentsMessage extends EditorMessage implements PropertyCha
 
             Map cm = (Map) co;
 
-            Note n = TypeEncoder.decodeToNote (cm,
-                                               this.project);
+            Note n = TypeEncoder.decodeToNote (cm);
 
             n.addPropertyChangedListener (this);
 
@@ -429,8 +428,7 @@ public class ProjectCommentsMessage extends EditorMessage implements PropertyCha
 
                 Map cm = (Map) cms.get (i);
 
-                Note n = TypeEncoder.decodeToNote (cm,
-                                                   this.project);
+                Note n = TypeEncoder.decodeToNote (cm);
 
                 comms.add (n);
 

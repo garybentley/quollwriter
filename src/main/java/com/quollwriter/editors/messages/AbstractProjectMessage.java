@@ -307,15 +307,14 @@ public abstract class AbstractProjectMessage extends EditorMessage
         if (chs != null)
         {
 
-            chaps = new LinkedHashSet ();
+            chaps = new LinkedHashSet<> ();
 
             for (int i = 0; i < chs.size (); i++)
             {
 
                 Map cm = (Map) chs.get (i);
 
-                Chapter c = TypeEncoder.decodeToChapter (cm,
-                                                         this.project);
+                Chapter c = TypeEncoder.decodeToChapter (cm);
 
                 chaps.add (c);
 
@@ -393,8 +392,7 @@ public abstract class AbstractProjectMessage extends EditorMessage
 
             Map cm = (Map) co;
 
-            Chapter c = TypeEncoder.decodeToChapter (cm,
-                                                     this.project);
+            Chapter c = TypeEncoder.decodeToChapter (cm);
 
             chapsS.add (c);
 
@@ -500,8 +498,7 @@ public abstract class AbstractProjectMessage extends EditorMessage
 
             Map cm = (Map) co;
 
-            Chapter c = TypeEncoder.decodeToChapter (cm,
-                                                     this.project);
+            Chapter c = TypeEncoder.decodeToChapter (cm);
 
             wc += TextUtilities.getWordCount (c.getChapterText ());
 

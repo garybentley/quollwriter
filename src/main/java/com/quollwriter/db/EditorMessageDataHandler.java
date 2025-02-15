@@ -32,7 +32,7 @@ public class EditorMessageDataHandler implements DataHandler<EditorMessage, Edit
      * A message cache, since the same message can be viewed in multiple places and updated in multiple places
      * we need a single object for the message so that we have one object -> multiple viewers.
      */
-    private Map<Long, EditorMessage> messageCache = new HashMap ();
+    private Map<Long, EditorMessage> messageCache = new HashMap<> ();
 
     public EditorMessageDataHandler (ObjectManager om)
     {
