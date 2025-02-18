@@ -940,7 +940,7 @@
                 "popup" :
                 {
                     "title" : "Import ${objectnames.singular.asset} types into your ${objectnames.singular.project}",
-                    "text" : "Import the definition of an ${objectname.singular.asset} into your ${objectnames.singular.project}.  Note: this won't import the ${objectnames.plural.asset} themselves.",
+                    "text" : "Import the definition of an ${objectnames.singular.asset} into your ${objectnames.singular.project}.  Note: this won't import the ${objectnames.plural.asset} themselves.",
                     "projectslist" :
                     {
                         "tooltip" : "Select a ${objectnames.singular.project} to import from",
