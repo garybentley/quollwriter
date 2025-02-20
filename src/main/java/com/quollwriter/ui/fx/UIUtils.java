@@ -5114,7 +5114,7 @@ TODO
                         String ex = u.toExternalForm ();
 
                         parent.getStylesheets ().add (ex);
-
+/*
                         Path p = Paths.get (u.toURI ());
 
                         Environment.watchPathForChange (p,
@@ -5135,7 +5135,7 @@ TODO
 
 
                         });
-
+*/
                     }
 
                 } catch (Exception e) {
