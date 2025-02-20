@@ -146,6 +146,8 @@ public class Environment
     private static ScheduledExecutorService fileWatcherWorker = null;
     private static final Map<Path, Consumer<Path>> pathChangeWatchers = new HashMap<> ();
 
+    private static boolean useXmlForMessageToSupport = false;
+
     static
     {
 
@@ -4063,6 +4065,15 @@ xxx
                                  Exception ex)
     {
 
+        if (Environment.logger == null)
+        {
+
+            System.err.println ("Error: " + m);
+            ex.printStackTrace (System.err);
+            return;
+
+        }
+
         Environment.logger.log (Level.SEVERE,
                                 m,
                                 ex);
@@ -4132,53 +4143,74 @@ xxx
                           System.getProperty ("os.version"));
                 info.put ("osArch",
                           System.getProperty ("os.arch"));
+                info.put ("type",
+                          type);
 
-                Element root = new DefaultElement ("message");
-                root.addAttribute ("quollWriterVersion",
-                                   Environment.getQuollWriterVersion ().toString ());
-                root.addAttribute ("beta",
-                                   String.valueOf (Environment.appVersion.isBeta ()));
-                root.addAttribute ("javaVersion",
-                                   System.getProperty ("java.version"));
-                root.addAttribute ("osName",
-                                   System.getProperty ("os.name"));
-                root.addAttribute ("osVersion",
-                                   System.getProperty ("os.version"));
-                root.addAttribute ("osArch",
-                                   System.getProperty ("os.arch"));
-                root.addAttribute ("type",
-                                   type);
+                String data = "!!!INVALID!!!";
 
-                // Encode as XML.
-                Iterator<String> iter = info.keySet ().iterator ();
-
-                while (iter.hasNext ())
+                if (Environment.useXmlForMessageToSupport)
                 {
 
-                    String k = iter.next ();
+                    Element root = new DefaultElement ("message");
+                    root.addAttribute ("quollWriterVersion",
+                                       Environment.getQuollWriterVersion ().toString ());
+                    root.addAttribute ("beta",
+                                       String.valueOf (Environment.appVersion.isBeta ()));
+                    root.addAttribute ("javaVersion",
+                                       System.getProperty ("java.version"));
+                    root.addAttribute ("osName",
+                                       System.getProperty ("os.name"));
+                    root.addAttribute ("osVersion",
+                                       System.getProperty ("os.version"));
+                    root.addAttribute ("osArch",
+                                       System.getProperty ("os.arch"));
+                    root.addAttribute ("type",
+                                       type);
 
-                    Object v = info.get (k);
+                    // Encode as XML.
+                    Iterator<String> iter = info.keySet ().iterator ();
 
-                    Element el = new DefaultElement (k.toString ());
-
-                    if (v != null)
+                    while (iter.hasNext ())
                     {
 
-                        el.add (new DefaultCDATA (v.toString ()));
+                        String k = iter.next ();
+
+                        Object v = info.get (k);
+
+                        Element el = new DefaultElement (k.toString ());
+
+                        if (v != null)
+                        {
+
+                            // Try and "escape" any nested CDATA
+                            String vv = v.toString ();
+
+                            vv = Utils.replaceString (vv,
+                                                      "]]>",
+                                                      "]]]]>");
+
+                            el.add (new DefaultCDATA (vv));
+
+                        }
+
+                        root.add (el);
 
                     }
 
-                    root.add (el);
+                    // Get as a string.
+                    data = DOM4JUtils.elementAsString (root);
+
+                } else {
+
+                    data = JSONEncoder.encode (info);
 
                 }
-
-                // Get as a string.
-                String data = DOM4JUtils.elementAsString (root);
 
                 URL u = Environment.getSupportUrl (Constants.SEND_MESSAGE_TO_SUPPORT_PAGE_PROPERTY_NAME);
 
                 HttpURLConnection conn = (HttpURLConnection) u.openConnection ();
 
+                conn.setRequestProperty ("qw-content-format", Environment.useXmlForMessageToSupport ? "xml" : "json");
                 conn.setDoInput (true);
                 conn.setDoOutput (true);
 
