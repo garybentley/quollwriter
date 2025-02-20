@@ -3561,6 +3561,8 @@ TODO Remove
                 .onAction (ev ->
                 {
 
+                    viewer.showAddNewAsset (type);
+/*
                     Asset asset = null;
 
                     try
@@ -3591,8 +3593,8 @@ TODO Remove
                     }
 
                     asset.setDescription (description);
-
-                    viewer.showAddNewAsset (asset);
+*/
+//                    viewer.showAddNewAsset (asset);
 
                 })
                 .build ();
@@ -5653,6 +5655,112 @@ TODO
         } catch (Exception e) {
 
             Environment.logError ("Unable to show object properties for: " + pid,
+                                  e);
+
+        }
+
+    }
+
+    public static String formatCSSPropertyValueAsString (Object o)
+    {
+
+        if (o == null)
+        {
+
+            return "";
+
+        }
+
+        if (o instanceof Insets)
+        {
+
+            Insets i = (Insets) o;
+
+            return String.format ("t: %1$s, r: %2$s, b: %3$s, l: %4$s",
+                                  Environment.formatNumber (i.getTop ()),
+                                  Environment.formatNumber (i.getRight ()),
+                                  Environment.formatNumber (i.getBottom ()),
+                                  Environment.formatNumber (i.getLeft ()));
+
+        }
+
+        if (o instanceof Font)
+        {
+
+            Font f = (Font) o;
+
+            return String.format ("%1$s, %2$s, %3$spt - ",
+                                  f.getName (),
+                                  f.getStyle (),
+                                  Environment.formatNumber (f.getSize ()));
+
+        }
+
+        if (o instanceof BoundingBox)
+        {
+
+            BoundingBox bb = (BoundingBox) o;
+
+            return String.format ("x: %1$s - %4$s, y: %2$s - %5$s, z: %3$s - %6$s, width: %7$s, height: %8$s",
+                                  Environment.formatNumber (bb.getMinX ()),
+                                  Environment.formatNumber (bb.getMinY ()),
+                                  Environment.formatNumber (bb.getMinZ ()),
+                                  Environment.formatNumber (bb.getMaxX ()),
+                                  Environment.formatNumber (bb.getMaxY ()),
+                                  Environment.formatNumber (bb.getMaxZ ()),
+                                  Environment.formatNumber (bb.getWidth ()),
+                                  Environment.formatNumber (bb.getHeight ()));
+
+        }
+
+        return o.toString ();
+
+    }
+
+    public static void printCSSProperties (Node n)
+    {
+
+        Map<String, String> props = new TreeMap<> ();
+
+        props.put ("Id",
+                  n.getId ());
+        props.put ("Inline style",
+                   n.getStyle ());
+        props.put ("Pseudo classes",
+                   n.getPseudoClassStates ().stream ()
+                      .map (p -> ":" + p.getPseudoClassName ())
+                      .collect (Collectors.joining (" ")).trim ());
+        props.put ("Local bounds",
+                   UIUtils.formatCSSPropertyValueAsString (n.boundsInLocalProperty ().getValue ()));
+        props.put ("Bounds in parent",
+                   UIUtils.formatCSSPropertyValueAsString (n.boundsInParentProperty ().getValue ()));
+
+        n.getCssMetaData ().stream ()
+            .forEach (md ->
+            {
+
+                CssMetaData cmd = (CssMetaData) md;
+
+                if (cmd.getStyleableProperty (n).getValue () != null)
+                {
+
+                    props.put (cmd.getProperty (),
+                               UIUtils.formatCSSPropertyValueAsString (cmd.getStyleableProperty (n).getValue ()));
+
+                }
+
+            });
+
+        try
+        {
+
+            System.out.println (JSONEncoder.encode (props,
+                                                    true,
+                                                    "  "));
+
+        } catch (Exception e) {
+
+            Environment.logError ("Unable to print properties for node: " + n,
                                   e);
 
         }
