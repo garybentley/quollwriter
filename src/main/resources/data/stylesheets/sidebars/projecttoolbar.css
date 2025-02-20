@@ -48,3 +48,8 @@
     -fx-pref-height: 1.3em;
 }
 .toolbar .button { -fx-content-display: graphic-only; }
+
+.toolbar .menu-button .menu-item .iconbox .icon:image
+{
+    -fx-background-color: transparent;
+}
