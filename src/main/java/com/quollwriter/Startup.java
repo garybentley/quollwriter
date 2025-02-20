@@ -90,7 +90,7 @@ public class Startup extends Application
 
         } catch (Exception e) {
 
-            //e.printStackTrace ();
+            e.printStackTrace (System.err);
 
         }
 
@@ -216,7 +216,7 @@ public class Startup extends Application
 
             } catch (Error err) {
 
-                err.printStackTrace ();
+                err.printStackTrace (System.err);
 
             } finally
             {
