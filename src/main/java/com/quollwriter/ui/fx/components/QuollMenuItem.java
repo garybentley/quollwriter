@@ -62,21 +62,11 @@ public class QuollMenuItem extends MenuItem
 
         }
 
-        //this.setGraphic (r);
-        /*
-        ImageView iv = new ImageView ();
-        iv.setFitHeight (100);
-        iv.setPreserveRatio (true);
-        iv.setSmooth (true);
-        iv.setCache (true);
-*/
         this.iconBox = IconBox.builder ()
             .iconName (b.iconName)
             .image (b.icon)
             .build ();
         this.setGraphic (this.iconBox);
-
-        //this.setGraphic (new ImageView ());
 
     }
 
