@@ -208,7 +208,20 @@ public class ProjectEditorDataHandler implements DataHandler<ProjectEditor, Proj
             pe.setForProjectId (rs.getString (ind++));
             pe.setForProjectName (rs.getString (ind++));
             pe.setStatus (ProjectEditor.Status.valueOf (rs.getString (ind++)));
-            pe.setStatusMessage (rs.getString (ind++));
+
+            String sm = rs.getString (ind++);
+
+            // Hack to prevent json decoding problems.
+            if (sm.startsWith ("{Project}"))
+            {
+
+                sm = Utils.replaceString (sm,
+                                          "{Project}",
+                                          Environment.getUIString (LanguageStrings.objectnames,LanguageStrings.singular,LanguageStrings.project));
+
+            }
+
+            pe.setStatusMessage (sm);
             pe.setCurrent (rs.getBoolean (ind++));
             pe.setEditorFrom (rs.getTimestamp (ind++));
             pe.setEditorTo (rs.getTimestamp (ind++));
