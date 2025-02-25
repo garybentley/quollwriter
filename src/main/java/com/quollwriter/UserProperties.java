@@ -684,6 +684,14 @@ public class UserProperties
         try
         {
 
+            // Handle name changes from previous versions.
+            if (v.equals ("/imgs/bgs/1-skyline.jpg"))
+            {
+
+                v = "/imgs/bgs/_1-skyline.jpg";
+
+            }
+
             UserProperties.fullScreenBackgroundProp.setValue (BackgroundObject.createBackgroundObjectForId (v));
 
         } catch (Exception e) {
