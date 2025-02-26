@@ -4,7 +4,7 @@
     ":version" : 1,
     ":id" : ":English",
     ":qwversion.old" : "2.6.14",
-    ":qwversion" : "3.0.2",
+    ":qwversion" : "3.0.3",
     ":created" : 0,
     ":user" : false,
     ":email" : "gary@quollwriter.com",
@@ -6411,6 +6411,17 @@
                     {
                         "title" : "Bug Fixes/New Features",
                         "text" : "<ul><li>Moved Asset types and Tags into the project.  See <a href='https://quollwriter.wordpress.com/2025/02/03/qwv3-dev-blog-37-im-back/'>this blog post</a> for more details.</li><li>Added the ability to import Asset types from another project.</li><li>Added the ability to set how dark the background is in night mode.</li><li>Added the ability to create a new type of Asset from the Options panel.</li><li>Idea Types on the Idea Board can now be sorted and dragged/dropped to sort them.  They will default to an alphabetical order.</li><li>An issue with the creating and testing a translation has been fixed.</li><li>Fixed an issue where the edit marker for a chapter wasn't showing up in the right place when the chapter had unsaved text.</li><li>Fixed an issue with backups not being created.</li><li>Fixed an issue where the font and font size for pasted text in Assets was incorrect.</li><li>Fixed an issue where, when a chapter was set as edit complete, using the arrow down key to scroll would cause an error.</li><li>Made a number of tweaks to styles to make things more consistent and aligned.</li><li>A number of achievements have been fixed, these may show up for you now.</li></ul>"
+                    }
+                }
+            },
+            "3.0.3" :
+            {
+                "items" :
+                {
+                    "bugs" :
+                    {
+                        "title" : "Bug Fixes",
+                        "text" : "<ul><li>Fixed a couple of issues relating to the down key being disabled when there is an edit point in the ${objectnames.singular.chapter}.</li><li>Fixed an issue that stopped new Assets being created from various places.</li><li>Stopped the undealt with Editor messages notification from being displayed multiple times when the user goes in and out of full screen mode.</li><li>A few other minor fixes to prevent errors happening in the background.</li></ul>"
                     }
                 }
             }

@@ -1,7 +1,11 @@
 <whatsnew>
 
-    <version id="3.0.2">
+    <version id="3.0.3">
           <item id="bugs" onlyIfCurrentVersion="true"/>
+    </version>
+
+    <version id="3.0.2">
+          <item id="bugs" />
     </version>
 
     <version id="3.0.1">
