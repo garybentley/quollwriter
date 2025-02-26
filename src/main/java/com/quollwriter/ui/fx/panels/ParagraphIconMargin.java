@@ -1305,7 +1305,6 @@ xxx
 
         IndexRange po = this.editor.getParagraphTextRange (this.paraNo);
         Bounds thisb = this.localToScreen (this.getBoundsInLocal ());
-        Bounds cb = this.editor.getBoundsForPosition (this.chapter.getEditPosition ());
 
         this.layoutStructureItems (po,
                                    thisb);
@@ -1328,15 +1327,24 @@ xxx
             )
             &&
             (thisb != null)
-            &&
-            (cb != null)
            )
         {
 
             this.editMarker.setVisible (true);
 
-            // Need to redetermine the bounds here otherwise the height will be wrong, for reasons...
-            this.editMarker.setPrefHeight (cb.getMaxY () - thisb.getMinY ());
+            Bounds cb = this.editor.getBoundsForPosition (this.chapter.getEditPosition ());
+
+            if (cb != null)
+            {
+
+                // Need to redetermine the bounds here otherwise the height will be wrong, for reasons...
+                this.editMarker.setPrefHeight (cb.getMaxY () - thisb.getMinY ());
+
+            } else {
+
+                this.editMarker.setPrefHeight (thisb.getHeight ());
+
+            }
 
             this.editMarker.autosize ();
             this.editMarker.relocate (this.getLayoutBounds ().getMaxX () - this.editMarker.prefWidth (-1),
