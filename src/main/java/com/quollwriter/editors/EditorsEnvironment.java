@@ -1465,6 +1465,15 @@ public class EditorsEnvironment
         if (!viewer.isEditorsSideBarVisible ())
         {
 
+            String nid = "editors-" + undealtwith + notification;
+
+            if (viewer.getNotificationById (nid) != null)
+            {
+
+                return;
+
+            }
+
             int c = 0;
 
             try
@@ -1484,17 +1493,6 @@ public class EditorsEnvironment
             if (c > 0)
             {
 
-/*
-                String s = "There are <b>%s</b> {Editor} messages requiring your attention.";
-
-                if (c == 1)
-                {
-
-                    s = "There is <b>1</b> {Editor} message that requires your attention.";
-
-                }
-*/
-
                 int _c = c;
 
                 //xxx get notification by name.
@@ -1508,6 +1506,8 @@ public class EditorsEnvironment
                                                                    60);
 
                     Node nn = n.getContent ();
+
+                    n.setId (nid);
 
                     nn.addEventHandler (MouseEvent.MOUSE_CLICKED,
                                         ev ->

@@ -179,6 +179,28 @@ public class WindowedContent extends AbstractViewer.Content<AbstractViewer>
     }
 
     @Override
+    public Notification getNotificationById (String id)
+    {
+
+        for (Node n : this.notifications.getChildren ())
+        {
+
+            if (n instanceof Notification)
+            {
+
+                Notification nn = (Notification) n;
+
+                return nn;
+
+            }
+
+        }
+
+        return null;
+
+    }
+
+    @Override
     public State getState ()
     {
 

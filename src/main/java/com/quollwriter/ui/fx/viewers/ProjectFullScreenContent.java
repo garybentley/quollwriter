@@ -1811,6 +1811,14 @@ TODO Remove
     }
 
     @Override
+    public Notification getNotificationById (String id)
+    {
+
+        return null;
+
+    }
+
+    @Override
     public State getState ()
     {
 

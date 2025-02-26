@@ -9,4 +9,5 @@ public interface NotificationViewer
 
     void addNotification (Notification n);
 
+    Notification getNotificationById (String id);
 }

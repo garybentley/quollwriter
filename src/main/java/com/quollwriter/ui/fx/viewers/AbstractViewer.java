@@ -1554,6 +1554,13 @@ public abstract class AbstractViewer extends VBox implements ViewerCreator,
 
     }
 
+    public Notification getNotificationById (String id)
+    {
+
+        return this.currentContent != null ? this.currentContent.getNotificationById (id) : null;
+
+    }
+
     /**
      * Adds a notification to the notification area, the action listener can be used
      * to remove the notification, it can be safely called with a null event.
