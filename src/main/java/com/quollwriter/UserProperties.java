@@ -1066,7 +1066,13 @@ public class UserProperties
         try
         {
 
-            UserProperties.keyStrokeSoundBytes = Files.readAllBytes (p);
+            if (p != null)
+            {
+
+                UserProperties.keyStrokeSoundBytes = Files.readAllBytes (p);
+
+            }
+
             UserProperties.keyStrokeSoundPathProp.setValue (up);
 
         } catch (Exception e) {
