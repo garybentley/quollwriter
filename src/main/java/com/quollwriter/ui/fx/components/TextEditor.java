@@ -1480,6 +1480,13 @@ TODO
     public int getTextPositionForCurrentMousePosition ()
     {
 
+        if (this.mousePos == null)
+        {
+
+            return -1;
+
+        }
+
         return this.getTextPositionForMousePosition (this.mousePos.getX (),
                                                      this.mousePos.getY ());
 
