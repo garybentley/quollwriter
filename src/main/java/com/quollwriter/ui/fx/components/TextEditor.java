@@ -2080,21 +2080,6 @@ System.out.println ("HEREZ: " + cb);
 
     }
 
-    private void updateStyleInSelection (TextStyle mixin)
-    {
-
-        IndexRange selection = this.getSelection();
-        if (selection.getLength () != 0)
-        {
-/*
-            StyleSpans<TextStyle> styles = this.getStyleSpans(selection);
-            StyleSpans<TextStyle> newStyles = styles.mapStyles(style -> style.updateWith(mixin));
-            this.setStyleSpans(selection.getStart(), newStyles);
-*/
-        }
-
-    }
-
     public void removeSpellingError (IndexRange r)
     {
 
@@ -2103,9 +2088,27 @@ System.out.println ("HEREZ: " + cb);
         this.suspendUndos.suspendWhile (() ->
         {
 
-            this.getContent ().setStyleSpans (r.getStart (),
-                                              this.getContent ().getStyleSpans (r.getStart (),
-                                                                                r.getEnd ()).mapStyles (ss ->
+            int s = r.getStart ();
+
+            if (s < 0)
+            {
+
+                s = 0;
+
+            }
+
+            int e = r.getEnd ();
+
+            if (e > this.getText ().length ())
+            {
+
+                e = this.getText ().length ();
+
+            }
+
+            this.getContent ().setStyleSpans (s,
+                                              this.getContent ().getStyleSpans (s,
+                                                                                e).mapStyles (ss ->
             {
 
                 TextStyle _s = new TextStyle (ss);
