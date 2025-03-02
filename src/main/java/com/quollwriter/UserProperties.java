@@ -692,6 +692,13 @@ public class UserProperties
 
             }
 
+            if (v.equals ("/imgs/bgs/1-sand.jpg"))
+            {
+
+                v = "/imgs/bgs/_1-sand.jpg";
+
+            }
+
             UserProperties.fullScreenBackgroundProp.setValue (BackgroundObject.createBackgroundObjectForId (v));
 
         } catch (Exception e) {
