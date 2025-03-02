@@ -607,7 +607,7 @@ public abstract class ChapterEditorPanelContent<E extends AbstractProjectViewer>
     public void requestFocus ()
     {
 
-        //this.editor.requestFocus ();
+        this.editor.requestFocus ();
 
     }
 

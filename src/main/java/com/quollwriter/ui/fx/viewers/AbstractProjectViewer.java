@@ -307,6 +307,13 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 
     }
 
+    public TabPane getTabPane ()
+    {
+
+        return this.tabs;
+
+    }
+
     @Override
     public Panel getCurrentPanel ()
     {

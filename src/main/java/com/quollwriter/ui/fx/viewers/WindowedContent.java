@@ -95,30 +95,9 @@ public class WindowedContent extends AbstractViewer.Content<AbstractViewer>
         UIUtils.addStyleSheet (b,
                                Constants.VIEWER_STYLESHEET_TYPE,
                                StyleClassNames.WINDOWED);
-/*
-        if (b.styleSheet != null)
-        {
-
-            this.getStylesheets ().add (b.styleSheet);
-
-        }
-*/
         b.getStyleClass ().add (StyleClassNames.WINDOWED);
         b.prefWidthProperty ().bind (this.widthProperty ());
         b.prefHeightProperty ().bind (this.heightProperty ());
-/*
-        TabPane tp = new TabPane ();
-        Tab tab = new Tab ();
-        VBox.setVgrow (tp,
-                       Priority.ALWAYS);
-        tab.setContent (new ScrollPane (AccordionItem.builder ()
-            .openContent (new TextArea ())
-            .title (new javafx.beans.property.SimpleStringProperty ("TEST"))
-            .closedContent (new Label ("THIS IS A TEST"))
-            .build ()));
-        tp.getTabs ().add (tab);
-//this.parentPane.setContent (tp);
-*/
         this.getChildren ().add (b);
         b.getChildren ().addAll (this.header, this.notifications, this.parentPane);
 

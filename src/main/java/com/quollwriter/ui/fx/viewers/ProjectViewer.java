@@ -149,6 +149,41 @@ public class ProjectViewer extends AbstractProjectViewer
 
         });
 
+        this.getTabPane ().getSelectionModel ().selectedItemProperty ().addListener ((ev,
+                                                                                     o,
+                                                                                     n) ->
+        {
+
+            if (n == null)
+            {
+
+                return;
+
+            }
+
+            if (!(n.getContent () instanceof Panel))
+            {
+
+                return;
+
+            }
+
+            Panel p = (Panel) n.getContent ();
+
+            if (p.getContent () instanceof ProjectChapterEditorPanelContent)
+            {
+
+                UIUtils.forceRunLater (() ->
+                {
+
+                    ((ProjectChapterEditorPanelContent) p.getContent ()).requestFocus ();
+
+                });
+
+            }
+
+        });
+
     }
 
     @Override
@@ -1245,6 +1280,13 @@ public class ProjectViewer extends AbstractProjectViewer
         {
 
             UIUtils.runLater (doAfterView);
+
+            UIUtils.forceRunLater (() ->
+            {
+
+                this.getEditorForChapter (c).requestFocus ();
+
+            });
 
             return;
 
