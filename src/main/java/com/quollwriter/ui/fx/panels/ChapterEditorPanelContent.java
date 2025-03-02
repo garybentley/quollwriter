@@ -734,6 +734,11 @@ public abstract class ChapterEditorPanelContent<E extends AbstractProjectViewer>
 
         State s = super.getState ();
 
+        s.set (Constants.LAST_EDITOR_SCROLL_POSITION_PROPERTY_NAME,
+               this.editor.estimatedScrollYProperty ().getValue ().floatValue ());
+        s.set (Constants.LAST_EDITOR_CARET_POSITION_PROPERTY_NAME,
+               this.editor.getCaretPosition ());
+
         int ai = this.editor.visibleParToAllParIndex (0);
         Bounds vpb = this.editor.getVisibleParagraphBoundsOnScreen (0);
         IndexRange ir = this.editor.getParagraphTextRange (ai);
@@ -752,11 +757,6 @@ public abstract class ChapterEditorPanelContent<E extends AbstractProjectViewer>
                    vpb.getMinY () - bb.get ().getMinY ());
 
         }
-
-        s.set (Constants.LAST_EDITOR_SCROLL_POSITION_PROPERTY_NAME,
-               this.editor.estimatedScrollYProperty ().getValue ().floatValue ());
-        s.set (Constants.LAST_EDITOR_CARET_POSITION_PROPERTY_NAME,
-               this.editor.getCaretSelectionBind ().getPosition ());
 
         return s;
 

@@ -206,6 +206,8 @@ public class Chapter extends LegacyUserConfigurableObject
 
         this (b.getProject ().getUserConfigurableObjectType (Chapter.OBJECT_TYPE));
 
+        this.setBook (b);
+
     }
 
     public Chapter(Book   b,

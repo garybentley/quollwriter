@@ -326,7 +326,6 @@ public class WarmupProjectViewer extends AbstractProjectViewer
                         // Get the number (if present)
                         String n = c.getName ().substring (ind + 1,
                                                            ind2);
-                                                           System.out.println ("N: " + n);
 
                         try
                         {
@@ -380,9 +379,6 @@ public class WarmupProjectViewer extends AbstractProjectViewer
                                  // Default to todays date.
                                  name);
 
-        b.addChapter (c,
-                      0);
-
         // Create a new warmup.
         w.setChapter (c);
 
@@ -404,6 +400,9 @@ public class WarmupProjectViewer extends AbstractProjectViewer
                                         e);
 
         }
+
+        b.addChapter (c,
+                      0);
 
         this.warmups.add (w);
 
