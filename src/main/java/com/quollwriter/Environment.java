@@ -2741,7 +2741,12 @@ System.out.println ("FILEPROPS: " + defUserPropsFile);
                                     throws Exception
     {
 
-        Environment.projectInfoManager.setUserProperties (UserProperties.getProperties ());//Environment.userProperties);
+        if (Environment.projectInfoManager != null)
+        {
+
+            Environment.projectInfoManager.setUserProperties (UserProperties.getProperties ());//Environment.userProperties);
+
+        }
 
     }
 
