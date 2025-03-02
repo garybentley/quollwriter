@@ -598,6 +598,13 @@ public abstract class ChapterEditorPanelContent<E extends AbstractProjectViewer>
     public void dispose ()
     {
 
+        if (this.autoSaveTask != null)
+        {
+
+            this.autoSaveTask.cancel (true);
+
+        }
+
         this.editor.dispose ();
         super.dispose ();
 
