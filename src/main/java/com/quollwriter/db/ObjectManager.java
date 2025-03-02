@@ -2300,7 +2300,7 @@ TODO REmove
                             {
 
                                 this.createActionLogEntry (n,
-                                                           "Updated: " + Environment.getObjectTypeName (n.getObjectType ()),
+                                                           "Updated: " + n.getObjectType (),
                                                            changeEl,
                                                            conn);
 
