@@ -745,9 +745,19 @@ public class ProjectDataHandler implements DataHandler<Project, NamedObject>
 
         }
 
+        this.initUserConfigurableObjectTypesFromEnvironment (conn,
+                                                             project);
+
         if (project.getUserConfigurableObjectType (Chapter.OBJECT_TYPE) == null)
         {
 
+            // Init the legacy object types.
+            this.initLegacyObjectTypes (conn,
+                                        project);
+
+            this.objectManager.saveObject (project,
+                                           conn);
+/*
             // Can we init from the environment types?
             if (Environment.getUserConfigurableObjectType (Chapter.OBJECT_TYPE) != null)
             {
@@ -757,15 +767,8 @@ public class ProjectDataHandler implements DataHandler<Project, NamedObject>
 
             } else {
 
-                // Init the legacy object types.
-                this.initLegacyObjectTypes (conn,
-                                            project);
-
-                this.objectManager.saveObject (project,
-                                               conn);
-
             }
-
+*/
         }
 
     }
@@ -774,6 +777,28 @@ public class ProjectDataHandler implements DataHandler<Project, NamedObject>
                                                                  Project    project)
                                                           throws Exception
     {
+
+        Map<Long, Long> mappings = new HashMap<> ();
+
+        try
+        {
+
+            mappings = (Map<Long, Long>) JSONDecoder.decode (project.getProperty ("userConfigObjTypesEnvToProjKeyMap"));
+System.out.println ("GOT MAPPINGS: " + mappings);
+        } catch (Exception e) {
+
+            // Ignore
+
+        }
+
+        if (mappings == null)
+        {
+
+            mappings = new HashMap<> ();
+
+        }
+
+        Map<Long, Long> tkmappings = mappings;
 
         // This means we don't have the user config types set up.
         Map<UserConfigurableObjectType, UserConfigurableObjectType> tmappings = new HashMap<> ();
@@ -788,6 +813,14 @@ public class ProjectDataHandler implements DataHandler<Project, NamedObject>
         for (UserConfigurableObjectType t : objTypes)
         {
 
+            if (tkmappings.containsKey (t.getKey () + ""))
+            {
+
+                System.out.println ("ALREADY GOT: " + t.getKey () + ", " + t.getName ());
+                continue;
+
+            }
+System.out.println ("ADDING: " + t.getKey () + ", " + t.getName ());
             UserConfigurableObjectType nt = new UserConfigurableObjectType (project);
             nt.setName (t.getName ());
             nt.setDescription (t.getDescription ());
@@ -933,7 +966,7 @@ public class ProjectDataHandler implements DataHandler<Project, NamedObject>
         }
 
         // Map the type keys
-        Map<Long, Long> tkmappings = new HashMap<> ();
+        //Map<Long, Long> tkmappings = new HashMap<> ();
 
         // k -> env key
         // v -> proj key

@@ -102,7 +102,7 @@ public class UserConfigurableObjectTypeDataHandler implements DataHandler<UserCo
             } else {
 
                 // Keep this around, needed so we can get the environment type.
-                //Environment.addUserConfigurableObjectType (t);
+                Environment.addUserConfigurableObjectType (t);
 
             }
 

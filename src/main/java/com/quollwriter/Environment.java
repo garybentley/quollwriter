@@ -4457,18 +4457,18 @@ Remove
 
     }
 */
-/*
+
     public static void addUserConfigurableObjectType (UserConfigurableObjectType type)
                                                throws GeneralException
     {
-
+/*
         if (type.getKey () == null)
         {
 
             Environment.projectInfoManager.saveObject (type);
 
         }
-
+*/
         Environment.userConfigObjTypes.add (type);
 
         // Need to now update the column/field state and save again since the field keys are now
@@ -4479,7 +4479,7 @@ Remove
         // TODO type.addPropertyChangedListener (Environment.userConfigurableObjectTypeNameListener);
 
         String id = type.getObjectTypeId ();
-
+/*
         if (!type.isLegacyObjectType ())
         {
 
@@ -4496,9 +4496,9 @@ Remove
                                           ProjectEvent.Type.userobjecttype,
                                           ProjectEvent.Action._new,
                                           type);
-
-    }
 */
+    }
+
 /*
     public static void removeUserConfigurableObjectTypeField (UserConfigurableObjectTypeField field)
                                                        throws GeneralException
