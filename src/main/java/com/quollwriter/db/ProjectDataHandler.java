@@ -784,7 +784,7 @@ public class ProjectDataHandler implements DataHandler<Project, NamedObject>
         {
 
             mappings = (Map<Long, Long>) JSONDecoder.decode (project.getProperty ("userConfigObjTypesEnvToProjKeyMap"));
-System.out.println ("GOT MAPPINGS: " + mappings);
+
         } catch (Exception e) {
 
             // Ignore
@@ -816,11 +816,10 @@ System.out.println ("GOT MAPPINGS: " + mappings);
             if (tkmappings.containsKey (t.getKey () + ""))
             {
 
-                System.out.println ("ALREADY GOT: " + t.getKey () + ", " + t.getName ());
                 continue;
 
             }
-System.out.println ("ADDING: " + t.getKey () + ", " + t.getName ());
+
             UserConfigurableObjectType nt = new UserConfigurableObjectType (project);
             nt.setName (t.getName ());
             nt.setDescription (t.getDescription ());
