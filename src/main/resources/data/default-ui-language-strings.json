@@ -6424,6 +6424,17 @@
                         "text" : "<ul><li>Fixed a couple of issues relating to the down key being disabled when there is an edit point in the ${objectnames.singular.chapter}.</li><li>Fixed an issue that stopped new Assets being created from various places.</li><li>Stopped the undealt with Editor messages notification from being displayed multiple times when the user goes in and out of full screen mode.</li><li>A few other minor fixes to prevent errors happening in the background.</li></ul>"
                     }
                 }
+            },
+            "3.0.4" :
+            {
+                "items" :
+                {
+                    "bugs" :
+                    {
+                        "title" : "Bug fixes",
+                        "text" : "<ul><li>The way that asset types are imported from the project information database has changed.  All types should now be pulled in.</li><li>Fixed a number of minor issues related to internal errors.</li><li>Opening or switching to a ${objectnames.singular.chapter} will now request focus properly.</li><li>Fixed an issue where the ${objectnames.singular.chapter} counts weren't accessible for ${objectnames.plural.warmup}.</li></ul>"
+                    }
+                }
             }
         }
     },
