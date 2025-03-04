@@ -19,9 +19,9 @@ public class Asset extends UserConfigurableObject
     @Override
     public <T extends NamedObject> void merge (T other)
     {
-        
+
         // Do nothing.
-        
+
     }
 
     @Override
@@ -31,22 +31,13 @@ public class Asset extends UserConfigurableObject
         return new HashSet (this.getNotes ());
 
     }
-        
+
     public static Asset createAsset (UserConfigurableObjectType type)
                               throws GeneralException
     {
-        
-        if (type.isLegacyObjectType ())
-        {
-            
-            return LegacyAsset.createLegacyAsset (type);
-            
-        } else {
-            
-            return new Asset (type);
-            
-        }
-        
+
+        return new Asset (type);
+
     }
-    
+
 }
