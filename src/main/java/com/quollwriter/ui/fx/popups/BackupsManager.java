@@ -4,6 +4,7 @@ import java.io.*;
 import java.nio.file.*;
 import java.util.*;
 import java.util.stream.*;
+import java.util.function.*;
 
 import javafx.scene.*;
 import javafx.geometry.*;
@@ -330,41 +331,48 @@ public class BackupsManager extends PopupContent
 
                         };
 
-                        try
-                        {
+                        // Create a backup.
+                        BackupsManager.createBackupForProject (_this.proj,
+                                                                true,
+                                                                // onComplete
+                                                                p ->
+                                                                {
 
-                            // Create a backup.
-                            Path f = BackupsManager.createBackupForProject (_this.proj,
-                                                                            true);
+                                                                    if (pv != null)
+                                                                    {
 
-                        } catch (Exception e) {
+                                                                        Environment.setCloseDownAllowed (false);
 
-                            Environment.logError ("Unable to create backup for project: " +
-                                                  _this.proj,
-                                                  e);
+                                                                        // Close the project.
+                                                                        pv.close (true,
+                                                                                  doRestore);
 
-                            ComponentUtils.showErrorMessage (_this.viewer,
-                                                             getUILanguageStringProperty (backups,_new,actionerror));
-                                                      //"Unable to create a backup of the {project} in its current state.");
+                                                                    } else {
 
-                            return;
+                                                                        UIUtils.runLater (doRestore);
 
-                        }
+                                                                    }
 
-                        if (pv != null)
-                        {
+                                                                },
+                                                                // onError
+                                                                e ->
+                                                                {
 
-                            Environment.setCloseDownAllowed (false);
+                                                                    UIUtils.runLater (() ->
+                                                                    {
 
-                            // Close the project.
-                            pv.close (true,
-                                      doRestore);
+                                                                        Environment.logError ("Unable to create backup for project: " +
+                                                                                              _this.proj,
+                                                                                              e);
 
-                        } else {
+                                                                        ComponentUtils.showErrorMessage (_this.viewer,
+                                                                                                         getUILanguageStringProperty (backups,_new,actionerror));
+                                                                                                  //"Unable to create a backup of the {project} in its current state.");
 
-                            UIUtils.runLater (doRestore);
+                                                                    });
 
-                        }
+                                                                },
+                                                                _this.viewer);
 
                     })
                     .build ();
@@ -887,11 +895,11 @@ TODO Remove
             .onConfirm (fev ->
             {
 
-                try
+                BackupsManager.createBackupForProject (proj,
+                                                       false,
+                                                       // On complete, the new backup path will be passed in
+                                                       p ->
                 {
-
-                    Path p = BackupsManager.createBackupForProject (proj,
-                                                                    false);
 
                     VBox b = new VBox ();
 
@@ -926,27 +934,28 @@ TODO Remove
                         .closeButton ()
                         .build ();
 
-                    viewer.getPopupById (pid).close ();
-/*
-TODO REmove
-                    ComponentUtils.showMessage (viewer,
-                                                StyleClassNames.BACKUPCREATED,
-                                                getUILanguageStringProperty (backups,_new,confirmpopup,title),
-                                                //"Backup created",
-                                                b);
-*/
-                } catch (Exception e)
+                    //viewer.getPopupById (pid).close ();
+
+                },
+                // onError
+                e ->
                 {
 
-                    Environment.logError ("Unable to create backup of project: " +
-                                          proj,
-                                          e);
+                    UIUtils.runLater (() ->
+                    {
 
-                    ComponentUtils.showErrorMessage (viewer,
-                                                     getUILanguageStringProperty (backups,_new,actionerror));
-                                              //"Unable to create backup.");
+                        Environment.logError ("Unable to create backup of project: " +
+                                              proj,
+                                              e);
 
-                }
+                        ComponentUtils.showErrorMessage (viewer,
+                                                         getUILanguageStringProperty (backups,_new,actionerror));
+                                                  //"Unable to create backup.");
+
+                    });
+
+                },
+                viewer);
 
             })
             .build ();
@@ -1018,25 +1027,159 @@ TODO Remove
 */
     }
 
-    public static Path createBackupForProject (Project p,
-                                               boolean noPrune)
-                                        throws Exception
+    public static void createBackupForProject (Project             p,
+                                               boolean             noPrune,
+                                               Consumer<Path>      onComplete,
+                                               Consumer<Exception> onError,
+                                               AbstractViewer      inViewer)
     {
 
-        return BackupsManager.createBackupForProject (Environment.getProjectInfo (p),
-                                                      noPrune);
+        BackupsManager.createBackupForProject (Environment.getProjectInfo (p),
+                                               noPrune,
+                                               onComplete,
+                                               onError,
+                                               inViewer);
 
     }
 
-    public static Path createBackupForProject (ProjectInfo p,
-                                               boolean     noPrune)
-                                        throws Exception
+    public static void createBackupForProject (ProjectInfo         p,
+                                               boolean             noPrune,
+                                               Consumer<Path>      onComplete,
+                                               Consumer<Exception> onError,
+                                               AbstractViewer      inViewer)
     {
 
-        boolean closePool = false;
+        UIUtils.askForPasswordForProject (p,
+                                          null,
+                                          password ->
+                                          {
 
-        AbstractProjectViewer pv = Environment.getProjectViewer (p);
+                                              boolean closePool = false;
 
+                                              p.setFilePassword (password);
+
+                                              AbstractProjectViewer pv = Environment.getProjectViewer (p);
+
+                                              ObjectManager om = null;
+                                              Project proj = null;
+
+                                              if (pv != null)
+                                              {
+
+                                                  // Load up the chapters.
+                                                  om = pv.getObjectManager ();
+
+                                                  proj = pv.getProject ();
+
+                                              } else {
+
+                                                  Path bp = p.getBackupDirPath ();
+
+                                                  if ((p.isEncrypted ())
+                                                      &&
+                                                      (p.getFilePassword () == null)
+                                                     )
+                                                  {
+
+                                                      if (onError != null)
+                                                      {
+
+                                                          onError.accept (new IllegalArgumentException ("The file password must be specified for encrypted projects when the project is not already open."));
+
+                                                      }
+
+                                                      return;
+
+                                                  }
+                                      //if encrypted and not open then just copy the file over?
+                                      //Can I do that for any project?
+                                                  // Open the project.
+                                                  try
+                                                  {
+
+                                                      om = Environment.getProjectObjectManager (p,
+                                                                                                p.getFilePassword ());
+
+                                                      proj = om.getProject ();
+
+                                                  } catch (Exception e) {
+
+                                                      // Can't open the project.
+                                                      if (om != null)
+                                                      {
+
+                                                          om.closeConnectionPool ();
+
+                                                      }
+
+                                                      if (onError != null)
+                                                      {
+
+                                                          onError.accept (e);
+
+                                                      }
+
+                                                      return;
+
+                                                  }
+
+                                                  proj.setBackupDirectory (p.getBackupDirPath ().toFile ());
+
+                                                  closePool = true;
+
+                                              }
+
+                                              int count = proj.getBackupsToKeepCount ();
+
+                                              try
+                                              {
+
+                                                  Path f = om.createBackup (proj,
+                                                                            (noPrune ? -1 : count));
+
+                                                  p.addBackupPath (f);
+
+                                                  Environment.fireUserProjectEvent (proj,
+                                                                                    ProjectEvent.Type.backups,
+                                                                                    ProjectEvent.Action._new,
+                                                                                    proj);
+
+                                                  if (onComplete != null)
+                                                  {
+
+                                                      onComplete.accept (f);
+
+                                                  }
+
+                                              } catch (Exception e) {
+
+                                                  if (onError != null)
+                                                  {
+
+                                                      onError.accept (e);
+
+                                                  }
+
+                                              } finally {
+
+                                                  if (closePool)
+                                                  {
+
+                                                      if (om != null)
+                                                      {
+
+                                                          om.closeConnectionPool ();
+
+                                                      }
+
+                                                  }
+
+                                              }
+
+                                          },
+                                          null, // onCancel
+                                          inViewer);
+/*
         ObjectManager om = null;
         Project proj = null;
 
@@ -1050,6 +1193,9 @@ TODO Remove
 
         } else {
 
+            // Project isn't open, just create a zip file of the current project db.
+            Path bp = p.getBackupDirPath ();
+
             if ((p.isEncrypted ())
                 &&
                 (p.getFilePassword () == null)
@@ -1059,7 +1205,8 @@ TODO Remove
                 throw new IllegalArgumentException ("The file password must be specified for encrypted projects when the project is not already open.");
 
             }
-
+//if encrypted and not open then just copy the file over?
+//Can I do that for any project?
             // Open the project.
             try
             {
@@ -1104,7 +1251,12 @@ TODO Remove
                                               ProjectEvent.Action._new,
                                               proj);
 
-            return f;
+            if (onComplete != null)
+            {
+
+                onComplete.accept (f);
+
+            }
 
         } finally {
 
@@ -1121,7 +1273,7 @@ TODO Remove
             }
 
         }
-
+*/
     }
 
 }

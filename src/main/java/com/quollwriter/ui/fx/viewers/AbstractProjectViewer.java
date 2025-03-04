@@ -2872,48 +2872,74 @@ TODO Remove?
 					{
 
                         BackupsManager.createBackupForProject (proj,
-                                                               false);
+                                                               false,
+                                                               p ->
+                                                               {
 
-						UIUtils.runLater (() ->
-						{
+                                            						UIUtils.runLater (() ->
+                                            						{
 
-							try
-							{
+                                            							try
+                                            							{
 
-								_this.addNotification (getUILanguageStringProperty (Arrays.asList (backups,autobackupnotification),
-                                                                                    //"An automatic backup has been created.  <a href='%s:%s'>Click to view the backups.</a>",
-                                                                                    Constants.ACTION_PROTOCOL,
-                                                                                    Constants.BACKUPS_HTML_PANEL_ACTION),
-													  StyleClassNames.INFORMATION,
-													  30);
+                                            								_this.addNotification (getUILanguageStringProperty (Arrays.asList (backups,autobackupnotification),
+                                                                                                                                //"An automatic backup has been created.  <a href='%s:%s'>Click to view the backups.</a>",
+                                                                                                                                Constants.ACTION_PROTOCOL,
+                                                                                                                                Constants.BACKUPS_HTML_PANEL_ACTION),
+                                            													  StyleClassNames.INFORMATION,
+                                            													  30);
 
-							} catch (Exception e) {
+                                            							} catch (Exception e) {
 
-								// Sigh...
+                                            								// Sigh...
 
-							}
+                                            							}
 
-						});
+                                            						});
 
-					}
+                                                               },
+                                                               e ->
+                                                               {
 
-				}
+                                                                   UIUtils.runLater (() ->
+                                                                   {
 
-			} catch (Exception e) {
+                                                                       if (_this.project == null)
+                                                           				{
 
-				if (_this.project == null)
-				{
+                                                           					// Means we have shutdown.
+                                                           					return;
 
-					// Means we have shutdown.
-					return;
+                                                           				}
 
-				}
+                                                           				Environment.logError ("Unable to create backup for project: " +
+                                                           									  _this.project,
+                                                           									  e);
 
-				Environment.logError ("Unable to create backup for project: " +
-									  _this.project,
-									  e);
+                                                                    });
 
-			}
+                                                               },
+                                                               this);
+
+                    }
+
+                }
+
+            } catch (Exception e) {
+
+                if (_this.project == null)
+                 {
+
+                     // Means we have shutdown.
+                     return;
+
+                 }
+
+                 Environment.logError ("Unable to create backup for project: " +
+                                       _this.project,
+                                       e);
+
+            }
 
 		},
 		// Start straight away.
