@@ -157,43 +157,29 @@ public class IconBox extends HBox
         BackgroundImage bim = new BackgroundImage (im,
                                                   BackgroundRepeat.NO_REPEAT,
                                                   BackgroundRepeat.NO_REPEAT,
-                                                  null,
-                                                  null);
-                                                  /*
-                                                  new BackgroundSize (BackgroundSize.AUTO,
-                                                                      BackgroundSize.AUTO,
-                                                                      false,
-                                                                      false,
-                                                                      false, //true,
-                                                                      true ));*/
-                                                  //BackgroundPosition.DEFAULT,
-                                                  //new BackgroundSize (100, 100, true, true, true, false));
-/*
+                                                  BackgroundPosition.DEFAULT,
+                                                  new BackgroundSize (BackgroundSize.AUTO, BackgroundSize.AUTO, true, true, false, true));
+
         this.pane.setBackground (new Background (bim));
-        UIUtils.forceRunLater (() ->
-        {
-            UIUtils.printCSSProperties (this.pane);
-            System.out.println ("EXCEP: " + bim.getImage ().isError ());
-            System.out.println ("WIDTH: " + bim.getImage ().getRequestedHeight ());
-        });
         this.pane.setPrefHeight (im.getHeight ());
         this.pane.setPrefWidth (im.getWidth ());
-        this.pane.prefWidthProperty ().bind (this.widthProperty ());
-        this.pane.prefHeightProperty ().bind (this.heightProperty ());
-*/
+        //this.pane.prefWidthProperty ().bind (this.widthProperty ());
+        //this.pane.prefHeightProperty ().bind (this.heightProperty ());
+
 
         //OLD THIS WORKED!
+        /*
         ImageView iv = new ImageView ();
         iv.setImage (im);
         iv.setPreserveRatio (true);
         iv.setSmooth (true);
         iv.setCache (true);
-
+*/
         this.pane.pseudoClassStateChanged (StyleClassNames.IMAGE_PSEUDO_CLASS, true);
         //iv.fitWidthProperty ().bind (this.widthProperty ());
         //this.pane.prefWidthProperty ().bind (iv.fitWidthProperty ());
         //this.pane.prefHeightProperty ().bind (iv.fitHeightProperty ());
-        this.pane.getChildren ().add (iv);
+        //this.pane.getChildren ().add (iv);
 
 
         if (this.onImagePresent != null)
