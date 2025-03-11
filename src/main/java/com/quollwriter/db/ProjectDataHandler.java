@@ -109,10 +109,6 @@ public class ProjectDataHandler implements DataHandler<Project, NamedObject>
                                                conn,
                                                loadChildObjects);
 
-                 // Need to do this for existing projects.
-                 this.initUserConfigurableObjectTypes (conn,
-                                                       p);
-
                 // Get the tags.
                 p.setTags ((List<Tag>) this.objectManager.getObjects (Tag.class,
                                                                       p,
@@ -169,6 +165,10 @@ public class ProjectDataHandler implements DataHandler<Project, NamedObject>
 
                 }
   */
+
+                 // Need to do this for existing projects.
+                 this.initUserConfigurableObjectTypes (conn,
+                                                       p);
 
                 this.objectManager.getObjects (Book.class,
                                                p,
@@ -813,113 +813,212 @@ public class ProjectDataHandler implements DataHandler<Project, NamedObject>
         for (UserConfigurableObjectType t : objTypes)
         {
 
-            if (tkmappings.containsKey (t.getKey () + ""))
+            Number ntk = tkmappings.get (t.getKey () + "");
+
+            UserConfigurableObjectType nt = null;
+
+            if (ntk != null)
             {
 
-                continue;
+                nt = project.getUserConfigurableObjectType (ntk.longValue ());
 
             }
 
-            UserConfigurableObjectType nt = new UserConfigurableObjectType (project);
-            nt.setName (t.getName ());
-            nt.setDescription (t.getDescription ());
-            nt.setObjectTypeName (t.getObjectTypeName ());
-            nt.setObjectTypeNamePlural (t.getObjectTypeNamePlural ());
-            nt.setIcon16x16 (t.getIcon16x16 ());
-            nt.setIcon24x24 (t.getIcon24x24 ());
-            nt.setLayout (t.getLayout ());
-            nt.setUserObjectType (t.getUserObjectType ());
-            nt.setAssetObjectType (t.isAssetObjectType ());
-            nt.setCreateShortcutKeyStroke (t.getCreateShortcutKeyStroke ());
-            nt.setIgnoreFieldsState (true);
-
-            // Create the new type.
-            this.objectManager.saveObject (nt,
-                                           conn);
-
-            project.addUserConfigurableObjectType (nt);
-
-            tmappings.put (t,
-                           nt);
-
-            UserConfigurableObjectTypeField oldnamefield = t.getPrimaryNameField ();
-            if (oldnamefield != null)
+            // Do we have a mapping for the type? i.e. has it already been added to the project?
+            if (nt == null)
             {
 
-                // Add the primary name field.
-                ObjectNameUserConfigurableObjectTypeField newnamefield = (ObjectNameUserConfigurableObjectTypeField) UserConfigurableObjectTypeField.Type.getNewFieldForType (UserConfigurableObjectTypeField.Type.objectname);
+                nt = new UserConfigurableObjectType (project);
+                nt.setName (t.getName ());
+                nt.setDescription (t.getDescription ());
+                nt.setObjectTypeName (t.getObjectTypeName ());
+                nt.setObjectTypeNamePlural (t.getObjectTypeNamePlural ());
+                nt.setIcon16x16 (t.getIcon16x16 ());
+                nt.setIcon24x24 (t.getIcon24x24 ());
+                nt.setLayout (t.getLayout ());
+                nt.setUserObjectType (t.getUserObjectType ());
+                nt.setAssetObjectType (t.isAssetObjectType ());
+                nt.setCreateShortcutKeyStroke (t.getCreateShortcutKeyStroke ());
+                nt.setIgnoreFieldsState (true);
 
-                newnamefield.setFormName (oldnamefield.getFormName ());
-                newnamefield.setUserConfigurableObjectType (nt);
-
-                Map<String, Object> ndefs = new HashMap<> ();
-                ndefs.putAll (oldnamefield.getDefinition ());
-                newnamefield.setDefinition (ndefs);
-
-                this.objectManager.saveObject (newnamefield,
+                // Create the new type.
+                this.objectManager.saveObject (nt,
                                                conn);
 
-                nt.setPrimaryNameField (newnamefield);
+                project.addUserConfigurableObjectType (nt);
 
-                fmappings.put (oldnamefield,
-                               newnamefield);
-
-            }
-
-            // Get the fields and create them.
-            for (UserConfigurableObjectType.FieldsColumn fc : t.getSortableFieldsColumns ())
-            {
-
-                List<UserConfigurableObjectTypeField> nfcfields = new ArrayList<> ();
-
-                // Clone/create fields.
-                for (UserConfigurableObjectTypeField fft : fc.fields ())
+                UserConfigurableObjectTypeField oldnamefield = t.getPrimaryNameField ();
+                if (oldnamefield != null)
                 {
 
-                    // Get the field.
-                    UserConfigurableObjectTypeField nft = fmappings.get (fft);
+                    // Add the primary name field.
+                    ObjectNameUserConfigurableObjectTypeField newnamefield = (ObjectNameUserConfigurableObjectTypeField) UserConfigurableObjectTypeField.Type.getNewFieldForType (UserConfigurableObjectTypeField.Type.objectname);
 
-                    if (nft == null)
+                    newnamefield.setFormName (oldnamefield.getFormName ());
+                    newnamefield.setUserConfigurableObjectType (nt);
+
+                    Map<String, Object> ndefs = new HashMap<> ();
+                    ndefs.putAll (oldnamefield.getDefinition ());
+                    newnamefield.setDefinition (ndefs);
+
+                    this.objectManager.saveObject (newnamefield,
+                                                   conn);
+
+                    nt.setPrimaryNameField (newnamefield);
+
+                    fmappings.put (oldnamefield,
+                                   newnamefield);
+
+                }
+
+                // Get the fields and create them.
+                for (UserConfigurableObjectType.FieldsColumn fc : t.getSortableFieldsColumns ())
+                {
+
+                    List<UserConfigurableObjectTypeField> nfcfields = new ArrayList<> ();
+
+                    // Clone/create fields.
+                    for (UserConfigurableObjectTypeField fft : fc.fields ())
                     {
 
-                        // Create the field.
-                        nft = UserConfigurableObjectTypeField.Type.getNewFieldForType (fft.getType ());
+                        // Get the field.
+                        UserConfigurableObjectTypeField nft = fmappings.get (fft);
 
-                        nft.setFormName (fft.getFormName ());
-                        nft.setUserConfigurableObjectType (nt);
+                        if (nft == null)
+                        {
 
-                        Map<String, Object> defs = new HashMap<> ();
-                        defs.putAll (fft.getDefinition ());
-                        nft.setDefinition (defs);
-                        nft.setDefaultValue (fft.getDefaultValue ());
+                            // Create the field.
+                            nft = UserConfigurableObjectTypeField.Type.getNewFieldForType (fft.getType ());
 
-                        nft.setOrder (fft.getOrder ());
+                            nft.setFormName (fft.getFormName ());
+                            nft.setUserConfigurableObjectType (nt);
 
-                        this.objectManager.saveObject (nft,
-                                                       conn);
+                            Map<String, Object> defs = new HashMap<> ();
+                            defs.putAll (fft.getDefinition ());
+                            nft.setDefinition (defs);
+                            nft.setDefaultValue (fft.getDefaultValue ());
+
+                            nft.setOrder (fft.getOrder ());
+
+                            this.objectManager.saveObject (nft,
+                                                           conn);
+
+                            nfcfields.add (nft);
+
+                        }
 
                         fmappings.put (fft,
                                        nft);
 
                     }
 
-                    nfcfields.add (nft);
+                    UserConfigurableObjectType.FieldsColumn nfc = nt.addNewColumn (nfcfields);
+                    nfc.setTitle (fc.getTitle ());
+                    nfc.setShowFieldLabels (fc.isShowFieldLabels ());
 
                 }
 
-                UserConfigurableObjectType.FieldsColumn nfc = nt.addNewColumn (nfcfields);
-                nfc.setTitle (fc.getTitle ());
-                nfc.setShowFieldLabels (fc.isShowFieldLabels ());
+                nt.setIgnoreFieldsState (false);
+                nt.updateSortableFieldsState ();
+
+                // Save the type again.
+                this.objectManager.saveObject (nt,
+                                               conn);
 
             }
 
-            nt.setIgnoreFieldsState (false);
-            nt.updateSortableFieldsState ();
+            tmappings.put (t,
+                           nt);
 
-            // Save the type again.
-            this.objectManager.saveObject (nt,
-                                           conn);
 
+        }
+
+        if (!project.getPropertyAsBoolean ("userConfigObjTypesEnvToProjKeyMappingUpdated"))
+        {
+
+            String v = project.getProperty ("userConfigObjTypesEnvToProjKeyMap");
+
+            if (v != null)
+            {
+
+                Map<String, String> mappings2 = (Map<String, String>) JSONDecoder.decode (v);
+
+                for (String etk : mappings2.keySet ())
+                {
+
+                    List params = new ArrayList ();
+                    params.add (mappings2.get (etk));
+                    params.add (etk);
+                    this.objectManager.executeStatement ("UPDATE namedobject SET userobjecttypedbkey = ? WHERE userobjecttypedbkey = ?",
+                                                         params,
+                                                         conn);
+
+                }
+
+                project.setProperty ("userConfigObjTypesEnvToProjKeyMappingUpdated",
+                                     true);
+
+            }
+
+        }
+
+        for (UserConfigurableObjectType envType : tmappings.keySet ())
+        {
+
+
+            List params = new ArrayList ();
+            params.add (tmappings.get (envType).getKey ());
+            params.add (envType.getKey ());
+            this.objectManager.executeStatement ("UPDATE namedobject SET userobjecttypedbkey = ? WHERE userobjecttypedbkey = ?",
+                                                 params,
+                                                 conn);
+
+        }
+
+        if (!project.getPropertyAsBoolean ("userConfigObjTypeFieldsEnvToProjKeyMappingUpdated"))
+        {
+
+            String v = project.getProperty ("userConfigObjTypeFieldsEnvToProjKeyMap");
+
+            if (v != null)
+            {
+
+                Map<String, String> efmappings = (Map<String, String>) JSONDecoder.decode (v);
+
+                for (String ef : efmappings.keySet ())
+                {
+
+                    List params = new ArrayList ();
+                    params.add (efmappings.get (ef));
+                    params.add (Long.valueOf (ef));
+
+                    this.objectManager.executeStatement ("UPDATE userobjectfield SET userobjecttypefielddbkey = ? WHERE userobjecttypefielddbkey = ?",
+                                                         params,
+                                                         conn);
+
+                }
+
+                project.setProperty ("userConfigObjTypeFieldsEnvToProjKeyMappingUpdated",
+                                     true);
+
+            }
+
+        }
+
+        for (UserConfigurableObjectTypeField envField : fmappings.keySet ())
+        {
+
+
+            List params = new ArrayList ();
+            params.add (fmappings.get (envField).getKey ());
+            params.add (envField.getKey ());
+            this.objectManager.executeStatement ("UPDATE userobjectfield SET userobjecttypefielddbkey = ? WHERE userobjecttypefielddbkey = ?",
+                                                 params,
+                                                 conn);
+
+        }
+
+/*
             Set<Asset> assets = project.getAssets (t);
 
             if (assets != null)
@@ -927,7 +1026,7 @@ public class ProjectDataHandler implements DataHandler<Project, NamedObject>
 
                 for (Asset a : assets)
                 {
-
+System.out.println ("GOT ASSET: " + a.getKey ());
                     // Set the type.
                     UserConfigurableObjectType at = a.getUserConfigurableObjectType ();
 
@@ -940,12 +1039,15 @@ public class ProjectDataHandler implements DataHandler<Project, NamedObject>
 
                         // Get our new field.
                         UserConfigurableObjectTypeField nf = fmappings.get (tf);
-
+System.out.println ("FIELD: " + tf.getKey () + ", " + nf.getKey ());
                         // Update the field.
                         if (nf != null)
                         {
-
+System.out.println ("NF: " + nf.getKey ());
                             f.setUserConfigurableObjectTypeField (nf);
+
+                            this.objectManager.saveObject (f,
+                                                           conn);
 
                         }
 
@@ -963,7 +1065,7 @@ public class ProjectDataHandler implements DataHandler<Project, NamedObject>
             }
 
         }
-
+*/
         // Map the type keys
         //Map<Long, Long> tkmappings = new HashMap<> ();
 
