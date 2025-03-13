@@ -2249,7 +2249,13 @@ TODO Remove, rolled into start section
         };
         editTypes.setCellFactory (cellFactory);
         editTypes.setButtonCell (cellFactory.call (null));
-        editTypes.getSelectionModel ().select (types.get (0));
+
+        if (types.size () > 0)
+        {
+
+            editTypes.getSelectionModel ().select (types.get (0));
+
+        }
 
         QuollButton editType = QuollButton.builder ()
             .label (buttons,edit)
