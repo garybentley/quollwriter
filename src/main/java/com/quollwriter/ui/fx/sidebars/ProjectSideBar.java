@@ -1344,7 +1344,7 @@ TODO REmove
         {
 
             int count2 = count;
-            String n = name.getValue ();
+            String n = (name != null ? name.getValue () : "[No Name]");
 
             StringProperty name2 = new SimpleStringProperty ();
             name2.bind (Bindings.createStringBinding (() ->
