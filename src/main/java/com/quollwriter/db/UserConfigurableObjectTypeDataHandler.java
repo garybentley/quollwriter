@@ -65,8 +65,7 @@ public class UserConfigurableObjectTypeDataHandler implements DataHandler<UserCo
             }
 */
             t.setObjectTypeNamePlural (rs.getString (ind++));
-/*
-Not needed, ProjectDataHandler handles this.
+
             if ((t.getObjectTypeNamePlural () != null)
                 &&
                 (t.getObjectTypeNamePlural ().equals ("objectnames.plural.null"))
@@ -98,7 +97,7 @@ Not needed, ProjectDataHandler handles this.
                                                                                                                      t.getUserObjectType ()).getValue ());
 
             }
-*/
+
             /*
             if (t.getUserObjectType ().equals ("chapter"))
             {
