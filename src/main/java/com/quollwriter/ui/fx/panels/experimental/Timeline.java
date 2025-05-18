@@ -1407,7 +1407,7 @@ System.out.println ("DX: " + sd);
         scroller.stop();
       }
     }
-
+https://github.com/dariol83/timeline/blob/main/timeline/LICENSE
     public class TimelinePanel extends JPanel //implements Scrollable
     {
 

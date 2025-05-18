@@ -4,7 +4,7 @@
     ":version" : 1,
     ":id" : ":English",
     ":qwversion.old" : "2.6.14",
-    ":qwversion" : "3.0.3",
+    ":qwversion" : "3.0.5",
     ":created" : 0,
     ":user" : false,
     ":email" : "gary@quollwriter.com",
@@ -6433,6 +6433,17 @@
                     {
                         "title" : "Bug fixes",
                         "text" : "<ul><li>The way that asset types are imported from the project information database has changed.  All types should now be pulled in.</li><li>Fixed a number of minor issues related to internal errors.</li><li>Opening or switching to a ${objectnames.singular.chapter} will now request focus properly.</li><li>Fixed an issue where the ${objectnames.singular.chapter} counts weren't accessible for ${objectnames.plural.warmup}.</li></ul>"
+                    }
+                }
+            },
+            "3.0.5" :
+            {
+                "items" :
+                {
+                    "bugs" :
+                    {
+                        "title" : "Bug fixes",
+                        "text" : "<ul><li>Fixed an issue where <b>objectnames.plural.null</b> was being displayed for the Asset name rather than the actual Asset name.</li></ul>"
                     }
                 }
             }

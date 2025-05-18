@@ -841,6 +841,40 @@ public class ProjectDataHandler implements DataHandler<Project, NamedObject>
                 nt.setCreateShortcutKeyStroke (t.getCreateShortcutKeyStroke ());
                 nt.setIgnoreFieldsState (true);
 
+                if (((nt.getObjectTypeNamePlural () == null)
+                     ||
+                     (nt.getObjectTypeNamePlural ().equals ("objectnames.plural.null"))
+                    )
+                    &&
+                    (nt.getUserObjectType () != null)
+                   )
+                {
+
+                    // See if we can get the type.
+                    // Fix issue with plural being null
+                    nt.setObjectTypeNamePlural (com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty (LanguageStrings.objectnames,
+                                                                                                     LanguageStrings.plural,
+                                                                                                     nt.getUserObjectType ()).getValue ());
+
+                }
+
+                if (((nt.getObjectTypeName () == null)
+                     ||
+                     (nt.getObjectTypeName ().equals ("objectnames.singular.null"))
+                    )
+                    &&
+                    (nt.getUserObjectType () != null)
+                   )
+                {
+
+                    // See if we can get the type.
+                    // Fix issue with plural being null
+                    nt.setObjectTypeName (com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty (LanguageStrings.objectnames,
+                                                                                                                         LanguageStrings.singular,
+                                                                                                                         nt.getUserObjectType ()).getValue ());
+
+                }
+
                 // Create the new type.
                 this.objectManager.saveObject (nt,
                                                conn);

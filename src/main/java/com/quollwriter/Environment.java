@@ -2862,6 +2862,13 @@ System.out.println ("FILEPROPS: " + defUserPropsFile);
                     Object k = iter.next ();
                     Object v = sing.get (k);
 
+                    if (v == null)
+                    {
+
+                        continue;
+
+                    }
+
                     if (v.toString ().contains ("${"))
                     {
 
@@ -2886,6 +2893,13 @@ System.out.println ("FILEPROPS: " + defUserPropsFile);
 
                     Object k = iter.next ();
                     Object v = plur.get (k);
+
+                    if (v == null)
+                    {
+
+                        continue;
+
+                    }
 
                     if (v.toString ().contains ("${"))
                     {

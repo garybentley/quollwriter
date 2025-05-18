@@ -65,6 +65,40 @@ public class UserConfigurableObjectTypeDataHandler implements DataHandler<UserCo
             }
 */
             t.setObjectTypeNamePlural (rs.getString (ind++));
+/*
+Not needed, ProjectDataHandler handles this.
+            if ((t.getObjectTypeNamePlural () != null)
+                &&
+                (t.getObjectTypeNamePlural ().equals ("objectnames.plural.null"))
+                &&
+                (t.getUserObjectType () != null)
+               )
+            {
+
+                // See if we can get the type.
+                // Fix issue with plural being null
+                t.setObjectTypeNamePlural (com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty (LanguageStrings.objectnames,
+                                                                                                 LanguageStrings.plural,
+                                                                                                 t.getUserObjectType ()).getValue ());
+
+            }
+
+            if ((t.getObjectTypeName () != null)
+                &&
+                (t.getObjectTypeName ().equals ("objectnames.singular.null"))
+                &&
+                (t.getUserObjectType () != null)
+               )
+            {
+
+                // See if we can get the type.
+                // Fix issue with plural being null
+                t.setObjectTypeName (com.quollwriter.uistrings.UILanguageStringsManager.getUILanguageStringProperty (LanguageStrings.objectnames,
+                                                                                                                     LanguageStrings.singular,
+                                                                                                                     t.getUserObjectType ()).getValue ());
+
+            }
+*/
             /*
             if (t.getUserObjectType ().equals ("chapter"))
             {
