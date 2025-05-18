@@ -1548,36 +1548,43 @@ public class UIUtils
 
             }
 
+            ValueValidator<String> val = validator;
+
             List<String> prefix = Arrays.asList (project,actions,openproject,enterpasswordpopup);
 
-            QuollPopup.passwordEntryBuilder ()
-                .withViewer (parentViewer)
-                .headerIconClassName (StyleClassNames.ENCRYPTED)
-                .title (getUILanguageStringProperty (Utils.newList (prefix,title)))
-                .description (getUILanguageStringProperty (Utils.newList (prefix,text),
-                                                           proj.nameProperty ()))
-                .validator (validator)
-                .confirmButtonLabel (getUILanguageStringProperty (Utils.newList (prefix,buttons,open)))
-                .onConfirm (ev ->
-                {
+            UIUtils.runLater (() ->
+            {
 
-                    String pwd = ((PasswordField) ev.getForm ().lookup ("#password")).getText ();
-
-                    onProvided.accept (pwd);
-
-                })
-                .onCancel (ev ->
-                {
-
-                    if (onCancel != null)
+                QuollPopup.passwordEntryBuilder ()
+                    .withViewer (parentViewer)
+                    .headerIconClassName (StyleClassNames.ENCRYPTED)
+                    .title (getUILanguageStringProperty (Utils.newList (prefix,title)))
+                    .description (getUILanguageStringProperty (Utils.newList (prefix,text),
+                                                               proj.nameProperty ()))
+                    .validator (val)
+                    .confirmButtonLabel (getUILanguageStringProperty (Utils.newList (prefix,buttons,open)))
+                    .onConfirm (ev ->
                     {
 
-                        onCancel.run ();
+                        String pwd = ((PasswordField) ev.getForm ().lookup ("#password")).getText ();
 
-                    }
+                        onProvided.accept (pwd);
 
-                })
-                .build ();
+                    })
+                    .onCancel (ev ->
+                    {
+
+                        if (onCancel != null)
+                        {
+
+                            onCancel.run ();
+
+                        }
+
+                    })
+                    .build ();
+
+            });
 
         } else {
 
